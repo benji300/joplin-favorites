@@ -1,0 +1,116 @@
+/* GENERAL STYLES */
+html,
+body,
+body > div,
+div#joplin-plugin-content {
+  font-family: var(--joplin-font-family);
+  font-size: var(--joplin-font-size);
+  height: 100%;
+}
+a {
+  text-decoration: none;
+}
+span {
+  cursor: default;
+}
+
+::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+/* HORIZONTAL LAYOUT */
+.container {
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+}
+
+.tabs-container {
+  display: flex;
+  float: left;
+  width: 100%;
+}
+
+.tab {
+  border-style: solid;
+  border-width: 0;
+  border-right-width: 1px;
+  display: flex;
+  padding: 0 8px;
+  text-overflow: ellipsis;
+}
+.new {
+  font-style: italic;
+}
+
+.tab-inner {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.title {
+  overflow: hidden;
+  padding-right: 3px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab .fas {
+  margin-left: auto;
+  margin-right: 0;
+  padding: 2px;
+  visibility: hidden;
+}
+.tab:hover .fas {
+  visibility: visible;
+}
+
+.controls {
+  align-items: center;
+  display: flex;
+  float: right;
+  padding: 0 5px;
+  margin-left: auto;
+  margin-right: 0;
+}
+.controls .fas {
+  align-items: center;
+  display: flex;
+  font-size: 14.4px;
+  height: 26px;
+  justify-content: center;
+  max-width: 26px;
+  min-height: 26px;
+  opacity: 0.8;
+  width: 26px;
+}
+.controls .fas:hover {
+  opacity: 1;
+}
+
+/* VERCTICAL LAYOUT OVERWRITES */
+@media screen and (max-width: 400px) {
+  .container {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .tabs-container {
+    display: block;
+    width: 100%;
+  }
+
+  .tab {
+    border-right-width: 0;
+    border-bottom-width: 1px;
+    max-width: 100% !important;
+  }
+}
