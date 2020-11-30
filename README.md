@@ -1,8 +1,8 @@
-# Joplin Note Tabs
+# Joplin Favorites
 
-Joplin Note Tabs is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
+Joplin Favorites is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
 
-It displays the selected note in a tab panel and allows to pin/unpin notes as tabs.
+TBD
 
 > :warning: **CAUTION** - Requires Joplin **v1.4.16** or newer
 
@@ -23,6 +23,7 @@ It displays the selected note in a tab panel and allows to pin/unpin notes as ta
 
 ## Features
 
+// TODO
 - Display selected note as tab
   - Remember last opened and unpinned note
 - Pin/Unpin selected note to/from the tabs
@@ -36,6 +37,7 @@ It displays the selected note in a tab panel and allows to pin/unpin notes as ta
 
 ## Screenshots
 
+// TODO
 ### Tabs above note content
 
 ![tabs-top-horizontal](./assets/tabs-top-horizontal.png)
@@ -59,6 +61,7 @@ This plugin provides the commands as described in the following chapters.
 - Default keyboard shortcuts can be changed in user options
   - Navigate to `Tools > Options > Keyboard Shortcuts` and search for the command label to be changed
 
+// TODO
 #### Tabs: Pin note (`tabsPinNote`)
 
 | Command Label  | Command ID    | Default Key | Menu           |
@@ -67,41 +70,11 @@ This plugin provides the commands as described in the following chapters.
 
 Pin the selected note to the tabs.
 
-#### Tabs: Unpin note (`tabsUnpinNote`)
-
-| Command Label    | Command ID      | Default Key | Menu           |
-| ---------------- | --------------- | ----------- | -------------- |
-| Tabs: Unpin note | `tabsUnpinNote` | -           | `Tools > Tabs` |
-
-Unpin the selected note from the tabs.
-
-#### Tabs: Move tab left (`tabsMoveLeft`)
-
-| Command Label       | Command ID     | Default Key | Menu           |
-| ------------------- | -------------- | ----------- | -------------- |
-| Tabs: Move tab left | `tabsMoveLeft` | -           | `Tools > Tabs` |
-
-Move pinned and active note tab one position to the left.
-
-#### Tabs: Move tab right (`tabsMoveRight`)
-
-| Command Label        | Command ID      | Default Key | Menu           |
-| -------------------- | --------------- | ----------- | -------------- |
-| Tabs: Move tab right | `tabsMoveRight` | -           | `Tools > Tabs` |
-
-Move pinned and active note tab one position to the right.
-
-#### Tabs: Clear all tabs (`tabsClear`)
-
-| Command Label        | Command ID  | Default Key | Menu           |
-| -------------------- | ----------- | ----------- | -------------- |
-| Tabs: Clear all tabs | `tabsClear` | -           | `Tools > Tabs` |
-
-Clear all pinned tabs.
-
 ### User options
 
-This plugin adds the following user options which can be accessed via `Tools > Options > Note Tabs`.
+This plugin adds the following user options which can be accessed via `Tools > Options > Favorites`.
+
+// TODO
 
 - Automatically unpin completed to-dos:\
   _Select whether completed to-dos shall be automatically unpinned or not_
@@ -116,6 +89,8 @@ This plugin adds the following user options which can be accessed via `Tools > O
   _Specifiy the maximum width of a single tab in pixel_
 
 #### Advanced options
+
+// TODO
 
 > **NOTE** - All settings here must be specified as valid CSS attribute values, e.g. `#ffffff` or `rgb(255,255,255)`. Joplin internal CSS variables can also be specified with "`var(-joplin-background-color)`".
 
@@ -136,7 +111,7 @@ This plugin adds the following user options which can be accessed via `Tools > O
 
 ## Installation
 
-- Download the latest released JPL package (`com.benji300.joplin.tabs.jpl`) from [here](https://github.com/benji300/joplin-note-tabs/releases)
+- Download the latest released JPL package (`com.benji300.joplin.favorites.jpl`) from [here](https://github.com/benji300/joplin-favorites/releases)
 - Open Joplin
 - Navigate to `Tools > Options > Plugins`
 - Click `Install plugin` and select the previously downloaded `jpl` file
@@ -157,9 +132,9 @@ This plugin adds the following user options which can be accessed via `Tools > O
 - :question: Need help?
   - Ask a question on the [Joplin Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752)
 - :bulb: An idea to improve or enhance the plugin?
-  - [Request a new feature](https://github.com/benji300/joplin-note-tabs/issues) or upvote [popular feature requests](https://github.com/benji300/joplin-note-tabs/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc+)
+  - [Request a new feature](https://github.com/benji300/joplin-favorites/issues) or upvote [popular feature requests](https://github.com/benji300/joplin-favorites/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc+)
 - :bug: Found a bug?
-  - File an issue on [GitHub](https://github.com/benji300/joplin-note-tabs/issues)
+  - File an issue on [GitHub](https://github.com/benji300/joplin-favorites/issues)
 
 ## Development
 

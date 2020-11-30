@@ -1,20 +1,20 @@
 {
-  "name": "com.benji300.joplin.tabs",
+  "name": "com.benji300.joplin.favorites",
   "version": "0.1.0",
-  "description": "Displays selected note in a tab panel and allows to pin/unpin notes as tabs.",
+  "description": "TBD",
   "keywords": [
     "joplin",
     "plugin"
   ],
   "author": "Benji300",
   "license": "MIT",
-  "homepage": "https://github.com/benji300/joplin-note-tabs",
+  "homepage": "https://github.com/benji300/joplin-favorites",
   "bugs": {
-    "url": "https://github.com/benji300/joplin-note-tabs/issues"
+    "url": "https://github.com/benji300/joplin-favorites/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/benji300/joplin-note-tabs.git"
+    "url": "git+https://github.com/benji300/joplin-favorites.git"
   },
   "scripts": {
     "dist": "webpack",
@@ -40,7 +40,6 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.1",
-    "copy-to-clipboard": "^3.3.1"
+    "@fortawesome/fontawesome-free": "^5.15.1"
   }
 }

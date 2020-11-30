@@ -2,7 +2,7 @@ import joplin from 'api';
 import { MenuItem, MenuItemLocation } from 'api/types';
 
 // stores the last opened but unpinned note
-var lastOpenedNote: any;
+// var lastOpenedNote: any;
 
 joplin.plugins.register({
 	onStart: async function () {
@@ -24,100 +24,107 @@ joplin.plugins.register({
 			return -1;
 		}
 
-		async function pinNote(noteId: string) {
-			// check if note is not already pinned, otherwise return
-			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-			if (index != -1) return;
+		async function openFavorite(message: any) {
+			alert('openFavorite');
 
-			// check if current note was the last opened note - clear if so
-			if (noteId == lastOpenedNote.id) {
-				lastOpenedNote = null;
+			if (message.type == 'folder') {
+				COMMANDS.execute('openFolder', message.value);
 			}
-
-			// pin handled note
-			pinnedNotes.push({ id: noteId });
-			SETTINGS.setValue('pinnedNotes', pinnedNotes);
-		}
-
-		// Remove note with handled id from pinned notes array
-		async function unpinNote(noteId: string) {
-			// check if note is pinned, otherwise return
-			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-			if (index == -1) return;
-
-			// unpin handled note
-			pinnedNotes.splice(index, 1);
-			SETTINGS.setValue('pinnedNotes', pinnedNotes);
-		}
-
-		// try to get note from data and toggle their todo state
-		async function toggleTodo(noteId: string, checked: any) {
-			try {
-				const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
-				if (note.is_todo && checked) {
-					await DATA.put(['notes', note.id], null, { todo_completed: Date.now() });
-				} else {
-					await DATA.put(['notes', note.id], null, { todo_completed: 0 });
-				}
-			} catch (error) {
-				return;
+			if (message.type == 'note') {
+				COMMANDS.execute('openNote', message.value);
 			}
-			updateTabsPanel();
+			// TODO wie search öffnen?
 		}
+
+		async function editFavorite(message: any) {
+			// TODO
+			// öffnet dialog zum ändern des names und des Wertes 
+			// wertes label entweder als Id oder Query anzeigen
+			alert('editFavorite');
+		}
+
+		async function addFolder(folderId: string) {
+			alert('addFolder');
+
+			// TODO 
+
+			// // check if note is not already pinned, otherwise return
+			// const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+			// const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
+			// if (index != -1) return;
+
+			// // check if current note was the last opened note - clear if so
+			// if (noteId == lastOpenedNote.id) {
+			// 	lastOpenedNote = null;
+			// }
+
+			// // pin handled note
+			// pinnedNotes.push({ id: noteId });
+			// SETTINGS.setValue('pinnedNotes', pinnedNotes);
+		}
+
+		async function addNote(noteId: string) {
+			// TODO
+			alert('addNote');
+		}
+
+		async function addSearch(query: string) {
+			// TODO
+			alert('addSearch');
+		}
+
+		// // Remove note with handled id from pinned notes array
+		// async function unpinNote(noteId: string) {
+		// 	// check if note is pinned, otherwise return
+		// 	const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+		// 	const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
+		// 	if (index == -1) return;
+
+		// 	// unpin handled note
+		// 	pinnedNotes.splice(index, 1);
+		// 	SETTINGS.setValue('pinnedNotes', pinnedNotes);
+		// }
 
 		//#endregion
 
 		//#region REGISTER USER OPTIONS
 
-		await SETTINGS.registerSection('com.benji300.joplin.tabs.settings', {
-			label: 'Note Tabs',
-			iconName: 'fas fa-window-maximize',
+		await SETTINGS.registerSection('com.benji300.joplin.favorites.settings', {
+			label: 'Favorites',
+			iconName: 'fas fa-star',
 		});
 
 		// [
 		//   {
-		//     "id": "note id"
+		//     "type": "folder | note | search"
+		//     "title": "user defined name"
+		//     "value": "folder id | note id | search query"
 		//   }
 		// ]
-		await SETTINGS.registerSetting('pinnedNotes', {
+		await SETTINGS.registerSetting('favorites', {
 			value: [],
 			type: 4,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: false,
-			label: 'Pinned Notes',
-			description: 'List of pinned notes.'
+			label: 'Favorites'
 		});
 
 		// General settings
-		await SETTINGS.registerSetting('unpinCompletedTodos', {
-			value: false,
-			type: 3,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			label: 'Automatically unpin completed to-dos'
-		});
-		await SETTINGS.registerSetting('tabHeight', {
+		await SETTINGS.registerSetting('lineHeight', {
 			value: "40",
 			type: 1,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
-			label: 'Note Tabs height (px)'
+			label: 'Favorites line height (px)',
+			description: 'Line height of the favorites panel.'
 		});
-		await SETTINGS.registerSetting('minTabWidth', {
-			value: "50",
-			type: 1,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			label: 'Minimum Tab width (px)'
-		});
-		await SETTINGS.registerSetting('maxTabWidth', {
+		await SETTINGS.registerSetting('maxEntryWidth', {
 			value: "150",
 			type: 1,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
-			label: 'Maximum Tab width (px)'
+			label: 'Maximum entry width (px)',
+			description: 'Maximum of one favorite entry in pixel.'
 		});
 
 		// Advanced styles
@@ -129,14 +136,6 @@ joplin.plugins.register({
 			advanced: true,
 			label: 'Background color'
 		});
-		await SETTINGS.registerSetting('activeBackground', {
-			value: "var(--joplin-background-color)",
-			type: 2,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			advanced: true,
-			label: 'Active background color'
-		});
 		await SETTINGS.registerSetting('mainForeground', {
 			value: "var(--joplin-color-faded)",
 			type: 2,
@@ -145,123 +144,109 @@ joplin.plugins.register({
 			advanced: true,
 			label: 'Foreground color'
 		});
-		await SETTINGS.registerSetting('activeForeground', {
-			value: "var(--joplin-color)",
-			type: 2,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			advanced: true,
-			label: 'Active foreground color'
-		});
-		await SETTINGS.registerSetting('dividerColor', {
-			value: "var(--joplin-background-color)",
-			type: 2,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			advanced: true,
-			label: 'Divider color'
-		});
 
 		//#endregion
 
 		//#region REGISTER COMMANDS
 
-		// Command: tabsPinNote
-		// Desc: Pin the selected note to the tabs
 		await COMMANDS.register({
-			name: 'tabsPinNote',
-			label: 'Tabs: Pin note',
-			iconName: 'fas fa-thumbtack',
-			enabledCondition: "oneNoteSelected",
+			name: 'favsAddFolder',
+			label: 'Favorites: Add current notebook',
+			iconName: 'fas fa-folder-plus',
+			enabledCondition: "oneNoteSelected", // TODO condition?
 			execute: async () => {
-				// get the selected note and exit if none is currently selected
-				const selectedNote: any = await WORKSPACE.selectedNote();
-				if (!selectedNote) return;
+				try {
+					// TODO 
+					// get the selected note and exit if none is currently selected
+					const selectedNote: any = await WORKSPACE.selectedNote();
+					if (!selectedNote) return;
 
-				// pin selected note and update panel
-				pinNote(selectedNote.id);
-				updateTabsPanel();
+					// add parent folder of selected note and update panel
+					addFolder(selectedNote.parent_id);
+					updatePanel();
+				}
+				catch (e) {
+					alert('Something went wrong... cannot add current notebook to favorites.');
+				}
 			}
 		});
 
-		// Command: tabsUnpinNote
-		// Desc: Unpin the selected note from the tabs
+		// // Command: tabsUnpinNote
+		// // Desc: Unpin the selected note from the tabs
+		// await COMMANDS.register({
+		// 	name: 'tabsUnpinNote',
+		// 	label: 'Tabs: Unpin note',
+		// 	iconName: 'fas fa-times',
+		// 	enabledCondition: "oneNoteSelected",
+		// 	execute: async () => {
+		// 		// get the selected note and exit if none is currently selected
+		// 		const selectedNote: any = await WORKSPACE.selectedNote();
+		// 		if (!selectedNote) return;
+
+		// 		// unpin selected note and update panel
+		// 		unpinNote(selectedNote.id);
+		// 		updatePanelHtml();
+		// 	}
+		// });
+
+		// // Command: tabsMoveLeft
+		// // Desc: Move active (unpinned) tab to left
+		// await COMMANDS.register({
+		// 	name: 'tabsMoveLeft',
+		// 	label: 'Tabs: Move tab left',
+		// 	iconName: 'fas fa-chevron-left',
+		// 	enabledCondition: "oneNoteSelected",
+		// 	execute: async () => {
+		// 		const selectedNote: any = await joplin.workspace.selectedNote();
+		// 		if (!selectedNote) return;
+
+		// 		// check if note is pinned and not already first, otherwise exit
+		// 		const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+		// 		const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+		// 		if (index == -1) return;
+		// 		if (index == 0) return;
+
+		// 		// change position of tab and update panel
+		// 		pinnedNotes.splice(index, 1);
+		// 		pinnedNotes.splice(index - 1, 0, selectedNote);
+		// 		SETTINGS.setValue('pinnedNotes', pinnedNotes);
+		// 		updatePanelHtml();
+		// 	}
+		// });
+
+		// // Command: tabsMoveRight
+		// // Desc: Move active (unpinned) tab to right
+		// await COMMANDS.register({
+		// 	name: 'tabsMoveRight',
+		// 	label: 'Tabs: Move tab right',
+		// 	iconName: 'fas fa-chevron-right',
+		// 	enabledCondition: "oneNoteSelected",
+		// 	execute: async () => {
+		// 		const selectedNote: any = await joplin.workspace.selectedNote();
+		// 		if (!selectedNote) return;
+
+		// 		// check if note is pinned and not already first, otherwise exit
+		// 		const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+		// 		const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+		// 		if (index == -1) return;
+		// 		if (index == pinnedNotes.length - 1) return;
+
+		// 		// change position of tab and update panel
+		// 		pinnedNotes.splice(index, 1);
+		// 		pinnedNotes.splice(index + 1, 0, selectedNote);
+		// 		SETTINGS.setValue('pinnedNotes', pinnedNotes);
+		// 		updateTabsPanel();
+		// 	}
+		// });
+
 		await COMMANDS.register({
-			name: 'tabsUnpinNote',
-			label: 'Tabs: Unpin note',
+			name: 'favsClear',
+			label: 'Favorites: Clear all favorites',
 			iconName: 'fas fa-times',
-			enabledCondition: "oneNoteSelected",
 			execute: async () => {
-				// get the selected note and exit if none is currently selected
-				const selectedNote: any = await WORKSPACE.selectedNote();
-				if (!selectedNote) return;
-
-				// unpin selected note and update panel
-				unpinNote(selectedNote.id);
-				updateTabsPanel();
-			}
-		});
-
-		// Command: tabsMoveLeft
-		// Desc: Move active (unpinned) tab to left
-		await COMMANDS.register({
-			name: 'tabsMoveLeft',
-			label: 'Tabs: Move tab left',
-			iconName: 'fas fa-chevron-left',
-			enabledCondition: "oneNoteSelected",
-			execute: async () => {
-				const selectedNote: any = await joplin.workspace.selectedNote();
-				if (!selectedNote) return;
-
-				// check if note is pinned and not already first, otherwise exit
-				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
-				if (index == -1) return;
-				if (index == 0) return;
-
-				// change position of tab and update panel
-				pinnedNotes.splice(index, 1);
-				pinnedNotes.splice(index - 1, 0, selectedNote);
-				SETTINGS.setValue('pinnedNotes', pinnedNotes);
-				updateTabsPanel();
-			}
-		});
-
-		// Command: tabsMoveRight
-		// Desc: Move active (unpinned) tab to right
-		await COMMANDS.register({
-			name: 'tabsMoveRight',
-			label: 'Tabs: Move tab right',
-			iconName: 'fas fa-chevron-right',
-			enabledCondition: "oneNoteSelected",
-			execute: async () => {
-				const selectedNote: any = await joplin.workspace.selectedNote();
-				if (!selectedNote) return;
-
-				// check if note is pinned and not already first, otherwise exit
-				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
-				if (index == -1) return;
-				if (index == pinnedNotes.length - 1) return;
-
-				// change position of tab and update panel
-				pinnedNotes.splice(index, 1);
-				pinnedNotes.splice(index + 1, 0, selectedNote);
-				SETTINGS.setValue('pinnedNotes', pinnedNotes);
-				updateTabsPanel();
-			}
-		});
-
-		// Command: tabsClear
-		// Desc: Clear all pinned tabs
-		await COMMANDS.register({
-			name: 'tabsClear',
-			label: 'Tabs: Clear all tabs',
-			iconName: 'fas fa-times',
-			execute: async () => {
-				const pinnedNotes: any = [];
-				SETTINGS.setValue('pinnedNotes', pinnedNotes);
-				updateTabsPanel();
+				const favorites: any = [];
+				SETTINGS.setValue('favorites', favorites);
+				updatePanel();
 			}
 		});
 
@@ -270,66 +255,63 @@ joplin.plugins.register({
 		//#region SETUP PANEL
 
 		// prepare panel object
-		const panel = await PANELS.create("com.benji300.joplin.tabs.panel");
+		const panel = await PANELS.create("com.benji300.joplin.favorites.panel");
 		await PANELS.addScript(panel, './fontawesome/css/all.min.css');
 		await PANELS.addScript(panel, './webview.css');
 		await PANELS.addScript(panel, './webview.js');
 		PANELS.onMessage(panel, (message: any) => {
-			if (message.name === 'tabsOpen') {
-				COMMANDS.execute('openNote', message.id);
+			if (message.name === 'openFavorite') {
+				openFavorite(message);
 			}
-			if (message.name === 'tabsPinNote') {
-				pinNote(message.id);
-				updateTabsPanel();
+			if (message.name === 'editFavorite') {
+				editFavorite(message);
+				updatePanel();
 			}
-			if (message.name === 'tabsUnpinNote') {
-				unpinNote(message.id);
-				updateTabsPanel();
+			if (message.name === 'favsAddFolder') {
+				COMMANDS.execute('favsAddFolder');
 			}
-			if (message.name === 'tabsToggleTodo') {
-				toggleTodo(message.id, message.checked);
-				updateTabsPanel();
+			if (message.name === 'favsAddNote') {
+				COMMANDS.execute('favsAddNote');
 			}
-			if (message.name === 'tabsMoveLeft') {
-				COMMANDS.execute('tabsMoveLeft');
-			}
-			if (message.name === 'tabsMoveRight') {
-				COMMANDS.execute('tabsMoveRight');
-			}
+			// TODO
+			// if (message.name === 'tabsUnpinNote') {
+			// 	unpinNote(message.id);
+			// 	updateTabsPanel();
+			// }
+			// if (message.name === 'tabsToggleTodo') {
+			// 	toggleTodo(message.id, message.checked);
+			// 	updateTabsPanel();
+			// }
+			// if (message.name === 'tabsMoveLeft') {
+			// 	COMMANDS.execute('tabsMoveLeft');
+			// }
+			// if (message.name === 'tabsMoveRight') {
+			// 	COMMANDS.execute('tabsMoveRight');
+			// }
 		});
 
-		// prepare tab HTML
-		async function prepareTabHtml(note: any, selectedNote: any, pinned: boolean): Promise<string> {
+		// prepare single favorite HTML
+		// TODO nur favorite benötigt
+		async function prepareFavHtml(favorite: any): Promise<string> {
 			// get style values from settings
-			const height: number = await SETTINGS.value('tabHeight');
-			const minWidth: number = await SETTINGS.value('minTabWidth');
-			const maxWidth: number = await SETTINGS.value('maxTabWidth');
+			const height: number = await SETTINGS.value('lineHeight');
+			const maxWidth: number = await SETTINGS.value('maxEntryWidth');
 			const mainBg: string = await SETTINGS.value('mainBackground');
 			const mainFg: string = await SETTINGS.value('mainForeground');
-			const activeBg: string = await SETTINGS.value('activeBackground');
-			const activeFg: string = await SETTINGS.value('activeForeground');
-			const dividerColor: string = await SETTINGS.value('dividerColor');
 
 			// prepare style attributes
-			const background: string = (note.id == selectedNote.id) ? activeBg : mainBg;
-			const foreground: string = (note.id == selectedNote.id) ? activeFg : mainFg;
-			const activeTab: string = (note.id == selectedNote.id) ? " active" : "";
-			const newTab: string = (pinned) ? "" : " new";
-			const icon: string = (pinned) ? "fa-times" : "fa-thumbtack";
-			const iconTitle: string = (pinned) ? "Unpin" : "Pin";
 
-			const checkbox: string = (note.is_todo) ? `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">` : '';
-			const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
-
+			// TODO bei hover werden beide icons angezeigt (sonst disabled)
 			const html = `
-				<div role="tab" class="tab${activeTab}${newTab}"
-					style="height:${height}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
-					<div class="tab-inner" data-id="${note.id}">
-						${checkbox}
-						<span class="title" data-id="${note.id}" style="color:${foreground};text-decoration: ${textDecoration};">
-							${note.title}
+				<div class="favorite" style="height:${height}px;max-width:${maxWidth}px;background:${mainBg};">
+					<div class="favorite-inner" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}">
+						<span class="title" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${mainFg};">
+							${favorite.title}
 						</span>
-						<a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};">
+						<div class="favorite-icons">
+							<a href="#" id="editFavorite" class="fas fa-edit" title="Edit" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${mainFg};">
+							<a href="#" id="removeFavorite" class="fas fa-times" title="Remove" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${mainFg};">
+						</div>
 						</a>
 					</div>
 				</div>
@@ -338,76 +320,79 @@ joplin.plugins.register({
 		}
 
 		// update HTML content
-		async function updateTabsPanel() {
-			const tabsHtml: any = [];
+		async function updatePanel() {
+			const favsHtml: any = [];
 			const selectedNote: any = await joplin.workspace.selectedNote();
-			var selectedNoteIsNew: boolean = true;
 
-			// add all pinned notes as tabs
-			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			for (const pinnedNote of pinnedNotes) {
-				if (selectedNote && pinnedNote.id == selectedNote.id) {
-					selectedNoteIsNew = false;
-				}
+			// add all favorites to HTML
+			const favorites: any = await SETTINGS.value('favorites');
+			for (const favorite of favorites) {
+				// if (selectedNote && favorite.id == selectedNote.id) {
+				// 	// selectedNoteIsNew = false;
+				// }
 
-				// check if note id still exists - otherwise remove from pinned notes and continue with next one
-				var note: any = null; // representation of the real note data
-				try {
-					note = await DATA.get(['notes', pinnedNote.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
-				} catch (error) {
-					unpinNote(pinnedNote.id);
-					continue;
-				}
+				// check if favorite's folder or note id still exists - otherwise remove and continue with next one
+				// TODO
+
+				// // check if note id still exists - otherwise remove from pinned notes and continue with next one
+				// var note: any = null; // representation of the real note data
+				// try {
+				// 	note = await DATA.get(['notes', favorite.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
+				// } catch (error) {
+				// 	unpinNote(favorite.id);
+				// 	continue;
+				// }
 
 				// check if note is pinned and completed, then unpin it if enabled and continue with next one
-				const unpinCompleted: boolean = await SETTINGS.value('unpinCompletedTodos');
-				if (unpinCompleted && note.is_todo && note.todo_completed) {
-					unpinNote(note.id);
-					continue;
-				}
+				// const unpinCompleted: boolean = await SETTINGS.value('unpinCompletedTodos');
+				// if (unpinCompleted && note.is_todo && note.todo_completed) {
+				// 	unpinNote(note.id);
+				// 	continue;
+				// }
 
-				tabsHtml.push((await prepareTabHtml(note, selectedNote, true)).toString());
+				favsHtml.push((await prepareFavHtml(favorite)).toString());
 			}
 
 			// check whether selected note is not pinned but active - than set as lastOpenedNote
-			if (selectedNote) {
-				if (selectedNoteIsNew) {
-					lastOpenedNote = selectedNote;
-				} else {
-					// if note is already pinned but also still last opened - clear last opened
-					if (lastOpenedNote && lastOpenedNote.id == selectedNote.id) {
-						lastOpenedNote = null;
-					}
-				}
-			}
+			// if (selectedNote) {
+			// 	if (selectedNoteIsNew) {
+			// 		lastOpenedNote = selectedNote;
+			// 	} else {
+			// 		// if note is already pinned but also still last opened - clear last opened
+			// 		if (lastOpenedNote && lastOpenedNote.id == selectedNote.id) {
+			// 			lastOpenedNote = null;
+			// 		}
+			// 	}
+			// }
 
-			// check whether last opened note still exists - clear if not
-			if (lastOpenedNote) {
-				try {
-					note = await DATA.get(['notes', lastOpenedNote.id], { fields: ['id'] });
-				} catch (error) {
-					lastOpenedNote = null;
-				}
-			}
+			// // check whether last opened note still exists - clear if not
+			// if (lastOpenedNote) {
+			// 	try {
+			// 		note = await DATA.get(['notes', lastOpenedNote.id], { fields: ['id'] });
+			// 	} catch (error) {
+			// 		lastOpenedNote = null;
+			// 	}
+			// }
 
-			// add last opened or current selected note at last (unpinned)
-			if (lastOpenedNote) {
-				tabsHtml.push((await prepareTabHtml(lastOpenedNote, selectedNote, false)).toString());
-			}
+			// // add last opened or current selected note at last (unpinned)
+			// if (lastOpenedNote) {
+			// 	favsHtml.push((await prepareTabHtml(lastOpenedNote, selectedNote, false)).toString());
+			// }
 
 			// get setting style values
-			const height: number = await SETTINGS.value('tabHeight');
+			const height: number = await SETTINGS.value('lineHeight');
 			const mainBg: string = await SETTINGS.value('mainBackground');
 			const mainFg: string = await SETTINGS.value('mainForeground');
 
-			// add notes to container and push to panel
+			// add entries to container and push to panel
 			await PANELS.setHtml(panel, `
 					<div class="container" style="background:${mainBg};">
-						<div role="tablist" class="tabs-container">
-							${tabsHtml.join('\n')}
+						<div class="favorites-container">
+							${favsHtml.join('\n')}
 							<div class="controls" style="height:${height}px;">
-								<a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${mainFg};"></a>
-								<a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${mainFg};"></a>
+								<a href="#" id="addFolder" class="fas fa-folder-plus" title="Add current notebook to favorites" style="color:${mainFg};"></a>
+								<a href="#" id="addNote" class="fas fa-file-medical" title="Add selected note to favorites" style="color:${mainFg};"></a>
+								<a href="#" id="addSearch" class="fas fa-search-plus" title="Add current search to favorites" style="color:${mainFg};"></a>
 							</div>
 						</div>
 					</div>
@@ -418,47 +403,56 @@ joplin.plugins.register({
 
 		//#region MAP COMMANDS TO MENU
 
-		// prepare "Properties" submenu
-		const tabsCommandsSubMenu: MenuItem[] = [
+		const favoritesCommandsSubMenu: MenuItem[] = [
 			{
-				commandName: "tabsPinNote",
-				label: 'Pin note'
+				commandName: "favsAddFolder",
+				label: 'Add current Notebook'
 			},
 			{
-				commandName: "tabsUnpinNote",
-				label: 'Unpin note'
+				commandName: "favsAddNote",
+				label: 'Add selected Note'
 			},
 			{
-				commandName: "tabsMoveLeft",
-				label: 'Move tab left'
+				commandName: "favsAddActiveSearch",
+				label: 'Add active search'
 			},
 			{
-				commandName: "tabsMoveRight",
-				label: 'Move tab right'
+				commandName: "favsAddNewSearch",
+				label: 'Add new search'
 			},
+			// {
+			// 	commandName: "favsMoveLeft",
+			// 	label: 'Move favorite left'
+			// },
+			// {
+			// 	commandName: "favsMoveRight",
+			// 	label: 'Move favorite right'
+			// },
+			// {
+			// 	commandName: "favsRemoveEntry",
+			// 	label: 'Remove from favorites'
+			// },
 			{
-				commandName: "tabsClear",
-				label: 'Clear all tabs'
+				commandName: "favsClear",
+				label: 'Clear all favorites'
 			}
 		]
-
-		// add commands to "View" menu
-		await joplin.views.menus.create('menuViewTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
+		await joplin.views.menus.create('menuToolsFavorites', 'Favorites', favoritesCommandsSubMenu, MenuItemLocation.Tools);
 
 		//#endregion
 
 		//#region MAP INTERNAL EVENTS
 
 		joplin.workspace.onNoteSelectionChange(() => {
-			updateTabsPanel();
+			updatePanel();
 		});
 
 		joplin.workspace.onNoteContentChange(() => {
-			updateTabsPanel();
+			updatePanel();
 		});
 
 		//#endregion
 
-		updateTabsPanel();
+		updatePanel();
 	},
 });

@@ -31,13 +31,13 @@ span {
   width: 100%;
 }
 
-.tabs-container {
+.favorites-container {
   display: flex;
   float: left;
   width: 100%;
 }
 
-.tab {
+.favorite {
   border-style: solid;
   border-width: 0;
   border-right-width: 1px;
@@ -45,11 +45,8 @@ span {
   padding: 0 8px;
   text-overflow: ellipsis;
 }
-.new {
-  font-style: italic;
-}
 
-.tab-inner {
+.favorite-inner {
   align-items: center;
   display: flex;
   height: 100%;
@@ -63,13 +60,13 @@ span {
   white-space: nowrap;
 }
 
-.tab .fas {
+.fav .fas {
   margin-left: auto;
   margin-right: 0;
   padding: 2px;
   visibility: hidden;
 }
-.tab:hover .fas {
+.fav:hover .fas {
   visibility: visible;
 }
 
@@ -103,12 +100,12 @@ span {
     overflow-y: auto;
   }
 
-  .tabs-container {
+  .favorites-container {
     display: block;
     width: 100%;
   }
 
-  .tab {
+  .favorite {
     border-right-width: 0;
     border-bottom-width: 1px;
     max-width: 100% !important;
