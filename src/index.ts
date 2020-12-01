@@ -25,7 +25,7 @@ joplin.plugins.register({
 		}
 
 		async function openFavorite(message: any) {
-			alert('openFavorite');
+			console.info(`openFavorite: ${message}`); // TODO remove
 
 			if (message.type == 'folder') {
 				COMMANDS.execute('openFolder', message.value);
@@ -37,40 +37,53 @@ joplin.plugins.register({
 		}
 
 		async function editFavorite(message: any) {
+			console.info(`editFavorite: ${message}`); // TODO remove
+
 			// TODO
 			// öffnet dialog zum ändern des names und des Wertes 
 			// wertes label entweder als Id oder Query anzeigen
-			alert('editFavorite');
+		}
+
+		async function removeFavorite(message: any) {
+			console.info(`removeFavorite: ${message}`); // TODO remove
+
+			// TODO
 		}
 
 		async function addFolder(folderId: string) {
-			alert('addFolder');
+			console.info(`addFolder: ${folderId}`); // TODO remove
 
-			// TODO 
+			// check if folder is not already favorite, otherwise return
+			const favorites: any = await SETTINGS.value('favorites');
+			const index: number = getIndexWithAttr(favorites, 'id', folderId);
+			if (index != -1) return;
 
-			// // check if note is not already pinned, otherwise return
-			// const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			// const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-			// if (index != -1) return;
+			// ask user for name (if cancelled, used default name)
+			// TODO get folder from data
+			const title: string = '';
 
-			// // check if current note was the last opened note - clear if so
-			// if (noteId == lastOpenedNote.id) {
-			// 	lastOpenedNote = null;
-			// }
+			//   {
+			//     "type": "folder"
+			//     "title": "user defined name"
+			//     "value": "folder id"
+			//   }
+			// add folder to favorites
+			favorites.push({ type: 'folder', title: title, value: folderId });
+			SETTINGS.setValue('favorites', favorites);
 
-			// // pin handled note
-			// pinnedNotes.push({ id: noteId });
-			// SETTINGS.setValue('pinnedNotes', pinnedNotes);
+			console.info(`favorites: ${JSON.stringify(favorites)}`); // TODO remove
 		}
 
 		async function addNote(noteId: string) {
+			console.info(`addFolder: ${noteId}`); // TODO remove
+
 			// TODO
-			alert('addNote');
 		}
 
 		async function addSearch(query: string) {
+			console.info(`addSearch: ${query}`); // TODO remove
+
 			// TODO
-			alert('addSearch');
 		}
 
 		// // Remove note with handled id from pinned notes array
@@ -153,10 +166,9 @@ joplin.plugins.register({
 			name: 'favsAddFolder',
 			label: 'Favorites: Add current notebook',
 			iconName: 'fas fa-folder-plus',
-			enabledCondition: "oneNoteSelected", // TODO condition?
+			enabledCondition: "oneNoteSelected",
 			execute: async () => {
 				try {
-					// TODO 
 					// get the selected note and exit if none is currently selected
 					const selectedNote: any = await WORKSPACE.selectedNote();
 					if (!selectedNote) return;
@@ -267,6 +279,10 @@ joplin.plugins.register({
 				editFavorite(message);
 				updatePanel();
 			}
+			if (message.name === 'removeFavorite') {
+				removeFavorite(message);
+				updatePanel();
+			}
 			if (message.name === 'favsAddFolder') {
 				COMMANDS.execute('favsAddFolder');
 			}
@@ -291,7 +307,6 @@ joplin.plugins.register({
 		});
 
 		// prepare single favorite HTML
-		// TODO nur favorite benötigt
 		async function prepareFavHtml(favorite: any): Promise<string> {
 			// get style values from settings
 			const height: number = await SETTINGS.value('lineHeight');
@@ -312,7 +327,6 @@ joplin.plugins.register({
 							<a href="#" id="editFavorite" class="fas fa-edit" title="Edit" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${mainFg};">
 							<a href="#" id="removeFavorite" class="fas fa-times" title="Remove" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${mainFg};">
 						</div>
-						</a>
 					</div>
 				</div>
 			`;
@@ -439,15 +453,21 @@ joplin.plugins.register({
 		]
 		await joplin.views.menus.create('menuToolsFavorites', 'Favorites', favoritesCommandsSubMenu, MenuItemLocation.Tools);
 
+		// TODO map favsAddNote to context menu (needs to handle input params then!)
+
 		//#endregion
 
 		//#region MAP INTERNAL EVENTS
 
-		joplin.workspace.onNoteSelectionChange(() => {
+		WORKSPACE.onNoteSelectionChange(() => {
 			updatePanel();
 		});
 
-		joplin.workspace.onNoteContentChange(() => {
+		WORKSPACE.onNoteContentChange(() => {
+			updatePanel();
+		});
+
+		WORKSPACE.onSyncComplete(() => {
 			updatePanel();
 		});
 
