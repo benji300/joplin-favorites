@@ -5,9 +5,7 @@ document.addEventListener('dblclick', event => {
   if (element.id === 'favorite' || element.className === 'favorite-inner' || element.className === 'favorite-title') {
     webviewApi.postMessage({
       name: 'favsEdit',
-      value: element.dataset.value,
-      title: element.dataset.title,
-      type: element.dataset.type,
+      value: element.dataset.id
     });
   }
 })
@@ -19,9 +17,7 @@ document.addEventListener('click', event => {
   if (element.id === 'favorite' || element.className === 'favorite-inner' || element.className === 'favorite-title') {
     webviewApi.postMessage({
       name: 'favsOpen',
-      value: element.dataset.value,
-      title: element.dataset.title,
-      type: element.dataset.type,
+      value: element.dataset.id
     });
   }
 })

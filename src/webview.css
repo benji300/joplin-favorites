@@ -3,15 +3,15 @@
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
-  src: local(""), url("./roboto/roboto-v20-latin-regular.woff2") format("woff2"),
-    url("./roboto/roboto-v20-latin-regular.woff") format("woff");
+  src: local(""),
+    url("./assets/roboto/roboto-v20-latin-regular.woff2") format("woff2"),
+    url("./assets/roboto/roboto-v20-latin-regular.woff") format("woff");
 }
 
 html,
 body,
 body > div,
 div#joplin-plugin-content {
-  font-family: "Roboto", sans-serif;
   font-size: var(--joplin-font-size);
   height: 100%;
 }
@@ -38,19 +38,27 @@ span {
   overflow-y: hidden;
   width: 100%;
 }
-
 #container-inner {
   display: flex;
   float: left;
   width: 100%;
 }
+
 #favorite {
   border-style: solid;
   border-width: 0;
   border-right-width: 1px;
   display: flex;
   padding: 0 8px;
-  text-overflow: ellipsis;
+}
+#favorite .fas {
+  margin-left: auto;
+  margin-right: 0;
+  padding: 2px;
+  visibility: hidden;
+}
+#favorite:hover .fas {
+  visibility: visible;
 }
 
 .favorite-inner {
@@ -65,16 +73,6 @@ span {
   padding-right: 3px;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.fav .fas {
-  margin-left: auto;
-  margin-right: 0;
-  padding: 2px;
-  visibility: hidden;
-}
-.fav:hover .fas {
-  visibility: visible;
 }
 
 #controls {

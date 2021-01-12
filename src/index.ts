@@ -33,8 +33,8 @@ joplin.plugins.register({
       type: SettingItemType.Bool,
       section: 'favorites.settings',
       public: true,
-      label: 'Enable drag & drop of tabs',
-      description: 'If disabled, position of tabs can be change via commands or move buttons.'
+      label: 'Enable drag & drop of favorites',
+      description: 'If enabled, the position of favorites can be change via drag & drop.'
     });
     await SETTINGS.registerSetting('lineHeight', {
       value: "40",
@@ -47,7 +47,7 @@ joplin.plugins.register({
     await SETTINGS.registerSetting('maxFavoriteWidth', {
       value: "150",
       type: 1,
-      section: 'com.benji300.joplin.tabs.settings',
+      section: 'favorites.settings',
       public: true,
       label: 'Maximum favorite width (px)',
       description: 'Maximum of one favorite in pixel.'
@@ -103,29 +103,25 @@ joplin.plugins.register({
       }
     }
 
-    function getIndexWithAttr(array: any, attr: any, value: any): number {
-      for (var i: number = 0; i < array.length; i += 1) {
-        if (array[i][attr] === value) {
-          return i;
-        }
-      }
-      return -1;
-    }
+    async function openFavorite(value: string) {
+      if (!value) return;
 
-    async function openFavorite(message: any) {
-      console.info(`openFavorite: ${message}`); // TODO remove
+      // get favorite from array
+      const favorite: any = await favorites.get(value);
 
-      if (message.type == FavoriteType.Folder) {
+      console.info(`openFavorite: ${JSON.stringify(favorite)}`); // TODO remove
+
+      if (favorite.type == FavoriteType.Folder) {
         // TODO check if entry still exists, otherwise ask user to remove it
-        COMMANDS.execute('openFolder', message.value);
+        COMMANDS.execute('openFolder', favorite.value);
       }
-      if (message.type == FavoriteType.Note || message.type == FavoriteType.Todo) {
+      if (favorite.type == FavoriteType.Note || favorite.type == FavoriteType.Todo) {
         // TODO check if entry still exists, otherwise ask user to remove it
-        COMMANDS.execute('openNote', message.value);
+        COMMANDS.execute('openNote', favorite.value);
       }
-      if (message.type == FavoriteType.Tag) {
+      if (favorite.type == FavoriteType.Tag) {
         // TODO check if entry still exists, otherwise ask user to remove it
-        COMMANDS.execute('openTag', message.value);
+        COMMANDS.execute('openTag', favorite.value);
       }
       // TODO wie search öffnen?
     }
@@ -337,17 +333,16 @@ joplin.plugins.register({
 
         // TODO bei hover werden beide icons angezeigt (sonst disabled)
         favsHtml.push(`
-          <div id="favorite" data-value="${favorite.value}" data-title="${favorite.title}" data-type="${favorite.type}"
+          <div id="favorite" data-id="${favorite.value}"
               draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
               style="height:${lineHeight}px;max-width:${maxWidth}px;background:${background};">
-            <div id="favorite-inner" data-value="${favorite.value}" data-title="${favorite.title}" data-type="${favorite.type}">
-              <span class="favorite-title" data-value="${favorite.value}" data-title="${favorite.title}" data-type="${favorite.type}"
-                style="color:${foreground};" title="${favorite.title}">
+            <div id="favorite-inner" data-id="${favorite.value}">
+              <span class="favorite-title" data-id="${favorite.value}" style="color:${foreground};" title="${favorite.title}">
                 ${favorite.title}
               </span>
               <div class="favorite-icons">
-                <a href="#" id="editFavorite" class="fas fa-edit" title="Edit" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${foreground};">
-                <a href="#" id="removeFavorite" class="fas fa-times" title="Remove" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${foreground};">
+                <a href="#" id="editFavorite" class="fas fa-edit" title="Edit" data-id="${favorite.value}" style="color:${foreground};">
+                <a href="#" id="removeFavorite" class="fas fa-times" title="Remove" data-id="${favorite.value}" style="color:${foreground};">
               </div>
             </div>
           </div>

@@ -64,16 +64,6 @@ export class Favorites {
     await this.store();
   }
 
-  // /**
-  //  * Replaces favorite at specified index with handled one.
-  //  */
-  // private async replaceAtIndex(index: number, favorite: any) {
-  //   if (index < 0 || favorite == null) return;
-
-  //   this._favs.splice(index, 1, favorite);
-  //   await this.store();
-  // }
-
   /**
    * Gets the number of favorites.
    */
@@ -89,12 +79,15 @@ export class Favorites {
   }
 
   /**
-   * Gets the favorites for the handled note.
+   * Gets the favorites with the handled value. Null if not exist.
    */
-  get(index: number): any {
-    if (index < 0 || index >= this.length()) return;
+  get(value: string): any {
+    if (value == null) return;
 
-    return this._favs[index];
+    for (let i: number = 0; i < this.length(); i++) {
+      if (this._favs[i]['value'] === value) return this._favs[i];
+    }
+    return null;
   }
 
   /**
@@ -104,20 +97,10 @@ export class Favorites {
     if (value == null) return;
 
     for (let i: number = 0; i < this.length(); i++) {
-      if (this._favs[i]['id'] === value) return i;
+      if (this._favs[i]['value'] === value) return i;
     }
     return -1;
   }
-
-  // /**
-  //  * Gets index of the temporary tab. -1 if not exist.
-  //  */
-  // indexOfTemp(): number {
-  //   for (let i: number = 0; i < this.length(); i++) {
-  //     if (this._favs[i]['type'] === NoteTabType.Temporary) return i;
-  //   }
-  //   return -1;
-  // }
 
   /**
    * Gets a value whether the handled value has already a tab or not.
@@ -148,7 +131,7 @@ export class Favorites {
     // console.log(`moveWithIndex: ${sourceIdx} to ${targetIdx} with length = ${this.length()}`);
 
     const favorite: any = this._favs[sourceIdx];
-    await this.delete(this.get(sourceIdx).id);
+    await this.delete(favorite.value);
     await this.insertAtIndex((targetIdx == 0 ? 0 : targetIdx), favorite);
     await this.store();
   }
@@ -162,31 +145,8 @@ export class Favorites {
     await this.moveWithIndex(this.indexOf(sourceValue), this.indexOf(targetValue));
   }
 
-  // /**
-  //   * Changes type of the tab for the handled note.
-  //   */
-  // async changeType(noteId: string, newType: NoteTabType) {
-  //   if (!this.hasFavorite(noteId)) return;
-
-  //   this._favs[this.indexOf(noteId)].type = newType;
-  //   await this.store();
-  // }
-
-  // /**
-  //  * Replaces favorite at specified index with handled one.
-  //  */
-  // async replaceTemp(id: string) {
-  //   if (id == null) return;
-
-  //   const tempIdx: number = this.indexOfTemp();
-  //   if (tempIdx >= 0) {
-  //     this._favs[tempIdx].id = id;
-  //     await this.store();
-  //   }
-  // }
-
   /**
-   * Removes favorite with handled id.
+   * Removes favorite with handled value.
    */
   async delete(value: string) {
     if (value == null) return;

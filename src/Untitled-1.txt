@@ -1,5 +1,0 @@
-Favorites: Add current notebook      favsAddFolder
-Favorites: Add selected note         favsAddNote
-Favorites: Add active search         favsAddActiveSearch
-Favorites: Add new search            favsAddNewSearch
-Favorites: Remove from favorites     favsRemoveEntry
