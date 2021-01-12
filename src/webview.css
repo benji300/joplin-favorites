@@ -1,9 +1,17 @@
 /* GENERAL STYLES */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  src: local(""), url("./roboto/roboto-v20-latin-regular.woff2") format("woff2"),
+    url("./roboto/roboto-v20-latin-regular.woff") format("woff");
+}
+
 html,
 body,
 body > div,
 div#joplin-plugin-content {
-  font-family: var(--joplin-font-family);
+  font-family: "Roboto", sans-serif;
   font-size: var(--joplin-font-size);
   height: 100%;
 }
@@ -24,20 +32,19 @@ span {
 }
 
 /* HORIZONTAL LAYOUT */
-.container {
+#container {
   height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   width: 100%;
 }
 
-.favorites-container {
+#container-inner {
   display: flex;
   float: left;
   width: 100%;
 }
-
-.favorite {
+#favorite {
   border-style: solid;
   border-width: 0;
   border-right-width: 1px;
@@ -53,7 +60,7 @@ span {
   width: 100%;
 }
 
-.title {
+.favorite-title {
   overflow: hidden;
   padding-right: 3px;
   text-overflow: ellipsis;
@@ -70,7 +77,7 @@ span {
   visibility: visible;
 }
 
-.controls {
+#controls {
   align-items: center;
   display: flex;
   float: right;
@@ -78,7 +85,7 @@ span {
   margin-left: auto;
   margin-right: 0;
 }
-.controls .fas {
+#controls .fas {
   align-items: center;
   display: flex;
   font-size: 14.4px;
@@ -89,23 +96,38 @@ span {
   opacity: 0.8;
   width: 26px;
 }
-.controls .fas:hover {
+#controls .fas:hover {
   opacity: 1;
+}
+
+/* DRAG AND DROP */
+[draggable="true"] {
+  /* To prevent user selecting inside the drag source */
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+.dragging {
+  opacity: 0.4;
+}
+.dragover {
+  background-color: var(--joplin-background-color-hover3) !important;
 }
 
 /* VERCTICAL LAYOUT OVERWRITES */
 @media screen and (max-width: 400px) {
-  .container {
+  #container {
     overflow-x: hidden;
     overflow-y: auto;
   }
 
-  .favorites-container {
+  #container-inner {
     display: block;
     width: 100%;
   }
 
-  .favorite {
+  #favorite {
     border-right-width: 0;
     border-bottom-width: 1px;
     max-width: 100% !important;

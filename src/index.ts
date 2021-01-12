@@ -1,478 +1,388 @@
 import joplin from 'api';
-import { MenuItem, MenuItemLocation } from 'api/types';
-
-// stores the last opened but unpinned note
-// var lastOpenedNote: any;
+import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
+import { FavoriteType, Favorites, SettingDefaults } from './helpers';
 
 joplin.plugins.register({
-	onStart: async function () {
-		// TODO: remove what not used
-		const COMMANDS = joplin.commands;
-		const DATA = joplin.data;
-		const PANELS = joplin.views.panels;
-		const SETTINGS = joplin.settings;
-		const WORKSPACE = joplin.workspace;
-
-		//#region COMMAND HELPER FUNCTIONS
-
-		function getIndexWithAttr(array: any, attr: any, value: any): number {
-			for (var i: number = 0; i < array.length; i += 1) {
-				if (array[i][attr] === value) {
-					return i;
-				}
-			}
-			return -1;
-		}
-
-		async function openFavorite(message: any) {
-			console.info(`openFavorite: ${message}`); // TODO remove
-
-			if (message.type == 'folder') {
-				COMMANDS.execute('openFolder', message.value);
-			}
-			if (message.type == 'note') {
-				COMMANDS.execute('openNote', message.value);
-			}
-			// TODO wie search öffnen?
-		}
-
-		async function editFavorite(message: any) {
-			console.info(`editFavorite: ${message}`); // TODO remove
-
-			// TODO
-			// öffnet dialog zum ändern des names und des Wertes 
-			// wertes label entweder als Id oder Query anzeigen
-		}
-
-		async function removeFavorite(message: any) {
-			console.info(`removeFavorite: ${message}`); // TODO remove
-
-			// TODO
-		}
-
-		async function addFolder(folderId: string) {
-			console.info(`addFolder: ${folderId}`); // TODO remove
-
-			// check if folder is not already favorite, otherwise return
-			const favorites: any = await SETTINGS.value('favorites');
-			const index: number = getIndexWithAttr(favorites, 'id', folderId);
-			if (index != -1) return;
-
-			// ask user for name (if cancelled, used default name)
-			// TODO get folder from data
-			const title: string = '';
-
-			//   {
-			//     "type": "folder"
-			//     "title": "user defined name"
-			//     "value": "folder id"
-			//   }
-			// add folder to favorites
-			favorites.push({ type: 'folder', title: title, value: folderId });
-			SETTINGS.setValue('favorites', favorites);
-
-			console.info(`favorites: ${JSON.stringify(favorites)}`); // TODO remove
-		}
-
-		async function addNote(noteId: string) {
-			console.info(`addFolder: ${noteId}`); // TODO remove
-
-			// TODO
-		}
-
-		async function addSearch(query: string) {
-			console.info(`addSearch: ${query}`); // TODO remove
-
-			// TODO
-		}
-
-		// // Remove note with handled id from pinned notes array
-		// async function unpinNote(noteId: string) {
-		// 	// check if note is pinned, otherwise return
-		// 	const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-		// 	const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-		// 	if (index == -1) return;
-
-		// 	// unpin handled note
-		// 	pinnedNotes.splice(index, 1);
-		// 	SETTINGS.setValue('pinnedNotes', pinnedNotes);
-		// }
-
-		//#endregion
-
-		//#region REGISTER USER OPTIONS
-
-		await SETTINGS.registerSection('com.benji300.joplin.favorites.settings', {
-			label: 'Favorites',
-			iconName: 'fas fa-star',
-		});
-
-		// [
-		//   {
-		//     "type": "folder | note | search"
-		//     "title": "user defined name"
-		//     "value": "folder id | note id | search query"
-		//   }
-		// ]
-		await SETTINGS.registerSetting('favorites', {
-			value: [],
-			type: 4,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: false,
-			label: 'Favorites'
-		});
-
-		// General settings
-		await SETTINGS.registerSetting('lineHeight', {
-			value: "40",
-			type: 1,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			label: 'Favorites line height (px)',
-			description: 'Line height of the favorites panel.'
-		});
-		await SETTINGS.registerSetting('maxEntryWidth', {
-			value: "150",
-			type: 1,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			label: 'Maximum entry width (px)',
-			description: 'Maximum of one favorite entry in pixel.'
-		});
-
-		// Advanced styles
-		await SETTINGS.registerSetting('mainBackground', {
-			value: "var(--joplin-background-color3)",
-			type: 2,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			advanced: true,
-			label: 'Background color'
-		});
-		await SETTINGS.registerSetting('mainForeground', {
-			value: "var(--joplin-color-faded)",
-			type: 2,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			advanced: true,
-			label: 'Foreground color'
-		});
-
-		//#endregion
-
-		//#region REGISTER COMMANDS
-
-		await COMMANDS.register({
-			name: 'favsAddFolder',
-			label: 'Favorites: Add current notebook',
-			iconName: 'fas fa-folder-plus',
-			enabledCondition: "oneNoteSelected",
-			execute: async () => {
-				try {
-					// get the selected note and exit if none is currently selected
-					const selectedNote: any = await WORKSPACE.selectedNote();
-					if (!selectedNote) return;
-
-					// add parent folder of selected note and update panel
-					addFolder(selectedNote.parent_id);
-					updatePanel();
-				}
-				catch (e) {
-					alert('Something went wrong... cannot add current notebook to favorites.');
-				}
-			}
-		});
-
-		// // Command: tabsUnpinNote
-		// // Desc: Unpin the selected note from the tabs
-		// await COMMANDS.register({
-		// 	name: 'tabsUnpinNote',
-		// 	label: 'Tabs: Unpin note',
-		// 	iconName: 'fas fa-times',
-		// 	enabledCondition: "oneNoteSelected",
-		// 	execute: async () => {
-		// 		// get the selected note and exit if none is currently selected
-		// 		const selectedNote: any = await WORKSPACE.selectedNote();
-		// 		if (!selectedNote) return;
-
-		// 		// unpin selected note and update panel
-		// 		unpinNote(selectedNote.id);
-		// 		updatePanelHtml();
-		// 	}
-		// });
-
-		// // Command: tabsMoveLeft
-		// // Desc: Move active (unpinned) tab to left
-		// await COMMANDS.register({
-		// 	name: 'tabsMoveLeft',
-		// 	label: 'Tabs: Move tab left',
-		// 	iconName: 'fas fa-chevron-left',
-		// 	enabledCondition: "oneNoteSelected",
-		// 	execute: async () => {
-		// 		const selectedNote: any = await joplin.workspace.selectedNote();
-		// 		if (!selectedNote) return;
-
-		// 		// check if note is pinned and not already first, otherwise exit
-		// 		const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-		// 		const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
-		// 		if (index == -1) return;
-		// 		if (index == 0) return;
-
-		// 		// change position of tab and update panel
-		// 		pinnedNotes.splice(index, 1);
-		// 		pinnedNotes.splice(index - 1, 0, selectedNote);
-		// 		SETTINGS.setValue('pinnedNotes', pinnedNotes);
-		// 		updatePanelHtml();
-		// 	}
-		// });
-
-		// // Command: tabsMoveRight
-		// // Desc: Move active (unpinned) tab to right
-		// await COMMANDS.register({
-		// 	name: 'tabsMoveRight',
-		// 	label: 'Tabs: Move tab right',
-		// 	iconName: 'fas fa-chevron-right',
-		// 	enabledCondition: "oneNoteSelected",
-		// 	execute: async () => {
-		// 		const selectedNote: any = await joplin.workspace.selectedNote();
-		// 		if (!selectedNote) return;
-
-		// 		// check if note is pinned and not already first, otherwise exit
-		// 		const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-		// 		const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
-		// 		if (index == -1) return;
-		// 		if (index == pinnedNotes.length - 1) return;
-
-		// 		// change position of tab and update panel
-		// 		pinnedNotes.splice(index, 1);
-		// 		pinnedNotes.splice(index + 1, 0, selectedNote);
-		// 		SETTINGS.setValue('pinnedNotes', pinnedNotes);
-		// 		updateTabsPanel();
-		// 	}
-		// });
-
-		await COMMANDS.register({
-			name: 'favsClear',
-			label: 'Favorites: Clear all favorites',
-			iconName: 'fas fa-times',
-			execute: async () => {
-				const favorites: any = [];
-				SETTINGS.setValue('favorites', favorites);
-				updatePanel();
-			}
-		});
-
-		//#endregion
-
-		//#region SETUP PANEL
-
-		// prepare panel object
-		const panel = await PANELS.create("com.benji300.joplin.favorites.panel");
-		await PANELS.addScript(panel, './fontawesome/css/all.min.css');
-		await PANELS.addScript(panel, './webview.css');
-		await PANELS.addScript(panel, './webview.js');
-		PANELS.onMessage(panel, (message: any) => {
-			if (message.name === 'openFavorite') {
-				openFavorite(message);
-			}
-			if (message.name === 'editFavorite') {
-				editFavorite(message);
-				updatePanel();
-			}
-			if (message.name === 'removeFavorite') {
-				removeFavorite(message);
-				updatePanel();
-			}
-			if (message.name === 'favsAddFolder') {
-				COMMANDS.execute('favsAddFolder');
-			}
-			if (message.name === 'favsAddNote') {
-				COMMANDS.execute('favsAddNote');
-			}
-			// TODO
-			// if (message.name === 'tabsUnpinNote') {
-			// 	unpinNote(message.id);
-			// 	updateTabsPanel();
-			// }
-			// if (message.name === 'tabsToggleTodo') {
-			// 	toggleTodo(message.id, message.checked);
-			// 	updateTabsPanel();
-			// }
-			// if (message.name === 'tabsMoveLeft') {
-			// 	COMMANDS.execute('tabsMoveLeft');
-			// }
-			// if (message.name === 'tabsMoveRight') {
-			// 	COMMANDS.execute('tabsMoveRight');
-			// }
-		});
-
-		// prepare single favorite HTML
-		async function prepareFavHtml(favorite: any): Promise<string> {
-			// get style values from settings
-			const height: number = await SETTINGS.value('lineHeight');
-			const maxWidth: number = await SETTINGS.value('maxEntryWidth');
-			const mainBg: string = await SETTINGS.value('mainBackground');
-			const mainFg: string = await SETTINGS.value('mainForeground');
-
-			// prepare style attributes
-
-			// TODO bei hover werden beide icons angezeigt (sonst disabled)
-			const html = `
-				<div class="favorite" style="height:${height}px;max-width:${maxWidth}px;background:${mainBg};">
-					<div class="favorite-inner" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}">
-						<span class="title" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${mainFg};">
-							${favorite.title}
-						</span>
-						<div class="favorite-icons">
-							<a href="#" id="editFavorite" class="fas fa-edit" title="Edit" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${mainFg};">
-							<a href="#" id="removeFavorite" class="fas fa-times" title="Remove" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${mainFg};">
-						</div>
-					</div>
-				</div>
-			`;
-			return html;
-		}
-
-		// update HTML content
-		async function updatePanel() {
-			const favsHtml: any = [];
-			const selectedNote: any = await joplin.workspace.selectedNote();
-
-			// add all favorites to HTML
-			const favorites: any = await SETTINGS.value('favorites');
-			for (const favorite of favorites) {
-				// if (selectedNote && favorite.id == selectedNote.id) {
-				// 	// selectedNoteIsNew = false;
-				// }
-
-				// check if favorite's folder or note id still exists - otherwise remove and continue with next one
-				// TODO
-
-				// // check if note id still exists - otherwise remove from pinned notes and continue with next one
-				// var note: any = null; // representation of the real note data
-				// try {
-				// 	note = await DATA.get(['notes', favorite.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
-				// } catch (error) {
-				// 	unpinNote(favorite.id);
-				// 	continue;
-				// }
-
-				// check if note is pinned and completed, then unpin it if enabled and continue with next one
-				// const unpinCompleted: boolean = await SETTINGS.value('unpinCompletedTodos');
-				// if (unpinCompleted && note.is_todo && note.todo_completed) {
-				// 	unpinNote(note.id);
-				// 	continue;
-				// }
-
-				favsHtml.push((await prepareFavHtml(favorite)).toString());
-			}
-
-			// check whether selected note is not pinned but active - than set as lastOpenedNote
-			// if (selectedNote) {
-			// 	if (selectedNoteIsNew) {
-			// 		lastOpenedNote = selectedNote;
-			// 	} else {
-			// 		// if note is already pinned but also still last opened - clear last opened
-			// 		if (lastOpenedNote && lastOpenedNote.id == selectedNote.id) {
-			// 			lastOpenedNote = null;
-			// 		}
-			// 	}
-			// }
-
-			// // check whether last opened note still exists - clear if not
-			// if (lastOpenedNote) {
-			// 	try {
-			// 		note = await DATA.get(['notes', lastOpenedNote.id], { fields: ['id'] });
-			// 	} catch (error) {
-			// 		lastOpenedNote = null;
-			// 	}
-			// }
-
-			// // add last opened or current selected note at last (unpinned)
-			// if (lastOpenedNote) {
-			// 	favsHtml.push((await prepareTabHtml(lastOpenedNote, selectedNote, false)).toString());
-			// }
-
-			// get setting style values
-			const height: number = await SETTINGS.value('lineHeight');
-			const mainBg: string = await SETTINGS.value('mainBackground');
-			const mainFg: string = await SETTINGS.value('mainForeground');
-
-			// add entries to container and push to panel
-			await PANELS.setHtml(panel, `
-					<div class="container" style="background:${mainBg};">
-						<div class="favorites-container">
-							${favsHtml.join('\n')}
-							<div class="controls" style="height:${height}px;">
-								<a href="#" id="addFolder" class="fas fa-folder-plus" title="Add current notebook to favorites" style="color:${mainFg};"></a>
-								<a href="#" id="addNote" class="fas fa-file-medical" title="Add selected note to favorites" style="color:${mainFg};"></a>
-								<a href="#" id="addSearch" class="fas fa-search-plus" title="Add current search to favorites" style="color:${mainFg};"></a>
-							</div>
-						</div>
-					</div>
-				`);
-		}
-
-		//#endregion
-
-		//#region MAP COMMANDS TO MENU
-
-		const favoritesCommandsSubMenu: MenuItem[] = [
-			{
-				commandName: "favsAddFolder",
-				label: 'Add current Notebook'
-			},
-			{
-				commandName: "favsAddNote",
-				label: 'Add selected Note'
-			},
-			{
-				commandName: "favsAddActiveSearch",
-				label: 'Add active search'
-			},
-			{
-				commandName: "favsAddNewSearch",
-				label: 'Add new search'
-			},
-			// {
-			// 	commandName: "favsMoveLeft",
-			// 	label: 'Move favorite left'
-			// },
-			// {
-			// 	commandName: "favsMoveRight",
-			// 	label: 'Move favorite right'
-			// },
-			// {
-			// 	commandName: "favsRemoveEntry",
-			// 	label: 'Remove from favorites'
-			// },
-			{
-				commandName: "favsClear",
-				label: 'Clear all favorites'
-			}
-		]
-		await joplin.views.menus.create('menuToolsFavorites', 'Favorites', favoritesCommandsSubMenu, MenuItemLocation.Tools);
-
-		// TODO map favsAddNote to context menu (needs to handle input params then!)
-
-		//#endregion
-
-		//#region MAP INTERNAL EVENTS
-
-		WORKSPACE.onNoteSelectionChange(() => {
-			updatePanel();
-		});
-
-		WORKSPACE.onNoteContentChange(() => {
-			updatePanel();
-		});
-
-		WORKSPACE.onSyncComplete(() => {
-			updatePanel();
-		});
-
-		//#endregion
-
-		updatePanel();
-	},
+  onStart: async function () {
+    const COMMANDS = joplin.commands;
+    const DATA = joplin.data;
+    const DIALOGS = joplin.views.dialogs;
+    const PANELS = joplin.views.panels;
+    const SETTINGS = joplin.settings;
+    const WORKSPACE = joplin.workspace;
+
+    //#region USER OPTIONS
+
+    await SETTINGS.registerSection('favorites.settings', {
+      label: 'Favorites',
+      iconName: 'fas fa-star',
+      description: 'Changes are applied after selecting another note.'
+    });
+
+    await SETTINGS.registerSetting('favorites', {
+      value: [],
+      type: SettingItemType.Array,
+      section: 'favorites.settings',
+      public: false,
+      label: 'Favorites'
+    });
+
+    // General settings
+    await SETTINGS.registerSetting('enableDragAndDrop', {
+      value: true,
+      type: SettingItemType.Bool,
+      section: 'favorites.settings',
+      public: true,
+      label: 'Enable drag & drop of tabs',
+      description: 'If disabled, position of tabs can be change via commands or move buttons.'
+    });
+    await SETTINGS.registerSetting('lineHeight', {
+      value: "40",
+      type: SettingItemType.Int,
+      section: 'favorites.settings',
+      public: true,
+      label: 'Favorites line height (px)',
+      description: 'Line height of the favorites panel.'
+    });
+    await SETTINGS.registerSetting('maxFavoriteWidth', {
+      value: "150",
+      type: 1,
+      section: 'com.benji300.joplin.tabs.settings',
+      public: true,
+      label: 'Maximum favorite width (px)',
+      description: 'Maximum of one favorite in pixel.'
+    });
+
+    // Advanced settings
+    await SETTINGS.registerSetting('fontFamily', {
+      value: SettingDefaults.Default,
+      type: SettingItemType.String,
+      section: 'favorites.settings',
+      public: true,
+      advanced: true,
+      label: 'Font family',
+      description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: Roboto)"
+    });
+    await SETTINGS.registerSetting('mainBackground', {
+      value: SettingDefaults.Default,
+      type: SettingItemType.String,
+      section: 'favorites.settings',
+      public: true,
+      advanced: true,
+      label: 'Background color',
+      description: "Main background color of the panel. (default: Note list background color)"
+    });
+
+    await SETTINGS.registerSetting('mainForeground', {
+      value: SettingDefaults.Default,
+      type: SettingItemType.String,
+      section: 'favorites.settings',
+      public: true,
+      advanced: true,
+      label: 'Foreground color',
+      description: "Default foreground color used for text and icons. (default: App faded color)"
+    });
+
+    //#endregion
+
+    //#region INITIALIZATION
+
+    let favorites = new Favorites();
+    await favorites.read();
+
+    //#endregion
+
+    //#region COMMANDS
+
+    async function getSettingOrDefault(setting: string, defaultValue: string): Promise<string> {
+      const value: string = await SETTINGS.value(setting);
+      if (value.match(new RegExp(SettingDefaults.Default, "i"))) {
+        return defaultValue;
+      } else {
+        return value;
+      }
+    }
+
+    function getIndexWithAttr(array: any, attr: any, value: any): number {
+      for (var i: number = 0; i < array.length; i += 1) {
+        if (array[i][attr] === value) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    async function openFavorite(message: any) {
+      console.info(`openFavorite: ${message}`); // TODO remove
+
+      if (message.type == FavoriteType.Folder) {
+        // TODO check if entry still exists, otherwise ask user to remove it
+        COMMANDS.execute('openFolder', message.value);
+      }
+      if (message.type == FavoriteType.Note || message.type == FavoriteType.Todo) {
+        // TODO check if entry still exists, otherwise ask user to remove it
+        COMMANDS.execute('openNote', message.value);
+      }
+      if (message.type == FavoriteType.Tag) {
+        // TODO check if entry still exists, otherwise ask user to remove it
+        COMMANDS.execute('openTag', message.value);
+      }
+      // TODO wie search öffnen?
+    }
+
+    async function addFavorite(value: string, defaultTitle: string, type: FavoriteType) {
+      // TODO ask user for name (open dialog)
+      // - if cancelled - return
+      // - default = handled title
+      favorites.add(value, defaultTitle, type);
+      await updatePanelView();
+
+      console.info(`favorites: ${JSON.stringify(favorites)}`); // TODO remove
+    }
+
+    async function editFavorite(message: any) {
+      console.info(`editFavorite: ${message}`); // TODO remove
+
+      // TODO
+      // öffnet dialog zum ändern des names und des Wertes
+      // wertes label entweder als Id oder Query anzeigen
+    }
+
+    async function removeFavorite(message: any) {
+      console.info(`removeFavorite: ${message}`); // TODO remove
+
+      // TODO
+    }
+
+    await COMMANDS.register({
+      name: 'favsAddFolder',
+      label: 'Favorites: Add notebook',
+      iconName: 'fas fa-folder-plus',
+      execute: async (folderId: string) => {
+        if (folderId) {
+
+          // return if selected folder has already a favorite
+          if (favorites.hasFavorite(folderId)) return;
+
+          // TODO get folder from data
+          let title: string = 'FolderTest';
+          await addFavorite(folderId, title, FavoriteType.Folder);
+        } else {
+
+          // get selected folder and return if empty
+          const selectedFolder: any = await WORKSPACE.selectedFolder();
+          if (!selectedFolder) return;
+
+          // return if selected folder has already a favorite
+          if (favorites.hasFavorite(folderId)) return;
+
+          await addFavorite(selectedFolder.id, selectedFolder.title, FavoriteType.Folder);
+        }
+      }
+    });
+
+    await COMMANDS.register({
+      name: 'favsAddNote',
+      label: 'Favorites: Add note',
+      iconName: 'fas fa-file-medical',
+      enabledCondition: "oneNoteSelected",
+      execute: async (noteIds: string[]) => {
+        if (noteIds && noteIds.length == 1) {
+          // return if selected note has already a favorite
+          if (favorites.hasFavorite(noteIds[0])) return;
+
+          // TODO get note from data
+          let title: string = 'NoteTest';
+          // TODO consider note type is_todo
+          await addFavorite(noteIds[0], title, FavoriteType.Note);
+        } else {
+
+          // get selected note and return if empty
+          const selectedNote: any = await WORKSPACE.selectedNote();
+          if (!selectedNote) return;
+
+          // return if selected note has already a favorite
+          if (favorites.hasFavorite(selectedNote.id)) return;
+
+          await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note);
+        }
+      }
+    });
+
+    // Command: favsClear
+    // Desc: Remove all favorites
+    await COMMANDS.register({
+      name: 'favsClear',
+      label: 'Favorites: Remove all favorites',
+      iconName: 'fas fa-times',
+      execute: async () => {
+        // ask user before removing favorites
+        const result: number = await DIALOGS.showMessageBox(`Remove all favorites?`);
+        if (result) return;
+
+        await favorites.clearAll();
+        await updatePanelView();
+      }
+    });
+
+    // prepare Tools > Favorites menu
+    const commandsSubMenu: MenuItem[] = [
+      {
+        commandName: "favsAddFolder",
+        label: 'Add current Notebook'
+      },
+      {
+        commandName: "favsAddNote",
+        label: 'Add selected Note'
+      },
+      // {
+      //   commandName: "favsAddTag",
+      //   label: 'Add selected Tag'
+      // },
+      // {
+      //   commandName: "favsAddActiveSearch",
+      //   label: 'Add current active search'
+      // },
+      // {
+      //   commandName: "favsAddNewSearch",
+      //   label: 'Add new search query'
+      // },
+      // {
+      //   commandName: "favsMoveLeft",
+      //   label: 'Move favorite left'
+      // },
+      // {
+      //   commandName: "favsMoveRight",
+      //   label: 'Move favorite right'
+      // },
+      // {
+      //   commandName: "favsRemoveEntry",
+      //   label: 'Remove from favorites'
+      // },
+      {
+        commandName: "favsClear",
+        label: 'Remove all favorites'
+      }
+    ];
+    await joplin.views.menus.create('toolsFavorites', 'Favorites', commandsSubMenu, MenuItemLocation.Tools);
+
+    // add commands to folder context menu
+    await joplin.views.menuItems.create('folderContextMenuAddFolder', 'favsAddFolder', MenuItemLocation.FolderContextMenu);
+
+    // add commands to note list context menu
+    await joplin.views.menuItems.create('noteListContextMenuAddNote', 'favsAddNote', MenuItemLocation.NoteListContextMenu);
+
+    // add commands to editor context menu
+    await joplin.views.menuItems.create('editorContextMenuAddNote', 'favsAddNote', MenuItemLocation.EditorContextMenu);
+
+    // TODO map favsAddTag to tags context menu
+
+    //#endregion
+
+    //#region PANEL VIEW
+
+    // prepare panel object
+    const panel = await PANELS.create("favorites.panel");
+    await PANELS.addScript(panel, './assets/fontawesome/css/all.min.css');
+    await PANELS.addScript(panel, './webview.css');
+    await PANELS.addScript(panel, './webview.js');
+    await PANELS.onMessage(panel, async (message: any) => {
+      if (message.name === 'favsOpen') {
+        openFavorite(message);
+      }
+      if (message.name === 'favsEdit') {
+        editFavorite(message);
+        updatePanelView();
+      }
+      if (message.name === 'favsRemove') {
+        removeFavorite(message);
+        updatePanelView();
+      }
+      if (message.name === 'favsAddFolder') {
+        COMMANDS.execute('favsAddFolder');
+      }
+      if (message.name === 'favsAddNote') {
+        COMMANDS.execute('favsAddNote');
+      }
+      if (message.name === 'favsDrag') {
+        await favorites.moveWithId(message.sourceId, message.targetId);
+        await updatePanelView();
+      }
+    });
+
+    // set init message
+    const font: string = await getSettingOrDefault('fontFamily', SettingDefaults.Font);
+    const mainBg: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
+    await PANELS.setHtml(panel, `
+      <div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
+        <div id="container-inner">
+          <p style="padding-left:8px;">Loading panel...</p>
+        </div>
+      </div>
+    `);
+
+    // update HTML content
+    async function updatePanelView() {
+      const favsHtml: any = [];
+
+      // get style values from settings
+      const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
+      const lineHeight: number = await SETTINGS.value('lineHeight');
+      const maxWidth: number = await SETTINGS.value('maxFavoriteWidth');
+      const background: string = await SETTINGS.value('mainBackground');
+      const foreground: string = await SETTINGS.value('mainForeground');
+
+      // create HTML for each favorite
+      for (const favorite of favorites.getAll()) {
+
+        // TODO bei hover werden beide icons angezeigt (sonst disabled)
+        favsHtml.push(`
+          <div id="favorite" data-value="${favorite.value}" data-title="${favorite.title}" data-type="${favorite.type}"
+              draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
+              style="height:${lineHeight}px;max-width:${maxWidth}px;background:${background};">
+            <div id="favorite-inner" data-value="${favorite.value}" data-title="${favorite.title}" data-type="${favorite.type}">
+              <span class="favorite-title" data-value="${favorite.value}" data-title="${favorite.title}" data-type="${favorite.type}"
+                style="color:${foreground};" title="${favorite.title}">
+                ${favorite.title}
+              </span>
+              <div class="favorite-icons">
+                <a href="#" id="editFavorite" class="fas fa-edit" title="Edit" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${foreground};">
+                <a href="#" id="removeFavorite" class="fas fa-times" title="Remove" data-type="${favorite.type}" data-title="${favorite.title}" data-value="${favorite.value}" style="color:${foreground};">
+              </div>
+            </div>
+          </div>
+        `);
+      }
+
+      // add entries to container and push to panel
+      await PANELS.setHtml(panel, `
+        <div id="container" style="background:${background};font-family:'${font}',sans-serif;">
+          <div id="container-inner">
+            ${favsHtml.join('\n')}
+          </div>
+        </div>
+      `);
+    }
+
+    //#endregion
+
+    //#region MAP EVENTS
+
+    // TODO check if necessary - otherwise remove
+    // WORKSPACE.onNoteSelectionChange(async () => {
+    //   await updatePanelView();
+    // });
+
+    // WORKSPACE.onNoteChange(async () => {
+    //   await updatePanelView();
+    // });
+
+    // WORKSPACE.onSyncComplete(async () => {
+    //   await updatePanelView();
+    // });
+
+    //#endregion
+
+    await updatePanelView();
+  },
 });
