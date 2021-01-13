@@ -5,7 +5,7 @@ document.addEventListener('dblclick', event => {
   if (element.id === 'favorite' || element.className === 'favorite-inner' || element.className === 'favorite-title') {
     webviewApi.postMessage({
       name: 'favsEdit',
-      value: element.dataset.id
+      id: element.dataset.id
     });
   }
 })
@@ -17,13 +17,13 @@ document.addEventListener('click', event => {
   if (element.id === 'favorite' || element.className === 'favorite-inner' || element.className === 'favorite-title') {
     webviewApi.postMessage({
       name: 'favsOpen',
-      value: element.dataset.id
+      id: element.dataset.id
     });
   }
 })
 
 /* DRAG AND DROP */
-let sourceNoteId = "";
+let sourceId = "";
 
 function cancelDefault(event) {
   event.preventDefault();
@@ -35,14 +35,14 @@ function dragStart(event) {
   const element = event.target;
   element.classList.add("dragging");
   event.dataTransfer.setData("text/plain", element.dataset.id);
-  sourceNoteId = element.dataset.id
+  sourceId = element.dataset.id
 }
 
 function dragEnd(event) {
   cancelDefault(event);
   const element = event.target;
   element.classList.remove("dragging");
-  sourceNoteId = "";
+  sourceId = "";
 }
 
 function dragOver(event) {
@@ -55,7 +55,7 @@ function dragOver(event) {
     }
   });
 
-  if (element.dataset.id !== sourceNoteId) {
+  if (element.dataset.id !== sourceId) {
     if (element.id === 'favorite') {
       element.classList.add("dragover");
     } else if (element.parentElement.id === 'favorite') {
@@ -73,14 +73,14 @@ function dragLeave(event) {
 function drop(event) {
   cancelDefault(event);
   const targetElement = event.target;
-  const sourceId = event.dataTransfer.getData("text/plain");
+  const dataSourceId = event.dataTransfer.getData("text/plain");
 
-  if (targetElement && sourceId) {
-    if (targetElement.dataset.id !== sourceNoteId) {
+  if (targetElement && dataSourceId) {
+    if (targetElement.dataset.id !== sourceId) {
       webviewApi.postMessage({
         name: 'favsDrag',
         targetId: targetElement.dataset.id,
-        sourceId: sourceId
+        sourceId: dataSourceId
       });
       targetElement.classList.remove("dragover");
     }

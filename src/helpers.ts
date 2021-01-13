@@ -55,10 +55,17 @@ export class Favorites {
   }
 
   /**
+   * Gets a value whether the handled index would lead to out of bound access.
+   */
+  private indexOutOfBounds(index: number): boolean {
+    return (index < 0 || index >= this.length());
+  }
+
+  /**
    * Inserts handled favorite at specified index.
    */
   private async insertAtIndex(index: number, favorite: any) {
-    if (index < 0 || favorite == null) return;
+    if (this.indexOutOfBounds(index) || favorite == null) return;
 
     this._favs.splice(index, 0, favorite);
     await this.store();
@@ -103,11 +110,9 @@ export class Favorites {
   }
 
   /**
-   * Gets a value whether the handled value has already a tab or not.
+   * Gets a value whether a favorite for the handled value already exists.
    */
   hasFavorite(value: string): boolean {
-    if (value == null) return;
-
     return this.indexOf(value) < 0 ? false : true;
   }
 
@@ -115,7 +120,7 @@ export class Favorites {
    * Adds new favorite at the end.
    */
   async add(newValue: string, newTitle: string, newType: FavoriteType) {
-    if (newValue == null) return;
+    if (newValue == null || newTitle == null || newType == null) return;
 
     this._favs.push({ value: newValue, title: newTitle, type: newType });
     await this.store();
@@ -125,13 +130,11 @@ export class Favorites {
    * Moves the favorite on source index to the target index.
    */
   async moveWithIndex(sourceIdx: number, targetIdx: number) {
-    if (sourceIdx < 0 || sourceIdx >= this.length()) return;
-    if (targetIdx < 0 || targetIdx >= this.length()) return;
-
-    // console.log(`moveWithIndex: ${sourceIdx} to ${targetIdx} with length = ${this.length()}`);
+    if (this.indexOutOfBounds(sourceIdx)) return;
+    if (this.indexOutOfBounds(targetIdx)) return;
 
     const favorite: any = this._favs[sourceIdx];
-    await this.delete(favorite.value);
+    await this.delete(sourceIdx);
     await this.insertAtIndex((targetIdx == 0 ? 0 : targetIdx), favorite);
     await this.store();
   }
@@ -139,21 +142,19 @@ export class Favorites {
   /**
    * Moves the favorite of source favorite to the index of the target favorite.
    */
-  async moveWithId(sourceValue: string, targetValue: string) {
-    if (targetValue == null || sourceValue == null) return;
+  async moveWithValue(sourceValue: string, targetValue: string) {
+    if (sourceValue == null || targetValue == null) return;
 
     await this.moveWithIndex(this.indexOf(sourceValue), this.indexOf(targetValue));
   }
 
   /**
-   * Removes favorite with handled value.
+   * Removes favorite with handled index.
    */
-  async delete(value: string) {
-    if (value == null) return;
+  async delete(index: number) {
+    if (this.indexOutOfBounds(index)) return;
 
-    if (this.hasFavorite(value)) {
-      this._favs.splice(this.indexOf(value), 1);
-    }
+    this._favs.splice(index, 1);
     await this.store();
   }
 

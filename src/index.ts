@@ -72,7 +72,6 @@ joplin.plugins.register({
       label: 'Background color',
       description: "Main background color of the panel. (default: Note list background color)"
     });
-
     await SETTINGS.registerSetting('mainForeground', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -81,6 +80,15 @@ joplin.plugins.register({
       advanced: true,
       label: 'Foreground color',
       description: "Default foreground color used for text and icons. (default: App faded color)"
+    });
+    await SETTINGS.registerSetting('dividerColor', {
+      value: SettingDefaults.Default,
+      type: SettingItemType.String,
+      section: 'favorites.settings',
+      public: true,
+      advanced: true,
+      label: 'Divider color',
+      description: "Color of the divider between the favorites. (default: App divider/border color)"
     });
 
     //#endregion
@@ -103,7 +111,31 @@ joplin.plugins.register({
       }
     }
 
+    async function openFavorite(value: string) {
+
+      // get favorite from internal storage
+      const favorite: any = await favorites.get(value);
+      if (!favorite) return;
+
+      if (favorite.type == FavoriteType.Folder) {
+        // TODO check if entry still exists, otherwise ask user to remove it
+        COMMANDS.execute('openFolder', value);
+      }
+      if (favorite.type == FavoriteType.Note || favorite.type == FavoriteType.Todo) {
+        // TODO check if entry still exists, otherwise ask user to remove it
+        COMMANDS.execute('openNote', value);
+      }
+      if (favorite.type == FavoriteType.Tag) {
+        // TODO check if entry still exists, otherwise ask user to remove it
+        COMMANDS.execute('openTag', value);
+      }
+      // TODO wie search öffnen?
+
+      console.info(`openFavorite: ${JSON.stringify(favorite)}`); // TODO remove
+    }
+
     async function addFavorite(value: string, defaultTitle: string, type: FavoriteType) {
+
       // TODO ask user for name (open dialog)
       // - if cancelled - return
       // - default = handled title
@@ -113,66 +145,42 @@ joplin.plugins.register({
       console.info(`favorites: ${JSON.stringify(favorites)}`); // TODO remove
     }
 
-    async function openFavorite(value: string) {
-      if (!value) return;
-
-      // get favorite from array
-      const favorite: any = await favorites.get(value);
-      if (!favorite) return;
-
-      console.info(`openFavorite: ${JSON.stringify(favorite)}`); // TODO remove
-
-      if (favorite.type == FavoriteType.Folder) {
-        // TODO check if entry still exists, otherwise ask user to remove it
-        COMMANDS.execute('openFolder', favorite.value);
-      }
-      if (favorite.type == FavoriteType.Note || favorite.type == FavoriteType.Todo) {
-        // TODO check if entry still exists, otherwise ask user to remove it
-        COMMANDS.execute('openNote', favorite.value);
-      }
-      if (favorite.type == FavoriteType.Tag) {
-        // TODO check if entry still exists, otherwise ask user to remove it
-        COMMANDS.execute('openTag', favorite.value);
-      }
-      // TODO wie search öffnen?
-    }
-
     async function editFavorite(value: string) {
-      if (!value) return;
 
-      // get favorite from array
+      // get favorite from internal storage
       const favorite: any = await favorites.get(value);
       if (!favorite) return;
-
-      console.info(`editFavorite: ${JSON.stringify(favorites)}`); // TODO remove
 
       // TODO
       // öffnet dialog zum ändern des names und des Wertes
       // wertes label entweder als Id oder Query anzeigen
 
       await updatePanelView();
+
+      console.info(`editFavorite: ${JSON.stringify(favorites)}`); // TODO remove
     }
 
     async function removeFavorite(value: string) {
-      if (!value) return;
-
-      await favorites.delete(value);
+      await favorites.delete(favorites.indexOf(value));
       await updatePanelView();
     }
 
     await COMMANDS.register({
       name: 'favsAddFolder',
       label: 'Favorites: Add notebook',
-      iconName: 'fas fa-folder-plus',
+      iconName: 'fas fa-book',
+      enabledCondition: 'oneFolderSelected',
       execute: async (folderId: string) => {
         if (folderId) {
 
           // return if selected folder has already a favorite
           if (favorites.hasFavorite(folderId)) return;
 
-          // TODO get folder from data
-          let title: string = 'FolderTest';
-          await addFavorite(folderId, title, FavoriteType.Folder);
+          // get concrete folder data
+          const folder = await DATA.get(['folders', folderId], { fields: ['id', 'title'] });
+          if (!folder) return;
+
+          await addFavorite(folder.id, folder.title, FavoriteType.Folder);
         } else {
 
           // get selected folder and return if empty
@@ -190,17 +198,19 @@ joplin.plugins.register({
     await COMMANDS.register({
       name: 'favsAddNote',
       label: 'Favorites: Add note',
-      iconName: 'fas fa-file-medical',
+      iconName: 'fas fa-sticky-note',
       enabledCondition: "oneNoteSelected",
       execute: async (noteIds: string[]) => {
         if (noteIds && noteIds.length == 1) {
+
           // return if selected note has already a favorite
           if (favorites.hasFavorite(noteIds[0])) return;
 
-          // TODO get note from data
-          let title: string = 'NoteTest';
-          // TODO consider note type is_todo
-          await addFavorite(noteIds[0], title, FavoriteType.Note);
+          // get concrete note data
+          const note = await DATA.get(['notes', noteIds[0]], { fields: ['id', 'title', 'is_todo'] });
+          if (!note) return;
+
+          await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note);
         } else {
 
           // get selected note and return if empty
@@ -211,6 +221,25 @@ joplin.plugins.register({
           if (favorites.hasFavorite(selectedNote.id)) return;
 
           await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note);
+        }
+      }
+    });
+
+    await COMMANDS.register({
+      name: 'favsAddTag',
+      label: 'Favorites: Add tag',
+      iconName: 'fas fa-tag',
+      execute: async (tagId: string) => {
+        if (tagId) {
+
+          // return if selected tag has already a favorite
+          if (favorites.hasFavorite(tagId)) return;
+
+          // get concrete tag data
+          const tag = await DATA.get(['tags', tagId], { fields: ['id', 'title'] });
+          if (!tag) return;
+
+          await addFavorite(tag.id, tag.title, FavoriteType.Tag);
         }
       }
     });
@@ -235,16 +264,16 @@ joplin.plugins.register({
     const commandsSubMenu: MenuItem[] = [
       {
         commandName: "favsAddFolder",
-        label: 'Add current Notebook'
+        label: 'Add selected notebook'
       },
       {
         commandName: "favsAddNote",
-        label: 'Add selected Note'
+        label: 'Add selected note'
       },
-      // {
-      //   commandName: "favsAddTag",
-      //   label: 'Add selected Tag'
-      // },
+      {
+        commandName: "favsAddTag",
+        label: 'Add selected tag'
+      },
       // {
       //   commandName: "favsAddActiveSearch",
       //   label: 'Add current active search'
@@ -260,16 +289,17 @@ joplin.plugins.register({
     ];
     await joplin.views.menus.create('toolsFavorites', 'Favorites', commandsSubMenu, MenuItemLocation.Tools);
 
-    // add commands to folder context menu
-    await joplin.views.menuItems.create('folderContextMenuAddFolder', 'favsAddFolder', MenuItemLocation.FolderContextMenu);
+    // add commands to folders context menu
+    await joplin.views.menuItems.create('foldersContextMenuAddFolder', 'favsAddFolder', MenuItemLocation.FolderContextMenu);
 
-    // add commands to note list context menu
-    await joplin.views.menuItems.create('noteListContextMenuAddNote', 'favsAddNote', MenuItemLocation.NoteListContextMenu);
+    // add commands to tags context menu
+    await joplin.views.menuItems.create('tagsContextMenuAddNote', 'favsAddTag', MenuItemLocation.TagContextMenu);
+
+    // add commands to notes context menu
+    await joplin.views.menuItems.create('notesContextMenuAddNote', 'favsAddNote', MenuItemLocation.NoteListContextMenu);
 
     // add commands to editor context menu
     await joplin.views.menuItems.create('editorContextMenuAddNote', 'favsAddNote', MenuItemLocation.EditorContextMenu);
-
-    // TODO map favsAddTag to tags context menu
 
     //#endregion
 
@@ -290,14 +320,8 @@ joplin.plugins.register({
       if (message.name === 'favsRemove') {
         removeFavorite(message.id);
       }
-      if (message.name === 'favsAddFolder') {
-        COMMANDS.execute('favsAddFolder');
-      }
-      if (message.name === 'favsAddNote') {
-        COMMANDS.execute('favsAddNote');
-      }
       if (message.name === 'favsDrag') {
-        await favorites.moveWithId(message.sourceId, message.targetId);
+        await favorites.moveWithValue(message.sourceId, message.targetId);
         await updatePanelView();
       }
     });
@@ -321,18 +345,17 @@ joplin.plugins.register({
       const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
       const lineHeight: number = await SETTINGS.value('lineHeight');
       const maxWidth: number = await SETTINGS.value('maxFavoriteWidth');
-      const background: string = await SETTINGS.value('mainBackground');
-      const foreground: string = await SETTINGS.value('mainForeground');
+      const background: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
+      const foreground: string = await getSettingOrDefault('mainForeground', SettingDefaults.Foreground);
+      const dividerColor: string = await getSettingOrDefault('dividerColor', SettingDefaults.DividerColor);
 
       // create HTML for each favorite
       for (const favorite of favorites.getAll()) {
-
-        // TODO bei hover werden beide icons angezeigt (sonst disabled)
         favsHtml.push(`
           <div id="favorite" data-id="${favorite.value}"
               draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
               style="height:${lineHeight}px;max-width:${maxWidth}px;background:${background};">
-            <div id="favorite-inner" data-id="${favorite.value}">
+            <div id="favorite-inner" style="border-color:${dividerColor};" data-id="${favorite.value}">
               <span class="favorite-title" data-id="${favorite.value}" style="color:${foreground};" title="${favorite.title}">
                 ${favorite.title}
               </span>
@@ -341,6 +364,7 @@ joplin.plugins.register({
         `);
       }
       // TODO re-add hoover icons
+      // TODO bei hover werden beide icons angezeigt (sonst disabled)
       //   <div id="favorite-controls">
       //   <a href="#" id="editFavorite" class="fas fa-edit" title="Edit" data-id="${favorite.value}" style="color:${foreground};">
       //   <a href="#" id="removeFavorite" class="fas fa-times" title="Remove" data-id="${favorite.value}" style="color:${foreground};">

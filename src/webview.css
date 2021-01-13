@@ -45,11 +45,8 @@ span {
 }
 
 #favorite {
-  border-style: solid;
-  border-width: 0;
-  border-right-width: 1px;
+  align-items: center;
   display: flex;
-  padding: 0 8px;
 }
 #favorite .fas {
   margin-left: auto;
@@ -60,19 +57,24 @@ span {
 #favorite:hover .fas {
   visibility: visible;
 }
-
-.favorite-inner {
-  align-items: center;
-  display: flex;
-  height: 100%;
-  width: 100%;
+#favorite-inner {
+  border-style: solid;
+  border-width: 0;
+  border-right-width: 1px;
+  padding: 3px 6px;
 }
-
-.favorite-title {
+#favorite:last-of-type > #favorite-inner {
+  border-style: none;
+}
+#favorite-inner  {
   overflow: hidden;
-  padding-right: 3px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+#favorite:hover,
+#favorite-inner:hover,
+#favorite-inner:hover {
+  text-decoration: underline;
 }
 
 #controls {
