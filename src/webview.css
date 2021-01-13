@@ -61,20 +61,21 @@ span {
   border-style: solid;
   border-width: 0;
   border-right-width: 1px;
-  padding: 3px 6px;
+  padding: 2px 6px;
 }
 #favorite:last-of-type > #favorite-inner {
   border-style: none;
 }
-#favorite-inner  {
+#favorite-inner {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 #favorite:hover,
 #favorite-inner:hover,
-#favorite-inner:hover {
+.favorite-title:hover {
   text-decoration: underline;
+  cursor: pointer;
 }
 
 #controls {

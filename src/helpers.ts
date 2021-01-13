@@ -101,10 +101,10 @@ export class Favorites {
    * Gets index of favorite with handled value. -1 if not exist.
    */
   indexOf(value: string): number {
-    if (value == null) return;
-
-    for (let i: number = 0; i < this.length(); i++) {
-      if (this._favs[i]['value'] === value) return i;
+    if (value) {
+      for (let i: number = 0; i < this.length(); i++) {
+        if (this._favs[i]['value'] === value) return i;
+      }
     }
     return -1;
   }
@@ -134,7 +134,7 @@ export class Favorites {
     if (this.indexOutOfBounds(targetIdx)) return;
 
     const favorite: any = this._favs[sourceIdx];
-    await this.delete(sourceIdx);
+    this._favs.splice(sourceIdx, 1);
     await this.insertAtIndex((targetIdx == 0 ? 0 : targetIdx), favorite);
     await this.store();
   }
@@ -149,12 +149,13 @@ export class Favorites {
   }
 
   /**
-   * Removes favorite with handled index.
-   */
-  async delete(index: number) {
-    if (this.indexOutOfBounds(index)) return;
-
-    this._favs.splice(index, 1);
+  * Removes favorite with handled value.
+  */
+  async delete(value: string) {
+    const index = this.indexOf(value);
+    if (index >= 0) {
+      this._favs.splice(index, 1);
+    }
     await this.store();
   }
 

@@ -1,5 +1,6 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
+import { stringify } from 'querystring';
 import { FavoriteType, Favorites, SettingDefaults } from './helpers';
 
 joplin.plugins.register({
@@ -100,6 +101,30 @@ joplin.plugins.register({
 
     //#endregion
 
+    //#region INPUT DIALOG
+
+    // prepare dialog object
+    const inputDialog = await DIALOGS.create('favorites.dialog');
+    await DIALOGS.addScript(inputDialog, './webview_dialog.css');
+
+    async function getUserInput(label: string, defaultValue: string): Promise<string> {
+      await DIALOGS.setHtml(inputDialog, `
+       <div id="inputDialog">
+         <form name="inputForm" style="display:grid;">
+           <label for="title" style="padding:5px 2px;">${label}</label>
+           <input type="text" id="title" name="title" style="padding:2px;" value="${defaultValue}">
+         </form>
+       </div>
+     `);
+      const result: any = await DIALOGS.open(inputDialog);
+      if (result.id == "ok" && result.formData != null) {
+        return result.formData.inputForm.title;
+      }
+      return defaultValue;
+    }
+
+    //#endregion
+
     //#region COMMANDS
 
     async function getSettingOrDefault(setting: string, defaultValue: string): Promise<string> {
@@ -111,43 +136,58 @@ joplin.plugins.register({
       }
     }
 
-    async function openFavorite(value: string) {
+    async function checkAndRemoveFavorite(value: string, dataType: string): Promise<boolean> {
+      const item = await DATA.get([dataType, value], { fields: ['id'] });
+      if (item) return false;
 
-      // get favorite from internal storage
+      await favorites.delete(value);
+      return true;
+    }
+
+    async function openFavorite(value: string) {
       const favorite: any = await favorites.get(value);
       if (!favorite) return;
 
-      if (favorite.type == FavoriteType.Folder) {
-        // TODO check if entry still exists, otherwise ask user to remove it
-        COMMANDS.execute('openFolder', value);
-      }
-      if (favorite.type == FavoriteType.Note || favorite.type == FavoriteType.Todo) {
-        // TODO check if entry still exists, otherwise ask user to remove it
-        COMMANDS.execute('openNote', value);
-      }
-      if (favorite.type == FavoriteType.Tag) {
-        // TODO check if entry still exists, otherwise ask user to remove it
-        COMMANDS.execute('openTag', value);
-      }
-      // TODO wie search öffnen?
+      switch (favorite.type) {
+        case FavoriteType.Folder:
+          // check if folder still exists - otherwise remove favorite
+          if (await checkAndRemoveFavorite(value, 'folders')) return;
 
-      console.info(`openFavorite: ${JSON.stringify(favorite)}`); // TODO remove
+          COMMANDS.execute('openFolder', value);
+          break;
+
+        case FavoriteType.Note:
+        case FavoriteType.Todo:
+          // check if note still exists - otherwise remove favorite
+          if (await checkAndRemoveFavorite(value, 'notes')) return;
+
+          COMMANDS.execute('openNote', value);
+          break;
+
+        case FavoriteType.Tag:
+          // check if tag still exists - otherwise remove favorite
+          if (await checkAndRemoveFavorite(value, 'tags')) return;
+
+          COMMANDS.execute('openTag', value);
+          break;
+
+        case FavoriteType.Search:
+          // TODO how to open searches?
+          break;
+        default:
+          break;
+      }
+
+      // console.info(`openFavorite: ${JSON.stringify(favorite)}`);
     }
 
     async function addFavorite(value: string, defaultTitle: string, type: FavoriteType) {
-
-      // TODO ask user for name (open dialog)
-      // - if cancelled - return
-      // - default = handled title
-      favorites.add(value, defaultTitle, type);
+      const title: string = await getUserInput('Set Name', defaultTitle);
+      favorites.add(value, title, type);
       await updatePanelView();
-
-      console.info(`favorites: ${JSON.stringify(favorites)}`); // TODO remove
     }
 
     async function editFavorite(value: string) {
-
-      // get favorite from internal storage
       const favorite: any = await favorites.get(value);
       if (!favorite) return;
 
@@ -161,7 +201,7 @@ joplin.plugins.register({
     }
 
     async function removeFavorite(value: string) {
-      await favorites.delete(favorites.indexOf(value));
+      await favorites.delete(value);
       await updatePanelView();
     }
 
@@ -385,9 +425,10 @@ joplin.plugins.register({
     //#region MAP EVENTS
 
     // TODO check if necessary - otherwise remove
-    // WORKSPACE.onNoteSelectionChange(async () => {
-    //   await updatePanelView();
-    // });
+    // TODO if onSettingChange is implemented this might be removed
+    WORKSPACE.onNoteSelectionChange(async () => {
+      await updatePanelView();
+    });
 
     // WORKSPACE.onNoteChange(async () => {
     //   await updatePanelView();
