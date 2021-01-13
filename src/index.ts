@@ -101,30 +101,6 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region INPUT DIALOG
-
-    // prepare dialog object
-    const inputDialog = await DIALOGS.create('favorites.dialog');
-    await DIALOGS.addScript(inputDialog, './webview_dialog.css');
-
-    async function getUserInput(label: string, defaultValue: string): Promise<string> {
-      await DIALOGS.setHtml(inputDialog, `
-       <div id="inputDialog">
-         <form name="inputForm" style="display:grid;">
-           <label for="title" style="padding:5px 2px;">${label}</label>
-           <input type="text" id="title" name="title" style="padding:2px;" value="${defaultValue}">
-         </form>
-       </div>
-     `);
-      const result: any = await DIALOGS.open(inputDialog);
-      if (result.id == "ok" && result.formData != null) {
-        return result.formData.inputForm.title;
-      }
-      return defaultValue;
-    }
-
-    //#endregion
-
     //#region COMMANDS
 
     async function getSettingOrDefault(setting: string, defaultValue: string): Promise<string> {
@@ -133,6 +109,23 @@ joplin.plugins.register({
         return defaultValue;
       } else {
         return value;
+      }
+    }
+
+    function getFavoriteTypeString(type: FavoriteType) {
+      switch (type) {
+        case FavoriteType.Folder:
+          return 'folder ';
+        case FavoriteType.Note:
+          return 'note ';
+        case FavoriteType.Todo:
+          return 'to-do ';
+        case FavoriteType.Tag:
+          return 'tag ';
+        case FavoriteType.Search:
+          return 'search query '
+        default:
+          return '';
       }
     }
 
@@ -150,24 +143,18 @@ joplin.plugins.register({
 
       switch (favorite.type) {
         case FavoriteType.Folder:
-          // check if folder still exists - otherwise remove favorite
           if (await checkAndRemoveFavorite(value, 'folders')) return;
-
           COMMANDS.execute('openFolder', value);
           break;
 
         case FavoriteType.Note:
         case FavoriteType.Todo:
-          // check if note still exists - otherwise remove favorite
           if (await checkAndRemoveFavorite(value, 'notes')) return;
-
           COMMANDS.execute('openNote', value);
           break;
 
         case FavoriteType.Tag:
-          // check if tag still exists - otherwise remove favorite
           if (await checkAndRemoveFavorite(value, 'tags')) return;
-
           COMMANDS.execute('openTag', value);
           break;
 
@@ -177,13 +164,15 @@ joplin.plugins.register({
         default:
           break;
       }
-
-      // console.info(`openFavorite: ${JSON.stringify(favorite)}`);
     }
 
-    async function addFavorite(value: string, defaultTitle: string, type: FavoriteType) {
-      const title: string = await getUserInput('Set Name', defaultTitle);
-      favorites.add(value, title, type);
+    async function addFavorite(value: string, defaultTitle: string, type: FavoriteType, showUserInput: boolean = true) {
+      let title: string = defaultTitle;
+      if (showUserInput) {
+        title = await getUserInput(`Add ${getFavoriteTypeString(type)}to favorites`, defaultTitle);
+        if (!title) return;
+      }
+      await favorites.add(value, title, type);
       await updatePanelView();
     }
 
@@ -191,13 +180,11 @@ joplin.plugins.register({
       const favorite: any = await favorites.get(value);
       if (!favorite) return;
 
-      // TODO
-      // öffnet dialog zum ändern des names und des Wertes
-      // wertes label entweder als Id oder Query anzeigen
+      const title: string = await getUserInput('Edit favorite', favorite.title);
+      if (title == favorite.title) return;
 
+      await favorites.rename(value, title);
       await updatePanelView();
-
-      console.info(`editFavorite: ${JSON.stringify(favorites)}`); // TODO remove
     }
 
     async function removeFavorite(value: string) {
@@ -205,6 +192,8 @@ joplin.plugins.register({
       await updatePanelView();
     }
 
+    // Command: favsAddFolder
+    // Desc: Add selected folder to favorites
     await COMMANDS.register({
       name: 'favsAddFolder',
       label: 'Favorites: Add notebook',
@@ -222,8 +211,6 @@ joplin.plugins.register({
 
           await addFavorite(folder.id, folder.title, FavoriteType.Folder);
         } else {
-
-          // get selected folder and return if empty
           const selectedFolder: any = await WORKSPACE.selectedFolder();
           if (!selectedFolder) return;
 
@@ -235,22 +222,26 @@ joplin.plugins.register({
       }
     });
 
+    // Command: favsAddNote
+    // Desc: Add selected note to favorites
     await COMMANDS.register({
       name: 'favsAddNote',
       label: 'Favorites: Add note',
       iconName: 'fas fa-sticky-note',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: "someNotesSelected",
       execute: async (noteIds: string[]) => {
-        if (noteIds && noteIds.length == 1) {
+        if (noteIds) {
+          for (const noteId of noteIds) {
+            // continue with next one if for note id already a favorite exists
+            if (favorites.hasFavorite(noteId)) continue;
 
-          // return if selected note has already a favorite
-          if (favorites.hasFavorite(noteIds[0])) return;
+            // get concrete note data
+            const note = await DATA.get(['notes', noteId], { fields: ['id', 'title', 'is_todo'] });
+            if (!note) return;
 
-          // get concrete note data
-          const note = await DATA.get(['notes', noteIds[0]], { fields: ['id', 'title', 'is_todo'] });
-          if (!note) return;
-
-          await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note);
+            // in case multiple notes are selected - add them directly without user interaction
+            await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note, (noteIds.length == 1));
+          }
         } else {
 
           // get selected note and return if empty
@@ -265,6 +256,8 @@ joplin.plugins.register({
       }
     });
 
+    // Command: favsAddTag
+    // Desc: Add tag to favorites
     await COMMANDS.register({
       name: 'favsAddTag',
       label: 'Favorites: Add tag',
@@ -340,6 +333,30 @@ joplin.plugins.register({
 
     // add commands to editor context menu
     await joplin.views.menuItems.create('editorContextMenuAddNote', 'favsAddNote', MenuItemLocation.EditorContextMenu);
+
+    //#endregion
+
+    //#region INPUT DIALOG
+
+    // prepare dialog object
+    const userInput = await DIALOGS.create('userInput');
+    await DIALOGS.addScript(userInput, './webview_dialog.css');
+
+    async function getUserInput(label: string, defaultValue: string): Promise<string> {
+      await DIALOGS.setHtml(userInput, `
+        <div id="userInput">
+          <h3>${label}</h3>
+          <form name="inputForm">
+            <input type="text" id="title" name="title" value="${defaultValue}">
+          </form>
+        </div>
+      `);
+      const result: any = await DIALOGS.open(userInput);
+      if (result.id == "ok" && result.formData != null) {
+        return result.formData.inputForm.title;
+      }
+      return '';
+    }
 
     //#endregion
 

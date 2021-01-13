@@ -2,3 +2,11 @@
 #joplin-plugin-content {
   min-width: 300px;
 }
+
+form {
+  display: grid;
+}
+
+input {
+  padding: 2px;
+}

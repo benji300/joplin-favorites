@@ -62,16 +62,6 @@ export class Favorites {
   }
 
   /**
-   * Inserts handled favorite at specified index.
-   */
-  private async insertAtIndex(index: number, favorite: any) {
-    if (this.indexOutOfBounds(index) || favorite == null) return;
-
-    this._favs.splice(index, 0, favorite);
-    await this.store();
-  }
-
-  /**
    * Gets the number of favorites.
    */
   length(): number {
@@ -126,6 +116,16 @@ export class Favorites {
     await this.store();
   }
 
+  async rename(value: string, newTitle: string) {
+    const index: number = this.indexOf(value);
+    if (index < 0) return;
+
+    let favorite: any = this._favs[index];
+    favorite.title = newTitle;
+    this._favs.splice(index, 1, favorite);
+    await this.store();
+  }
+
   /**
    * Moves the favorite on source index to the target index.
    */
@@ -135,7 +135,7 @@ export class Favorites {
 
     const favorite: any = this._favs[sourceIdx];
     this._favs.splice(sourceIdx, 1);
-    await this.insertAtIndex((targetIdx == 0 ? 0 : targetIdx), favorite);
+    this._favs.splice((targetIdx == 0 ? 0 : targetIdx), 0, favorite);
     await this.store();
   }
 
