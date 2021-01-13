@@ -28,7 +28,8 @@ It allows to add any notebook, note, to-do or tag to a favorites panel to access
   - Note/to-do
   - Tag
   - Search query (currently not supported - hopefully added later)
-- Set and edit names of the favorites
+- Set user defined names for the favorites
+- Right-click on favorites to edit or remove
 - Change position of favorites within the panel via drag & drop
 - [Configurable](#user-options) style attributes
 - Support horizontal and vertical layout

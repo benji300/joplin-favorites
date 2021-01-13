@@ -1,5 +1,17 @@
 /* DOUBLE CLICK EVENT */
-document.addEventListener('dblclick', event => {
+// document.addEventListener('dblclick', event => {
+//   const element = event.target;
+
+//   if (element.id === 'favorite' || element.className === 'favorite-inner' || element.className === 'favorite-title') {
+//     webviewApi.postMessage({
+//       name: 'favsEdit',
+//       id: element.dataset.id
+//     });
+//   }
+// })
+
+/* RIGHT CLICK EVENT */
+document.addEventListener('contextmenu', event => {
   const element = event.target;
 
   if (element.id === 'favorite' || element.className === 'favorite-inner' || element.className === 'favorite-title') {

@@ -37,6 +37,14 @@ joplin.plugins.register({
       label: 'Enable drag & drop of favorites',
       description: 'If enabled, the position of favorites can be change via drag & drop.'
     });
+    await SETTINGS.registerSetting('showTypeIcons', {
+      value: true,
+      type: SettingItemType.Bool,
+      section: 'favorites.settings',
+      public: true,
+      label: 'Show type icons for favorites',
+      description: 'Display icons before favorite titles representing the types (notebook, note, tag, etc.).'
+    });
     await SETTINGS.registerSetting('lineHeight', {
       value: "40",
       type: SettingItemType.Int,
@@ -120,10 +128,10 @@ joplin.plugins.register({
       }
     }
 
-    function getFavoriteTypeString(type: FavoriteType) {
+    function getFavoriteTypeString(type: FavoriteType): string {
       switch (type) {
         case FavoriteType.Folder:
-          return 'folder ';
+          return 'notebook ';
         case FavoriteType.Note:
           return 'note ';
         case FavoriteType.Todo:
@@ -134,6 +142,22 @@ joplin.plugins.register({
           return 'search query '
         default:
           return '';
+      }
+    }
+
+    function getTypeIcon(type: FavoriteType): string {
+      switch (type) {
+        case FavoriteType.Folder:
+          return 'fa-book';
+        case FavoriteType.Todo:
+          return 'fa-check-square';
+        case FavoriteType.Tag:
+          return 'fa-tag';
+        case FavoriteType.Search:
+          return 'fa-search'
+        case FavoriteType.Note:
+        default:
+          return 'fa-file-alt';
       }
     }
 
@@ -176,23 +200,51 @@ joplin.plugins.register({
 
     async function addFavorite(value: string, defaultTitle: string, type: FavoriteType, showUserInput: boolean = true) {
       let title: string = defaultTitle;
+
       if (showUserInput) {
-        title = await getUserInput(`Add ${getFavoriteTypeString(type)}to favorites`, defaultTitle);
-        if (!title) return;
+        await DIALOGS.setHtml(userInput, `
+          <div>
+            <h3>Add ${getFavoriteTypeString(type)} to favorites</h3>
+            <form name="inputForm">
+              <input type="text" id="title" name="title" value="${title}">
+            </form>
+          </div>
+        `);
+        const result: any = await DIALOGS.open(userInput);
+        if (result.id == "ok" && result.formData != null && result.formData.inputForm.title != '') {
+          title = result.formData.inputForm.title;
+        } else {
+          return;
+        }
       }
+
       await favorites.add(value, title, type);
       await updatePanelView();
     }
 
-    async function editFavorite(value: string) {
+    async function editFavorite(value: string, showUserInput: boolean = true) {
       const favorite: any = await favorites.get(value);
       if (!favorite) return;
 
-      const title: string = await getUserInput('Edit favorite', favorite.title);
-      if (title == favorite.title) return;
-
-      await favorites.rename(value, title);
-      await updatePanelView();
+      // TODO add buttons to delete favorite, reset name
+      // TODO consider right-click also on fav icons
+      if (showUserInput) {
+        await DIALOGS.setHtml(userInput, `
+          <div>
+            <h3>Edit favorite of ${getFavoriteTypeString(favorite.type)}</h3>
+            <form name="inputForm">
+              <input type="text" id="title" name="title" value="${favorite.title}">
+            </form>
+          </div>
+        `);
+        const result: any = await DIALOGS.open(userInput);
+        if (result.id == "ok" && result.formData != null && result.formData.inputForm.title != '') {
+          await favorites.rename(value, result.formData.inputForm.title);
+          await updatePanelView();
+        } else {
+          return;
+        }
+      }
     }
 
     async function removeFavorite(value: string) {
@@ -408,6 +460,7 @@ joplin.plugins.register({
 
       // get style values from settings
       const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
+      const showTypeIcons: boolean = await SETTINGS.value('showTypeIcons');
       const lineHeight: number = await SETTINGS.value('lineHeight');
       const minWidth: number = await SETTINGS.value('minFavoriteWidth');
       const maxWidth: number = await SETTINGS.value('maxFavoriteWidth');
@@ -415,14 +468,21 @@ joplin.plugins.register({
       const foreground: string = await getSettingOrDefault('mainForeground', SettingDefaults.Foreground);
       const dividerColor: string = await getSettingOrDefault('dividerColor', SettingDefaults.DividerColor);
 
+
+
       // create HTML for each favorite
       for (const favorite of favorites.getAll()) {
+
+        // prepare type icon if enabled
+        const typeIconHtml: string = showTypeIcons ? `<span class="fas ${getTypeIcon(favorite.type)}" style="color:${foreground};"></span>` : '';
+
         favsHtml.push(`
           <div id="favorite" data-id="${favorite.value}"
               draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
-              style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};">
+              style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};color:${foreground};">
             <div id="favorite-inner" style="border-color:${dividerColor};" data-id="${favorite.value}">
-              <span class="favorite-title" data-id="${favorite.value}" style="color:${foreground};" title="${favorite.title}">
+              ${typeIconHtml}
+              <span class="favorite-title" data-id="${favorite.value}" title="${favorite.title}">
                 ${favorite.title}
               </span>
             </div>
