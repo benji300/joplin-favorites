@@ -103,11 +103,22 @@ joplin.plugins.register({
       }
     }
 
+    async function addFavorite(value: string, defaultTitle: string, type: FavoriteType) {
+      // TODO ask user for name (open dialog)
+      // - if cancelled - return
+      // - default = handled title
+      favorites.add(value, defaultTitle, type);
+      await updatePanelView();
+
+      console.info(`favorites: ${JSON.stringify(favorites)}`); // TODO remove
+    }
+
     async function openFavorite(value: string) {
       if (!value) return;
 
       // get favorite from array
       const favorite: any = await favorites.get(value);
+      if (!favorite) return;
 
       console.info(`openFavorite: ${JSON.stringify(favorite)}`); // TODO remove
 
@@ -126,28 +137,27 @@ joplin.plugins.register({
       // TODO wie search öffnen?
     }
 
-    async function addFavorite(value: string, defaultTitle: string, type: FavoriteType) {
-      // TODO ask user for name (open dialog)
-      // - if cancelled - return
-      // - default = handled title
-      favorites.add(value, defaultTitle, type);
-      await updatePanelView();
+    async function editFavorite(value: string) {
+      if (!value) return;
 
-      console.info(`favorites: ${JSON.stringify(favorites)}`); // TODO remove
-    }
+      // get favorite from array
+      const favorite: any = await favorites.get(value);
+      if (!favorite) return;
 
-    async function editFavorite(message: any) {
-      console.info(`editFavorite: ${message}`); // TODO remove
+      console.info(`editFavorite: ${JSON.stringify(favorites)}`); // TODO remove
 
       // TODO
       // öffnet dialog zum ändern des names und des Wertes
       // wertes label entweder als Id oder Query anzeigen
+
+      await updatePanelView();
     }
 
-    async function removeFavorite(message: any) {
-      console.info(`removeFavorite: ${message}`); // TODO remove
+    async function removeFavorite(value: string) {
+      if (!value) return;
 
-      // TODO
+      await favorites.delete(value);
+      await updatePanelView();
     }
 
     await COMMANDS.register({
@@ -243,18 +253,6 @@ joplin.plugins.register({
       //   commandName: "favsAddNewSearch",
       //   label: 'Add new search query'
       // },
-      // {
-      //   commandName: "favsMoveLeft",
-      //   label: 'Move favorite left'
-      // },
-      // {
-      //   commandName: "favsMoveRight",
-      //   label: 'Move favorite right'
-      // },
-      // {
-      //   commandName: "favsRemoveEntry",
-      //   label: 'Remove from favorites'
-      // },
       {
         commandName: "favsClear",
         label: 'Remove all favorites'
@@ -284,15 +282,13 @@ joplin.plugins.register({
     await PANELS.addScript(panel, './webview.js');
     await PANELS.onMessage(panel, async (message: any) => {
       if (message.name === 'favsOpen') {
-        openFavorite(message);
+        openFavorite(message.id);
       }
       if (message.name === 'favsEdit') {
-        editFavorite(message);
-        updatePanelView();
+        editFavorite(message.id);
       }
       if (message.name === 'favsRemove') {
-        removeFavorite(message);
-        updatePanelView();
+        removeFavorite(message.id);
       }
       if (message.name === 'favsAddFolder') {
         COMMANDS.execute('favsAddFolder');
@@ -340,14 +336,15 @@ joplin.plugins.register({
               <span class="favorite-title" data-id="${favorite.value}" style="color:${foreground};" title="${favorite.title}">
                 ${favorite.title}
               </span>
-              <div class="favorite-icons">
-                <a href="#" id="editFavorite" class="fas fa-edit" title="Edit" data-id="${favorite.value}" style="color:${foreground};">
-                <a href="#" id="removeFavorite" class="fas fa-times" title="Remove" data-id="${favorite.value}" style="color:${foreground};">
-              </div>
             </div>
           </div>
         `);
       }
+      // TODO re-add hoover icons
+      //   <div id="favorite-controls">
+      //   <a href="#" id="editFavorite" class="fas fa-edit" title="Edit" data-id="${favorite.value}" style="color:${foreground};">
+      //   <a href="#" id="removeFavorite" class="fas fa-times" title="Remove" data-id="${favorite.value}" style="color:${foreground};">
+      // </div>
 
       // add entries to container and push to panel
       await PANELS.setHtml(panel, `

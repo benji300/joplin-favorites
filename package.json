@@ -1,7 +1,7 @@
 {
-  "name": "joplin-plugin-favorites",
+  "name": "joplin-plugin-benji-favorites",
   "version": "1.0.0",
-  "description": "TODO",
+  "description": "Add any notebook, note, to-do or tag to a favorites panel to access them quickly.",
   "author": "Benji300",
   "homepage": "https://github.com/benji300/joplin-favorites",
   "bugs": {

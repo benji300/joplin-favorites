@@ -2,7 +2,7 @@
 
 Joplin Favorites is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
 
-TODO add basic description
+It allows to add any notebook, note, to-do or tag to a favorites panel to access them quickly.
 
 > :warning: **CAUTION** - Requires Joplin **v1.6.5** or newer
 
@@ -23,7 +23,12 @@ TODO add basic description
 ## Features
 
 // TODO
-- Display selected note as tab
+- Add any of the following item types to a favorites panel
+  - Notebook (Folder)
+  - Note/to-do
+  - Tag
+  - Search query (currently not supported - hopefully added later)
+- Set and edit names of the favorites
 - Change position of favorites within the panel via drag & drop
 - [Configurable](#user-options) style attributes
 - Support horizontal and vertical layout
@@ -82,24 +87,24 @@ This plugin adds provides user options which can be changed via `Tools > Options
 ### Joplin v1.6.4 and newer
 
 - Open Joplin and navigate to `Tools > Options > Plugins`
-- Search for `tabs` and press install
+- Search for `favorites` and press install
 - Restart Joplin to enable the plugin
 
 ### Joplin v1.6.2 and previous
 
-- Download the latest released JPL package (`joplin.plugin.favorites.jpl`) from [here](https://github.com/benji300/joplin-favorites/releases)
+- Download the latest released JPL package (`joplin.plugin.benji.favorites.jpl`) from [here](https://github.com/benji300/joplin-favorites/releases)
 - Open Joplin and navigate to `Tools > Options > Plugins`
 - Press `Install plugin` and select the previously downloaded `jpl` file
 - Confirm selection
 - Restart Joplin to enable the plugin
 
-### Place tabs
+### Place panel
 
-By default the tabs will be on the right side of the screen, this can be adjusted by:
+By default the panel will be on the right side of the screen, this can be adjusted by:
 
 - `View > Change application layout`
 - Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
-- Move the splitter (between content and tabs panel) up to reach the desired height of the panel
+- Move the splitter to reach the desired height/width of the panel
 - Press `ESC` to save the layout and return to normal mode
 
 ## Uninstallation
