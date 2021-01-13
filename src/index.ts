@@ -45,13 +45,21 @@ joplin.plugins.register({
       label: 'Favorites line height (px)',
       description: 'Line height of the favorites panel.'
     });
+    await SETTINGS.registerSetting('minFavoriteWidth', {
+      value: "15",
+      type: SettingItemType.Int,
+      section: 'favorites.settings',
+      public: true,
+      label: 'Minimum favorite width (px)',
+      description: 'Minimum width   of one favorite entry in pixel.'
+    });
     await SETTINGS.registerSetting('maxFavoriteWidth', {
-      value: "150",
+      value: "100",
       type: 1,
       section: 'favorites.settings',
       public: true,
       label: 'Maximum favorite width (px)',
-      description: 'Maximum of one favorite in pixel.'
+      description: 'Maximum width of one favorite entry in pixel.'
     });
 
     // Advanced settings
@@ -401,6 +409,7 @@ joplin.plugins.register({
       // get style values from settings
       const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
       const lineHeight: number = await SETTINGS.value('lineHeight');
+      const minWidth: number = await SETTINGS.value('minFavoriteWidth');
       const maxWidth: number = await SETTINGS.value('maxFavoriteWidth');
       const background: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
       const foreground: string = await getSettingOrDefault('mainForeground', SettingDefaults.Foreground);
@@ -411,7 +420,7 @@ joplin.plugins.register({
         favsHtml.push(`
           <div id="favorite" data-id="${favorite.value}"
               draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
-              style="height:${lineHeight}px;max-width:${maxWidth}px;background:${background};">
+              style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};">
             <div id="favorite-inner" style="border-color:${dividerColor};" data-id="${favorite.value}">
               <span class="favorite-title" data-id="${favorite.value}" style="color:${foreground};" title="${favorite.title}">
                 ${favorite.title}

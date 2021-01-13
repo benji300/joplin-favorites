@@ -62,6 +62,8 @@ span {
   border-width: 0;
   border-right-width: 1px;
   padding: 2px 6px;
+  text-align: center;
+  width: 100%;
 }
 #favorite:last-of-type > #favorite-inner {
   border-style: none;
