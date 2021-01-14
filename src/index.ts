@@ -12,7 +12,7 @@ joplin.plugins.register({
     const SETTINGS = joplin.settings;
     const WORKSPACE = joplin.workspace;
 
-    //#region USER OPTIONS
+    //#region SETTINGS
 
     await SETTINGS.registerSection('favorites.settings', {
       label: 'Favorites',
@@ -27,6 +27,10 @@ joplin.plugins.register({
       public: false,
       label: 'Favorites'
     });
+
+    // initialize favorites helper class
+    let favorites = new Favorites();
+    await favorites.read();
 
     // General settings
     await SETTINGS.registerSetting('enableDragAndDrop', {
@@ -108,17 +112,6 @@ joplin.plugins.register({
       description: "Color of the divider between the favorites. (default: App divider/border color)"
     });
 
-    //#endregion
-
-    //#region INITIALIZATION
-
-    let favorites = new Favorites();
-    await favorites.read();
-
-    //#endregion
-
-    //#region COMMANDS
-
     async function getSettingOrDefault(setting: string, defaultValue: string): Promise<string> {
       const value: string = await SETTINGS.value(setting);
       if (value.match(new RegExp(SettingDefaults.Default, "i"))) {
@@ -127,6 +120,10 @@ joplin.plugins.register({
         return value;
       }
     }
+
+    //#endregion
+
+    //#region COMMANDS
 
     async function checkAndRemoveFavorite(value: string, dataType: string): Promise<boolean> {
       const item = await DATA.get([dataType, value], { fields: ['id'] });
@@ -169,6 +166,8 @@ joplin.plugins.register({
       let title: string = defaultTitle;
 
       if (showUserInput) {
+
+        // prepare input dialog
         await DIALOGS.setHtml(userInput, `
           <div>
             <h3><span class="fas ${FavoriteDesc[type].icon}"></span> Add ${FavoriteDesc[type].name} to favorites</h3>
@@ -177,6 +176,8 @@ joplin.plugins.register({
             </form>
           </div>
         `);
+
+        // open dialog and handle result
         const result: any = await DIALOGS.open(userInput);
         if (result.id == "ok" && result.formData != null && result.formData.inputForm.title != '') {
           title = result.formData.inputForm.title;
@@ -194,6 +195,8 @@ joplin.plugins.register({
       if (!favorite) return;
 
       if (showUserInput) {
+
+        // prepare input dialog
         await DIALOGS.setHtml(userInput, `
           <div>
             <h3><span class="fas fa-edit"></span> Edit ${FavoriteDesc[favorite.type].name} favorite</h3>
@@ -203,19 +206,12 @@ joplin.plugins.register({
           </div>
         `);
         await DIALOGS.setButtons(userInput, [
-          {
-            id: 'delete',
-            title: 'Delete',
-          },
-          {
-            id: 'ok',
-            title: 'OK'
-          },
-          {
-            id: 'cancel',
-            title: 'Cancel'
-          },
+          { id: 'delete', title: 'Delete', },
+          { id: 'ok', title: 'OK' },
+          { id: 'cancel', title: 'Cancel' }
         ]);
+
+        // open dialog and handle result
         const result: any = await DIALOGS.open(userInput);
         if (result.id == "ok") {
           if (result.formData != null && result.formData.inputForm.title != '') {
