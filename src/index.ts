@@ -125,12 +125,22 @@ joplin.plugins.register({
 
     //#region COMMANDS
 
-    async function checkAndRemoveFavorite(value: string, dataType: string): Promise<boolean> {
-      const item = await DATA.get([dataType, value], { fields: ['id'] });
-      if (item) return false;
+    async function checkAndRemoveFavorite(favorite: any): Promise<boolean> {
+      try {
 
-      await favorites.delete(value);
-      return true;
+        // check if favorite target still exists
+        await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id'] });
+      } catch (err) {
+
+        // otherwise ask to remove it
+        const result: number = await DIALOGS.showMessageBox(`Cannot open favorite. Seems that the target ${FavoriteDesc[favorite.type].name.toLocaleLowerCase()} was deleted.\n\nDo you want to delete the favorite also?`);
+        if (!result) {
+          await favorites.delete(favorite.value);
+          await updatePanelView();
+          return true;
+        }
+      }
+      return false;
     }
 
     async function openFavorite(value: string) {
@@ -139,18 +149,18 @@ joplin.plugins.register({
 
       switch (favorite.type) {
         case FavoriteType.Folder:
-          if (await checkAndRemoveFavorite(value, 'folders')) return;
+          if (await checkAndRemoveFavorite(favorite)) return;
           COMMANDS.execute('openFolder', value);
           break;
 
         case FavoriteType.Note:
         case FavoriteType.Todo:
-          if (await checkAndRemoveFavorite(value, 'notes')) return;
+          if (await checkAndRemoveFavorite(favorite)) return;
           COMMANDS.execute('openNote', value);
           break;
 
         case FavoriteType.Tag:
-          if (await checkAndRemoveFavorite(value, 'tags')) return;
+          if (await checkAndRemoveFavorite(favorite)) return;
           COMMANDS.execute('openTag', value);
           break;
 
