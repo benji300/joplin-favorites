@@ -16,12 +16,31 @@ export enum SettingDefaults {
  * Favorite type definition.
  */
 export enum FavoriteType {
-  Folder = 1,
-  Note = 2,
-  Todo = 3,
-  Tag = 4,
-  Search = 5
+  Folder = 0,
+  Note = 1,
+  Todo = 2,
+  Tag = 3,
+  Search = 4
 }
+
+/**
+ * Definition of the favorite descriptions.
+ */
+interface IFavoriteDesc {
+  name: string,
+  icon: string,
+}
+
+/**
+ * Array of favorite descriptions. Order must match with FavoriteType enum.
+ */
+export const FavoriteDesc: IFavoriteDesc[] = [
+  { name: 'notebook', icon: 'fa-book' }, // Folder
+  { name: 'note', icon: 'fa-file-alt' }, // Note
+  { name: 'to-do', icon: 'fa-check-square' }, // Todo
+  { name: 'tag', icon: 'fa-tag' }, // Tag
+  { name: 'search query', icon: 'fa-search' } // Search
+];
 
 /**
  * Helper class to work with favorites array.

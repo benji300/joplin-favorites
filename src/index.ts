@@ -1,7 +1,7 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
-import { stringify } from 'querystring';
-import { FavoriteType, Favorites, SettingDefaults } from './helpers';
+import { FavoriteType, FavoriteDesc, Favorites } from './helpers';
+import { SettingDefaults, } from './helpers';
 
 joplin.plugins.register({
   onStart: async function () {
@@ -46,7 +46,7 @@ joplin.plugins.register({
       description: 'Display icons before favorite titles representing the types (notebook, note, tag, etc.).'
     });
     await SETTINGS.registerSetting('lineHeight', {
-      value: "40",
+      value: "30",
       type: SettingItemType.Int,
       section: 'favorites.settings',
       public: true,
@@ -128,39 +128,6 @@ joplin.plugins.register({
       }
     }
 
-    function getFavoriteTypeString(type: FavoriteType): string {
-      switch (type) {
-        case FavoriteType.Folder:
-          return 'notebook ';
-        case FavoriteType.Note:
-          return 'note ';
-        case FavoriteType.Todo:
-          return 'to-do ';
-        case FavoriteType.Tag:
-          return 'tag ';
-        case FavoriteType.Search:
-          return 'search query '
-        default:
-          return '';
-      }
-    }
-
-    function getTypeIcon(type: FavoriteType): string {
-      switch (type) {
-        case FavoriteType.Folder:
-          return 'fa-book';
-        case FavoriteType.Todo:
-          return 'fa-check-square';
-        case FavoriteType.Tag:
-          return 'fa-tag';
-        case FavoriteType.Search:
-          return 'fa-search'
-        case FavoriteType.Note:
-        default:
-          return 'fa-file-alt';
-      }
-    }
-
     async function checkAndRemoveFavorite(value: string, dataType: string): Promise<boolean> {
       const item = await DATA.get([dataType, value], { fields: ['id'] });
       if (item) return false;
@@ -204,7 +171,7 @@ joplin.plugins.register({
       if (showUserInput) {
         await DIALOGS.setHtml(userInput, `
           <div>
-            <h3>Add ${getFavoriteTypeString(type)} to favorites</h3>
+            <h3><span class="fas ${FavoriteDesc[type].icon}"></span> Add ${FavoriteDesc[type].name} to favorites</h3>
             <form name="inputForm">
               <input type="text" id="title" name="title" value="${title}">
             </form>
@@ -226,30 +193,42 @@ joplin.plugins.register({
       const favorite: any = await favorites.get(value);
       if (!favorite) return;
 
-      // TODO add buttons to delete favorite, reset name
-      // TODO consider right-click also on fav icons
       if (showUserInput) {
         await DIALOGS.setHtml(userInput, `
           <div>
-            <h3>Edit favorite of ${getFavoriteTypeString(favorite.type)}</h3>
+            <h3><span class="fas fa-edit"></span> Edit ${FavoriteDesc[favorite.type].name} favorite</h3>
             <form name="inputForm">
               <input type="text" id="title" name="title" value="${favorite.title}">
             </form>
           </div>
         `);
+        await DIALOGS.setButtons(userInput, [
+          {
+            id: 'delete',
+            title: 'Delete',
+          },
+          {
+            id: 'ok',
+            title: 'OK'
+          },
+          {
+            id: 'cancel',
+            title: 'Cancel'
+          },
+        ]);
         const result: any = await DIALOGS.open(userInput);
-        if (result.id == "ok" && result.formData != null && result.formData.inputForm.title != '') {
-          await favorites.rename(value, result.formData.inputForm.title);
+        if (result.id == "ok") {
+          if (result.formData != null && result.formData.inputForm.title != '') {
+            await favorites.rename(value, result.formData.inputForm.title);
+            await updatePanelView();
+          }
+        } else if (result.id == "delete") {
+          await favorites.delete(value);
           await updatePanelView();
         } else {
           return;
         }
       }
-    }
-
-    async function removeFavorite(value: string) {
-      await favorites.delete(value);
-      await updatePanelView();
     }
 
     // Command: favsAddFolder
@@ -400,23 +379,8 @@ joplin.plugins.register({
 
     // prepare dialog object
     const userInput = await DIALOGS.create('userInput');
+    await DIALOGS.addScript(userInput, './assets/fontawesome/css/all.min.css');
     await DIALOGS.addScript(userInput, './webview_dialog.css');
-
-    async function getUserInput(label: string, defaultValue: string): Promise<string> {
-      await DIALOGS.setHtml(userInput, `
-        <div id="userInput">
-          <h3>${label}</h3>
-          <form name="inputForm">
-            <input type="text" id="title" name="title" value="${defaultValue}">
-          </form>
-        </div>
-      `);
-      const result: any = await DIALOGS.open(userInput);
-      if (result.id == "ok" && result.formData != null) {
-        return result.formData.inputForm.title;
-      }
-      return '';
-    }
 
     //#endregion
 
@@ -433,9 +397,6 @@ joplin.plugins.register({
       }
       if (message.name === 'favsEdit') {
         editFavorite(message.id);
-      }
-      if (message.name === 'favsRemove') {
-        removeFavorite(message.id);
       }
       if (message.name === 'favsDrag') {
         await favorites.moveWithValue(message.sourceId, message.targetId);
@@ -468,13 +429,11 @@ joplin.plugins.register({
       const foreground: string = await getSettingOrDefault('mainForeground', SettingDefaults.Foreground);
       const dividerColor: string = await getSettingOrDefault('dividerColor', SettingDefaults.DividerColor);
 
-
-
       // create HTML for each favorite
       for (const favorite of favorites.getAll()) {
 
         // prepare type icon if enabled
-        const typeIconHtml: string = showTypeIcons ? `<span class="fas ${getTypeIcon(favorite.type)}" style="color:${foreground};"></span>` : '';
+        const typeIconHtml: string = showTypeIcons ? `<span class="fas ${FavoriteDesc[favorite.type].icon}" style="color:${foreground};"></span>` : '';
 
         favsHtml.push(`
           <div id="favorite" data-id="${favorite.value}"
