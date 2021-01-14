@@ -218,50 +218,55 @@ joplin.plugins.register({
     async function addFavorite(value: string, defaultTitle: string, type: FavoriteType, showUserInput: boolean = true) {
       let title: string = defaultTitle;
 
-      if (showUserInput) {
-        // prepare input dialog
-        await DIALOGS.setHtml(userInput, await prepareDialogHtml('Add to favorites', value, title, type));
+      // check whether a favorite with handled value already exists
+      if (favorites.hasFavorite(value)) {
 
-        // open dialog and handle result
-        const result: any = await DIALOGS.open(userInput);
-        if (result.id == "ok" && result.formData != null && result.formData.inputForm.title != '') {
-          title = result.formData.inputForm.title;
-        } else {
-          return;
+        // if so... open editFavorite dialog
+        await editFavorite(value);
+      } else {
+
+        // otherwise create new favorite, with or without user interaction
+        if (showUserInput) {
+          await DIALOGS.setHtml(userInput, await prepareDialogHtml('Add to favorites', value, title, type));
+
+          // open dialog and handle result
+          const result: any = await DIALOGS.open(userInput);
+          if (result.id == "ok" && result.formData != null && result.formData.inputForm.title != '') {
+            title = result.formData.inputForm.title;
+          } else {
+            return;
+          }
         }
-      }
 
-      await favorites.add(value, title, type);
-      await updatePanelView();
+        await favorites.add(value, title, type);
+        await updatePanelView();
+      }
     }
 
-    async function editFavorite(value: string, showUserInput: boolean = true) {
+    async function editFavorite(value: string) {
       const favorite: any = await favorites.get(value);
       if (!favorite) return;
 
-      if (showUserInput) {
+      // prepare input dialog
+      await DIALOGS.setHtml(userInput, await prepareDialogHtml('Edit favorite', favorite.value, favorite.title, favorite.type));
+      await DIALOGS.setButtons(userInput, [
+        { id: 'delete', title: 'Delete', },
+        { id: 'ok', title: 'OK' },
+        { id: 'cancel', title: 'Cancel' }
+      ]);
 
-        // prepare input dialog
-        await DIALOGS.setHtml(userInput, await prepareDialogHtml('Edit favorite', favorite.value, favorite.title, favorite.type));
-        await DIALOGS.setButtons(userInput, [
-          { id: 'delete', title: 'Delete', },
-          { id: 'ok', title: 'OK' },
-          { id: 'cancel', title: 'Cancel' }
-        ]);
-
-        // open dialog and handle result
-        const result: any = await DIALOGS.open(userInput);
-        if (result.id == "ok") {
-          if (result.formData != null && result.formData.inputForm.title != '') {
-            await favorites.rename(value, result.formData.inputForm.title);
-            await updatePanelView();
-          }
-        } else if (result.id == "delete") {
-          await favorites.delete(value);
+      // open dialog and handle result
+      const result: any = await DIALOGS.open(userInput);
+      if (result.id == "ok") {
+        if (result.formData != null && result.formData.inputForm.title != '') {
+          await favorites.rename(value, result.formData.inputForm.title);
           await updatePanelView();
-        } else {
-          return;
         }
+      } else if (result.id == "delete") {
+        await favorites.delete(value);
+        await updatePanelView();
+      } else {
+        return;
       }
     }
 
@@ -274,11 +279,6 @@ joplin.plugins.register({
       enabledCondition: 'oneFolderSelected',
       execute: async (folderId: string) => {
         if (folderId) {
-
-          // return if selected folder has already a favorite
-          if (favorites.hasFavorite(folderId)) return;
-
-          // get concrete folder data
           const folder = await DATA.get(['folders', folderId], { fields: ['id', 'title'] });
           if (!folder) return;
 
@@ -286,9 +286,6 @@ joplin.plugins.register({
         } else {
           const selectedFolder: any = await WORKSPACE.selectedFolder();
           if (!selectedFolder) return;
-
-          // return if selected folder has already a favorite
-          if (favorites.hasFavorite(folderId)) return;
 
           await addFavorite(selectedFolder.id, selectedFolder.title, FavoriteType.Folder);
         }
@@ -304,25 +301,19 @@ joplin.plugins.register({
       enabledCondition: "someNotesSelected",
       execute: async (noteIds: string[]) => {
         if (noteIds) {
-          for (const noteId of noteIds) {
-            // continue with next one if for note id already a favorite exists
-            if (favorites.hasFavorite(noteId)) continue;
 
-            // get concrete note data
+          // in case multiple notes are selected - add them directly without user interaction
+          for (const noteId of noteIds) {
+            if (noteIds.length > 1 && favorites.hasFavorite(noteId)) continue;
+
             const note = await DATA.get(['notes', noteId], { fields: ['id', 'title', 'is_todo'] });
             if (!note) return;
 
-            // in case multiple notes are selected - add them directly without user interaction
             await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note, (noteIds.length == 1));
           }
         } else {
-
-          // get selected note and return if empty
           const selectedNote: any = await WORKSPACE.selectedNote();
           if (!selectedNote) return;
-
-          // return if selected note has already a favorite
-          if (favorites.hasFavorite(selectedNote.id)) return;
 
           await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note);
         }
@@ -337,11 +328,6 @@ joplin.plugins.register({
       iconName: 'fas fa-tag',
       execute: async (tagId: string) => {
         if (tagId) {
-
-          // return if selected tag has already a favorite
-          if (favorites.hasFavorite(tagId)) return;
-
-          // get concrete tag data
           const tag = await DATA.get(['tags', tagId], { fields: ['id', 'title'] });
           if (!tag) return;
 
