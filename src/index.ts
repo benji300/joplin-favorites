@@ -227,10 +227,13 @@ joplin.plugins.register({
 
         // otherwise create new favorite, with or without user interaction
         if (showUserInput) {
-          await DIALOGS.setHtml(userInput, await prepareDialogHtml('Add to favorites', value, title, type));
 
-          // open dialog and handle result
-          const result: any = await DIALOGS.open(userInput);
+          // prepare and open dialog
+          const dialogHtml: string = await prepareDialogHtml('Add to favorites', value, title, type);
+          await DIALOGS.setHtml(dialogAdd, dialogHtml);
+          const result: any = await DIALOGS.open(dialogAdd);
+
+          // handle result
           if (result.id == "ok" && result.formData != null && result.formData.inputForm.title != '') {
             title = result.formData.inputForm.title;
           } else {
@@ -247,16 +250,12 @@ joplin.plugins.register({
       const favorite: any = await favorites.get(value);
       if (!favorite) return;
 
-      // prepare input dialog
-      await DIALOGS.setHtml(userInput, await prepareDialogHtml('Edit favorite', favorite.value, favorite.title, favorite.type));
-      await DIALOGS.setButtons(userInput, [
-        { id: 'delete', title: 'Delete', },
-        { id: 'ok', title: 'OK' },
-        { id: 'cancel', title: 'Cancel' }
-      ]);
+      // prepare and open dialog
+      const dialogHtml: string = await prepareDialogHtml('Edit favorite', favorite.value, favorite.title, favorite.type);
+      await DIALOGS.setHtml(dialogEdit, dialogHtml);
+      const result: any = await DIALOGS.open(dialogEdit);
 
-      // open dialog and handle result
-      const result: any = await DIALOGS.open(userInput);
+      // handle result
       if (result.id == "ok") {
         if (result.formData != null && result.formData.inputForm.title != '') {
           await favorites.rename(value, result.formData.inputForm.title);
@@ -395,12 +394,20 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region INPUT DIALOG
+    //#region INPUT DIALOGS
 
-    // prepare dialog object
-    const userInput = await DIALOGS.create('userInput');
-    await DIALOGS.addScript(userInput, './assets/fontawesome/css/all.min.css');
-    await DIALOGS.addScript(userInput, './webview_dialog.css');
+    const dialogAdd = await DIALOGS.create('dialogAdd');
+    await DIALOGS.addScript(dialogAdd, './assets/fontawesome/css/all.min.css');
+    await DIALOGS.addScript(dialogAdd, './webview_dialog.css');
+
+    const dialogEdit = await DIALOGS.create('dialogEdit');
+    await DIALOGS.addScript(dialogEdit, './assets/fontawesome/css/all.min.css');
+    await DIALOGS.addScript(dialogEdit, './webview_dialog.css');
+    await DIALOGS.setButtons(dialogEdit, [
+      { id: 'delete', title: 'Delete', },
+      { id: 'ok', title: 'OK' },
+      { id: 'cancel', title: 'Cancel' }
+    ]);
 
     //#endregion
 
