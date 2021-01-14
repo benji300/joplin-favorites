@@ -162,20 +162,65 @@ joplin.plugins.register({
       }
     }
 
+    async function getFavoritePath(value: string, type: FavoriteType): Promise<string> {
+      switch (type) {
+        case FavoriteType.Folder:
+        case FavoriteType.Note:
+        case FavoriteType.Todo:
+          const item = await DATA.get([FavoriteDesc[type].dataType, value], { fields: ['title', 'parent_id'] });
+          if (item) {
+            let parents: any[] = new Array();
+            let parent_id: string = item.parent_id;
+
+            while (parent_id) {
+              const parent: any = await DATA.get(['folders', parent_id], { fields: ['title', 'parent_id'] });
+              if (!parent) break;
+              parent_id = parent.parent_id;
+              parents.push(parent.title);
+            }
+            parents.reverse().push(item.title);
+            return parents.join('/');
+          }
+
+        case FavoriteType.Tag:
+          const tag = await DATA.get([FavoriteDesc[type].dataType, value], { fields: ['title'] });
+          if (tag) return tag.title;
+
+        case FavoriteType.Search:
+          return 'Search results.';
+
+        default:
+          break;
+      }
+      return '';
+    }
+
+    async function prepareDialogHtml(header: string, value: string, title: string, type: FavoriteType): Promise<string> {
+      const path: string = await getFavoritePath(value, type);
+      const disabled: string = (type === FavoriteType.Search) ? '' : 'disabled';
+
+      return `
+        <div>
+          <h3>${header}</h3>
+          <form name="inputForm">
+            <label><strong>${FavoriteDesc[type].name}</strong></label>
+            <label><i class="fas ${FavoriteDesc[type].icon}"></i>${path}</label>
+            <label for="title"><strong>Name</strong></label>
+            <input type="text" id="title" name="title" value="${title}">
+            <label for="value"><strong>Value</strong></label>
+            <input type="text" id="value" name="value" value="${value}" ${disabled}>
+            <label><em>Notebook, note, tag ID or search string. Only editable for searches.</em></label>
+          </form>
+        </div>
+      `;
+    }
+
     async function addFavorite(value: string, defaultTitle: string, type: FavoriteType, showUserInput: boolean = true) {
       let title: string = defaultTitle;
 
       if (showUserInput) {
-
         // prepare input dialog
-        await DIALOGS.setHtml(userInput, `
-          <div>
-            <h3><span class="fas ${FavoriteDesc[type].icon}"></span> Add ${FavoriteDesc[type].name} to favorites</h3>
-            <form name="inputForm">
-              <input type="text" id="title" name="title" value="${title}">
-            </form>
-          </div>
-        `);
+        await DIALOGS.setHtml(userInput, await prepareDialogHtml('Add to favorites', value, title, type));
 
         // open dialog and handle result
         const result: any = await DIALOGS.open(userInput);
@@ -197,14 +242,7 @@ joplin.plugins.register({
       if (showUserInput) {
 
         // prepare input dialog
-        await DIALOGS.setHtml(userInput, `
-          <div>
-            <h3><span class="fas fa-edit"></span> Edit ${FavoriteDesc[favorite.type].name} favorite</h3>
-            <form name="inputForm">
-              <input type="text" id="title" name="title" value="${favorite.title}">
-            </form>
-          </div>
-        `);
+        await DIALOGS.setHtml(userInput, await prepareDialogHtml('Edit favorite', favorite.value, favorite.title, favorite.type));
         await DIALOGS.setButtons(userInput, [
           { id: 'delete', title: 'Delete', },
           { id: 'ok', title: 'OK' },
@@ -343,12 +381,12 @@ joplin.plugins.register({
         label: 'Add selected tag'
       },
       // {
-      //   commandName: "favsAddActiveSearch",
-      //   label: 'Add current active search'
+      //   commandName: "favsAddSearch",
+      //   label: 'Add new search'
       // },
       // {
-      //   commandName: "favsAddNewSearch",
-      //   label: 'Add new search query'
+      //   commandName: "favsAddActiveSearch",
+      //   label: 'Add current active search'
       // },
       {
         commandName: "favsClear",

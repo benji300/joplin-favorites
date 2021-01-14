@@ -1,12 +1,18 @@
 /* INPUT DIALOG STYLES */
 #joplin-plugin-content {
-  min-width: 300px;
+  min-width: 400px;
 }
 
 form {
   display: grid;
 }
-
+label {
+  padding: 4px;
+}
 input {
-  padding: 2px;
+  padding: 4px;
+}
+
+i {
+  padding-right: 4px;
 }
