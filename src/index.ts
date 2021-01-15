@@ -407,6 +407,10 @@ joplin.plugins.register({
       {
         commandName: "favsClear",
         label: 'Remove all favorites'
+      },
+      {
+        commandName: "favsToggleVisibility",
+        label: 'Toggle panel visibility'
       }
     ];
     await joplin.views.menus.create('toolsFavorites', 'Favorites', commandsSubMenu, MenuItemLocation.Tools);
