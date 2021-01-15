@@ -41,6 +41,14 @@ joplin.plugins.register({
       label: 'Enable drag & drop of favorites',
       description: 'If enabled, the position of favorites can be change via drag & drop.'
     });
+    await SETTINGS.registerSetting('showPanelTitle', {
+      value: true,
+      type: SettingItemType.Bool,
+      section: 'favorites.settings',
+      public: true,
+      label: 'Show favorites panel title',
+      description: "Display 'FAVORITES' title in front of the favorites."
+    });
     await SETTINGS.registerSetting('showTypeIcons', {
       value: true,
       type: SettingItemType.Bool,
@@ -458,6 +466,7 @@ joplin.plugins.register({
 
       // get style values from settings
       const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
+      const showPanelTitle: boolean = await SETTINGS.value('showPanelTitle');
       const showTypeIcons: boolean = await SETTINGS.value('showTypeIcons');
       const lineHeight: number = await SETTINGS.value('lineHeight');
       const minWidth: number = await SETTINGS.value('minFavoriteWidth');
@@ -466,10 +475,19 @@ joplin.plugins.register({
       const foreground: string = await getSettingOrDefault('mainForeground', SettingDefaults.Foreground);
       const dividerColor: string = await getSettingOrDefault('dividerColor', SettingDefaults.DividerColor);
 
+      // prepare panel title if enabled
+      let panelTitleHtml: string = '';
+      if (showPanelTitle) {
+        panelTitleHtml = `
+          <div id="panel-title" style="height:${lineHeight}px;">
+            <span class="fas fa-star" style="color:${foreground};"></span>
+            <span class="panel-title-text" style="color:${foreground};">FAVORITES</span>
+          </div>
+        `;
+      }
+
       // create HTML for each favorite
       for (const favorite of favorites.getAll()) {
-
-        // prepare type icon if enabled
         const typeIconHtml: string = showTypeIcons ? `<span class="fas ${FavoriteDesc[favorite.type].icon}" style="color:${foreground};"></span>` : '';
 
         favsHtml.push(`
@@ -485,17 +503,12 @@ joplin.plugins.register({
           </div>
         `);
       }
-      // TODO re-add hoover icons
-      // TODO bei hover werden beide icons angezeigt (sonst disabled)
-      //   <div id="favorite-controls">
-      //   <a href="#" id="editFavorite" class="fas fa-edit" title="Edit" data-id="${favorite.value}" style="color:${foreground};">
-      //   <a href="#" id="removeFavorite" class="fas fa-times" title="Remove" data-id="${favorite.value}" style="color:${foreground};">
-      // </div>
 
       // add entries to container and push to panel
       await PANELS.setHtml(panel, `
         <div id="container" style="background:${background};font-family:'${font}',sans-serif;">
           <div id="container-inner">
+            ${panelTitleHtml}
             ${favsHtml.join('\n')}
           </div>
         </div>
