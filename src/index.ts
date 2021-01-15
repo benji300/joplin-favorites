@@ -454,11 +454,17 @@ joplin.plugins.register({
     await PANELS.addScript(panel, './webview.css');
     await PANELS.addScript(panel, './webview.js');
     await PANELS.onMessage(panel, async (message: any) => {
-      if (message.name === 'favsOpen') {
-        openFavorite(message.id);
+      if (message.name === 'favsAddFolder') {
+        await COMMANDS.execute('favsAddFolder', message.id);
+      }
+      if (message.name === 'favsAddNote') {
+        await COMMANDS.execute('favsAddNote', message.id);
       }
       if (message.name === 'favsEdit') {
         editFavorite(message.id);
+      }
+      if (message.name === 'favsOpen') {
+        openFavorite(message.id);
       }
       if (message.name === 'favsDrag') {
         await favorites.moveWithValue(message.sourceId, message.targetId);
@@ -496,9 +502,10 @@ joplin.plugins.register({
       let panelTitleHtml: string = '';
       if (showPanelTitle) {
         panelTitleHtml = `
-          <div id="panel-title" style="height:${lineHeight}px;">
+          <div id="panel-title" style="height:${lineHeight}px;"
+            ondragend="cancelDefault(event);" ondragover="dragOverTitle(event);" ondragleave="cancelDefault(event);" ondrop="dropOnTitle(event);">
             <span class="fas fa-star" style="color:${foreground};"></span>
-            <span class="panel-title-text" style="color:${foreground};">FAVORITES</span>
+            <span class="title" style="color:${foreground};">FAVORITES</span>
           </div>
         `;
       }
@@ -511,12 +518,10 @@ joplin.plugins.register({
           <div id="favorite" data-id="${favorite.value}"
               draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
               style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};color:${foreground};">
-            <div id="favorite-inner" style="border-color:${dividerColor};" data-id="${favorite.value}">
-              ${typeIconHtml}
-              <span class="favorite-title" data-id="${favorite.value}" title="${favorite.title}">
-                ${favorite.title}
-              </span>
-            </div>
+            ${typeIconHtml}
+            <span class="title" style="border-color:${dividerColor};" title="${favorite.title}">
+              ${favorite.title}
+            </span>
           </div>
         `);
       }
