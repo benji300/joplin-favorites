@@ -20,6 +20,7 @@ joplin.plugins.register({
       description: 'Changes are applied after selecting another note.'
     });
 
+    // private settings
     await SETTINGS.registerSetting('favorites', {
       value: [],
       type: SettingItemType.Array,
@@ -32,7 +33,7 @@ joplin.plugins.register({
     let favorites = new Favorites();
     await favorites.read();
 
-    // General settings
+    // general settings
     await SETTINGS.registerSetting('enableDragAndDrop', {
       value: true,
       type: SettingItemType.Bool,
@@ -369,6 +370,18 @@ joplin.plugins.register({
       }
     });
 
+    // Command: favsToggleVisibility
+    // Desc: Toggle panel visibility
+    await COMMANDS.register({
+      name: 'favsToggleVisibility',
+      label: 'Favorites: Toggle visibility',
+      iconName: 'fas fa-eye-slash',
+      execute: async () => {
+        const isVisible: boolean = await PANELS.visible(panel);
+        await PANELS.show(panel, (!isVisible));
+      }
+    });
+
     // prepare Tools > Favorites menu
     const commandsSubMenu: MenuItem[] = [
       {
@@ -432,7 +445,7 @@ joplin.plugins.register({
     //#region PANEL VIEW
 
     // prepare panel object
-    const panel = await PANELS.create("favorites.panel");
+    const panel = await PANELS.create('favorites.panel');
     await PANELS.addScript(panel, './assets/fontawesome/css/all.min.css');
     await PANELS.addScript(panel, './webview.css');
     await PANELS.addScript(panel, './webview.js');
