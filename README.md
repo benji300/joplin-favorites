@@ -2,7 +2,7 @@
 
 Joplin Favorites is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
 
-It allows to add any notebook, note, to-do or tag to a favorites panel to access them quickly.
+Save ave any notebooks, notes, tasks, tags, or searches as favorites in an extra panel view for quick access.
 
 > :warning: **CAUTION** - Requires Joplin **v1.6.5** or newer
 

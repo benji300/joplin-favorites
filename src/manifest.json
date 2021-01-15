@@ -4,7 +4,7 @@
   "app_min_version": "1.6",
   "version": "1.0.0",
   "name": "Favorites",
-  "description": "Add any notebook, note, to-do or tag to a favorites panel to access them quickly. (v1.0.0)",
+  "description": "Save any notebooks, notes, tasks, tags, or searches as favorites in an extra panel view for quick access. (v1.0.0)",
   "author": "Benji300",
   "homepage_url": "https://github.com/benji300/joplin-favorites",
   "repository_url": "https://github.com/benji300/joplin-favorites"
