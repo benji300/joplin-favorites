@@ -10,6 +10,7 @@ It allows to add any notebook, note, to-do or tag to a favorites panel to access
 
 - [Features](#features)
   - [Screenshots](#screenshots)
+- [Usage](#usage)
 - [Commands](#Commands)
 - [User options](#user-options)
 - [Installation](#installation)
@@ -23,6 +24,7 @@ It allows to add any notebook, note, to-do or tag to a favorites panel to access
 ## Features
 
 // TODO
+
 - Add any of the following item types to a favorites panel
   - Notebook (Folder)
   - Note/to-do
@@ -39,6 +41,7 @@ It allows to add any notebook, note, to-do or tag to a favorites panel to access
 ### Screenshots
 
 // TODO siehe assets ordner
+
 #### Favorites above note content
 
 ![tabs-top-horizontal](./assets/tabs-top-horizontal.png)
@@ -55,21 +58,29 @@ It allows to add any notebook, note, to-do or tag to a favorites panel to access
 
 > **NOTE** - The used UI theme on this screenshot can be downloaded [here](https://github.com/benji300/joplin-milford-ui).
 
+## Usage
+
+## Add to favorites
+
+// TODO describe how to add favorites
+
+## Edit/remove favorite
+
+// TODO describe how to edit or remove a favorite
+
 ## Commands
 
 This plugin provides additional commands as described in the following table.
 
-// TODO add commands
-| Command Label                   | Command ID             | Description                                                                                   | Menu contexts                                   |
-| ------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Tabs: Pin note                  | `tabsPinNote`          | Pin selected note(s) to the tabs.                                                             | `Tools>Tabs`, `NoteListContext`,`EditorContext` |
-| Tabs: Unpin note                | `tabsUnpinNote`        | Unpin selected note(s) from the tabs.                                                         | `Tools>Tabs`                                    |
-| Tabs: Switch to last active tab | `tabsSwitchLastActive` | Switch to the last active tab, i.e. to previous selected note.                                | `Tools>Tabs`                                    |
-| Tabs: Switch to left tab        | `tabsSwitchLeft`       | Switch to the left tab next to the active, i.e. select the left note.                         | `Tools>Tabs`                                    |
-| Tabs: Switch to right tab       | `tabsSwitchRight`      | Switch to the right tab next to the active, i.e. select the right note.                       | `Tools>Tabs`                                    |
-| Tabs: Move tab left             | `tabsMoveLeft`         | Move active tab one position to the left.                                                     | `Tools>Tabs`                                    |
-| Tabs: Move tab right            | `tabsMoveRight`        | Move active tab one position to the right.                                                    | `Tools>Tabs`                                    |
-| Tabs: Remove all pinned tabs    | `tabsClear`            | Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards. | `Tools>Tabs`                                    |
+| Command Label                   | Command ID             | Description                            | Menu contexts                                    |
+| ------------------------------- | ---------------------- | -------------------------------------- | ------------------------------------------------ |
+| Favorites: Add notebook         | `favsAddFolder`        | Add selected notebook to favorites     | `Tools>Favs`, `FolderContext`                    |
+| Favorites: Add note             | `favsAddNote`          | Add selected note(s) to favorites      | `Tools>Favs`, `NoteListContext`, `EditorContext` |
+| Favorites: Add tag              | `favsAddTag`           | Add selected tag to favorites          | `Tools>Favs`, `TagContext`                       |
+| Favorites: Add search           | `favsAddSearch`        | Add current active search to favorites | `Tools>Favs`                                     |
+| Favorites: Add new search       | `favsAddNewSearch`     | Add new search to favorites            | `Tools>Favs`                                     |
+| Favorites: Remove all favorites | `favsClear`            | Remove all favorites                   | `Tools>Favs`                                     |
+| Favorites: Toggle visibility    | `favsToggleVisibility` | Toggle panel visibility                | `Tools>Favs`                                     |
 
 > **NOTE** - Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts`. Search for the command label where shortcuts shall be added.
 
@@ -112,17 +123,19 @@ By default the panel will be on the right side of the screen, this can be adjust
 
 - Open Joplin
 - Navigate to `Tools > Options > Plugins`
-- Search for the `Note Tabs` plugin
+- Search for the `Favorites` plugin
 - Press `Delete` to remove the plugin from the user profile directory
   - Alternatively you can also disable the plugin by clicking on the toggle button
 - Restart Joplin
 
 ## Feedback
 
+// TODO replace with concrete thread links
+
 - :question: Need help?
   - Ask a question on the [Joplin Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752)
 - :bulb: An idea to improve or enhance the plugin?
-  - Start a new discussion on the [Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752) or upvote [popular feature requests](https://github.com/benji300/joplin-note-tabs/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc+)
+  - Start a new discussion on the [Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752) or upvote [popular feature requests](https://github.com/benji300/joplin-favorites/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc+)
 - :bug: Found a bug?
   - Check the [Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752) if anyone else already reported the same issue. Otherwise report it by yourself.
 
