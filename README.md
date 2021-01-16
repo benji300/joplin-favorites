@@ -11,6 +11,10 @@ Save ave any notebooks, notes, tasks, tags, or searches as favorites in an extra
 - [Features](#features)
   - [Screenshots](#screenshots)
 - [How to use](#how-to-use)
+  - [Place the panel](#place-the-panel)
+  - [Add favorite](#add-favorite)
+  - [Edit favorite](#edit-favorite)
+  - [Remove favorite](#remove-favorite)
 - [Commands](#Commands)
 - [User options](#user-options)
 - [Installation](#installation)
@@ -57,16 +61,29 @@ Save ave any notebooks, notes, tasks, tags, or searches as favorites in an extra
 
 ## How to use
 
-## Add to favorites
+### Place the panel
+
+By default the panel will be on the right side of the screen, this can be adjusted by:
+
+- `View > Change application layout`
+- Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
+- Move the splitter to reach the desired height/width of the panel
+- Press `ESC` to save the layout and return to normal mode
+
+### Add favorite
 
 // TODO describe how to add favorites
 // add via context menu
 // Drag notebooks and notes from sidebar or note list onto 'FAVORITES' title to add
 
-## Edit/remove favorite
+### Edit favorite
 
 // TODO describe how to edit or remove a favorite
 // righ-click on favorite
+
+### Remove favorite
+
+// righ-click on favorite - in dialog press `delete` button
 // [command](#commands) "Favorites: Remove all favorites"
 
 ## Commands
@@ -102,6 +119,8 @@ This plugin adds provides user options which can be changed via `Tools > Options
 - Open Joplin and navigate to `Tools > Options > Plugins`
 - Search for `favorites` and press install
 - Restart Joplin to enable the plugin
+- By default the panel will appear on the right side of the screen
+  - See here to [place the panel](#place-the-panel)
 
 ### Joplin v1.6.2 and previous
 
@@ -110,15 +129,8 @@ This plugin adds provides user options which can be changed via `Tools > Options
 - Press `Install plugin` and select the previously downloaded `jpl` file
 - Confirm selection
 - Restart Joplin to enable the plugin
-
-### Place panel
-
-By default the panel will be on the right side of the screen, this can be adjusted by:
-
-- `View > Change application layout`
-- Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
-- Move the splitter to reach the desired height/width of the panel
-- Press `ESC` to save the layout and return to normal mode
+- By default the panel will appear on the right side of the screen
+  - See here to [place the panel](#place-the-panel)
 
 ## Uninstallation
 
