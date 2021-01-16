@@ -598,7 +598,7 @@ joplin.plugins.register({
           <div id="favorite" data-id="${favorite.value}" draggable="${enableDragAndDrop}"
             onClick="favsClick(event);" oncontextmenu="favsContext(event);" onMouseOver="this.style.background='${hoverBackground}';" onMouseOut="this.style.background='none';"
             ondragstart="dragStart(event);" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
-            style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};color:${foreground};">
+            style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};border-color:${dividerColor};color:${foreground};">
             <span class="favorite-inner" style="border-color:${dividerColor};">
               ${typeIconHtml}
               <span class="title" title="${favorite.title}">
