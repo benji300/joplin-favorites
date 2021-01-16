@@ -38,10 +38,10 @@ interface IFavoriteDesc {
  * Array of favorite descriptions. Order must match with FavoriteType enum.
  */
 export const FavoriteDesc: IFavoriteDesc[] = [
-  { name: 'Notebook', icon: 'fa-book', dataType: 'folders', label: 'Target path' }, // Folder
-  { name: 'Note', icon: 'fa-file-alt', dataType: 'notes', label: 'Target path' }, // Note
-  { name: 'To-do', icon: 'fa-check-square', dataType: 'notes', label: 'Target path' }, // Todo
-  { name: 'Tag', icon: 'fa-tag', dataType: 'tags', label: 'Target tag' }, // Tag
+  { name: 'Notebook', icon: 'fa-book', dataType: 'folders', label: 'Full path' }, // Folder
+  { name: 'Note', icon: 'fa-file-alt', dataType: 'notes', label: 'Full path' }, // Note
+  { name: 'To-do', icon: 'fa-check-square', dataType: 'notes', label: 'Full path' }, // Todo
+  { name: 'Tag', icon: 'fa-tag', dataType: 'tags', label: 'Tag' }, // Tag
   { name: 'Search', icon: 'fa-search', dataType: 'searches', label: 'Search query' } // Search
 ];
 
@@ -122,7 +122,7 @@ export class Favorites {
   }
 
   /**
-   * Gets a value whether a favorite for the handled value already exists.
+   * Gets a value whether a favorite with the handled value exists or not.
    */
   hasFavorite(value: string): boolean {
     return this.indexOf(value) < 0 ? false : true;
@@ -138,6 +138,9 @@ export class Favorites {
     await this.store();
   }
 
+  /**
+   * Changes the name of the handled favorite.
+   */
   async rename(value: string, newTitle: string) {
     const index: number = this.indexOf(value);
     if (index < 0) return;
@@ -149,7 +152,18 @@ export class Favorites {
   }
 
   /**
-   * Moves the favorite on source index to the target index.
+   * Changes the type of the handled favorite.
+   */
+  async changeType(value: string, newType: FavoriteType) {
+    const index: number = this.indexOf(value);
+    if (index < 0) return;
+
+    this._favs[index].type = newType;
+    await this.store();
+  }
+
+  /**
+   * Moves the favorite from source index to the target index.
    */
   async moveWithIndex(sourceIdx: number, targetIdx: number) {
     if (this.indexOutOfBounds(sourceIdx)) return;
@@ -162,7 +176,7 @@ export class Favorites {
   }
 
   /**
-   * Moves the favorite of source favorite to the index of the target favorite.
+   * Moves the source favorite to the index of the target favorite.
    */
   async moveWithValue(sourceValue: string, targetValue: string) {
     if (sourceValue == null || targetValue == null) return;

@@ -185,14 +185,13 @@ joplin.plugins.register({
 
     //#region COMMANDS
 
+    /**
+     * Check if favorite target still exists - otherwise ask to remove favorite
+     */
     async function checkAndRemoveFavorite(favorite: any): Promise<boolean> {
       try {
-
-        // check if favorite target still exists
         await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id'] });
       } catch (err) {
-
-        // otherwise ask to remove it
         const result: number = await DIALOGS.showMessageBox(`Cannot open favorite. Seems that the target ${FavoriteDesc[favorite.type].name.toLocaleLowerCase()} was deleted.\n\nDo you want to delete the favorite also?`);
         if (!result) {
           await favorites.delete(favorite.value);
@@ -203,6 +202,24 @@ joplin.plugins.register({
       return false;
     }
 
+    /**
+     * Check if note/todo is still of the same type - otherwise change type
+     */
+    async function checkAndUpdateType(favorite: any) {
+      let newType: FavoriteType;
+      const note: any = await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id', 'is_todo'] });
+      if (favorite.type === FavoriteType.Note && note.is_todo) newType = FavoriteType.Todo;
+      if (favorite.type === FavoriteType.Todo && (!note.is_todo)) newType = FavoriteType.Note;
+      if (newType) {
+        await favorites.changeType(favorite.value, newType);
+        await updatePanelView();
+        return;
+      }
+    }
+
+    /**
+     * Opens the handle favorite with the correct method
+     */
     async function openFavorite(value: string) {
       const favorite: any = await favorites.get(value);
       if (!favorite) return;
@@ -216,6 +233,7 @@ joplin.plugins.register({
         case FavoriteType.Note:
         case FavoriteType.Todo:
           if (await checkAndRemoveFavorite(favorite)) return;
+          await checkAndUpdateType(favorite);
           COMMANDS.execute('openNote', value);
           break;
 
