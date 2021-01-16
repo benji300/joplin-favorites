@@ -1,5 +1,6 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
+import { ChangeEvent } from 'api/JoplinSettings';
 import { FavoriteType, FavoriteDesc, Favorites } from './helpers';
 import { SettingDefaults, } from './helpers';
 
@@ -16,11 +17,11 @@ joplin.plugins.register({
 
     await SETTINGS.registerSection('favorites.settings', {
       label: 'Favorites',
-      iconName: 'fas fa-star',
-      description: 'Changes are applied after selecting another note.'
+      iconName: 'fas fa-star'
     });
 
     // private settings
+    let favorites = new Favorites();
     await SETTINGS.registerSetting('favorites', {
       value: [],
       type: SettingItemType.Array,
@@ -28,12 +29,10 @@ joplin.plugins.register({
       public: false,
       label: 'Favorites'
     });
-
-    // initialize favorites helper class
-    let favorites = new Favorites();
     await favorites.read();
 
     // general settings
+    let enableDragAndDrop: boolean;
     await SETTINGS.registerSetting('enableDragAndDrop', {
       value: true,
       type: SettingItemType.Bool,
@@ -42,6 +41,8 @@ joplin.plugins.register({
       label: 'Enable drag & drop of favorites',
       description: 'If enabled, the position of favorites can be change via drag & drop.'
     });
+
+    let showPanelTitle: boolean;
     await SETTINGS.registerSetting('showPanelTitle', {
       value: true,
       type: SettingItemType.Bool,
@@ -50,6 +51,8 @@ joplin.plugins.register({
       label: 'Show favorites panel title',
       description: "Display 'FAVORITES' title in front of the favorites."
     });
+
+    let showTypeIcons: boolean;
     await SETTINGS.registerSetting('showTypeIcons', {
       value: true,
       type: SettingItemType.Bool,
@@ -58,6 +61,8 @@ joplin.plugins.register({
       label: 'Show type icons for favorites',
       description: 'Display icons before favorite titles representing the types (notebook, note, tag, etc.).'
     });
+
+    let lineHeight: number;
     await SETTINGS.registerSetting('lineHeight', {
       value: "30",
       type: SettingItemType.Int,
@@ -66,6 +71,8 @@ joplin.plugins.register({
       label: 'Favorites line height (px)',
       description: 'Line height of the favorites panel.'
     });
+
+    let minWidth: number;
     await SETTINGS.registerSetting('minFavoriteWidth', {
       value: "15",
       type: SettingItemType.Int,
@@ -74,6 +81,8 @@ joplin.plugins.register({
       label: 'Minimum favorite width (px)',
       description: 'Minimum width   of one favorite entry in pixel.'
     });
+
+    let maxWidth: number;
     await SETTINGS.registerSetting('maxFavoriteWidth', {
       value: "100",
       type: 1,
@@ -84,6 +93,7 @@ joplin.plugins.register({
     });
 
     // Advanced settings
+    let font: string;
     await SETTINGS.registerSetting('fontFamily', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -93,6 +103,8 @@ joplin.plugins.register({
       label: 'Font family',
       description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: Roboto)"
     });
+
+    let background: string;
     await SETTINGS.registerSetting('mainBackground', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -102,6 +114,8 @@ joplin.plugins.register({
       label: 'Background color',
       description: "Main background color of the panel. (default: Note list background color)"
     });
+
+    let foreground: string;
     await SETTINGS.registerSetting('mainForeground', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -111,6 +125,8 @@ joplin.plugins.register({
       label: 'Foreground color',
       description: "Default foreground color used for text and icons. (default: App faded color)"
     });
+
+    let dividerColor: string;
     await SETTINGS.registerSetting('dividerColor', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -121,14 +137,37 @@ joplin.plugins.register({
       description: "Color of the divider between the favorites. (default: App divider/border color)"
     });
 
-    async function getSettingOrDefault(setting: string, defaultValue: string): Promise<string> {
-      const value: string = await SETTINGS.value(setting);
-      if (value.match(new RegExp(SettingDefaults.Default, "i"))) {
-        return defaultValue;
-      } else {
-        return value;
+    const regexp: RegExp = new RegExp(SettingDefaults.Default, "i");
+    async function getSettingOrDefault(event: ChangeEvent, localVar: any, setting: string, defaultValue?: string): Promise<any> {
+      const read: boolean = (!event || event.keys.includes(setting));
+      if (read) {
+        const value: string = await SETTINGS.value(setting);
+        if (defaultValue && value.match(regexp)) {
+          return defaultValue;
+        } else {
+          return value;
+        }
       }
+      return localVar;
     }
+
+    async function readSettingsAndUpdate(event?: ChangeEvent) {
+      enableDragAndDrop = await getSettingOrDefault(event, enableDragAndDrop, 'enableDragAndDrop');
+      showPanelTitle = await getSettingOrDefault(event, showPanelTitle, 'showPanelTitle');
+      showTypeIcons = await getSettingOrDefault(event, showTypeIcons, 'showTypeIcons');
+      lineHeight = await getSettingOrDefault(event, lineHeight, 'lineHeight');
+      maxWidth = await getSettingOrDefault(event, maxWidth, 'maxFavoriteWidth');
+      minWidth = await getSettingOrDefault(event, minWidth, 'minFavoriteWidth');
+      font = await getSettingOrDefault(event, font, 'fontFamily', SettingDefaults.Font);
+      background = await getSettingOrDefault(event, background, 'mainBackground', SettingDefaults.Background);
+      foreground = await getSettingOrDefault(event, foreground, 'mainForeground', SettingDefaults.Foreground);
+      dividerColor = await getSettingOrDefault(event, dividerColor, 'dividerColor', SettingDefaults.DividerColor);
+      await updatePanelView();
+    }
+
+    SETTINGS.onChange(async (event: ChangeEvent) => {
+      await readSettingsAndUpdate(event);
+    });
 
     //#endregion
 
@@ -288,7 +327,7 @@ joplin.plugins.register({
       }
     }
 
-    // Command: favsAddFolder
+    // Cmmand: favsAddFolder
     // Desc: Add selected folder to favorites
     await COMMANDS.register({
       name: 'favsAddFolder',
@@ -473,10 +512,8 @@ joplin.plugins.register({
     });
 
     // set init message
-    const font: string = await getSettingOrDefault('fontFamily', SettingDefaults.Font);
-    const mainBg: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
     await PANELS.setHtml(panel, `
-      <div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
+      <div id="container" style="background:${background};font-family:'${font}',sans-serif;">
         <div id="container-inner">
           <p style="padding-left:8px;">Loading panel...</p>
         </div>
@@ -486,17 +523,6 @@ joplin.plugins.register({
     // update HTML content
     async function updatePanelView() {
       const favsHtml: any = [];
-
-      // get style values from settings
-      const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
-      const showPanelTitle: boolean = await SETTINGS.value('showPanelTitle');
-      const showTypeIcons: boolean = await SETTINGS.value('showTypeIcons');
-      const lineHeight: number = await SETTINGS.value('lineHeight');
-      const minWidth: number = await SETTINGS.value('minFavoriteWidth');
-      const maxWidth: number = await SETTINGS.value('maxFavoriteWidth');
-      const background: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
-      const foreground: string = await getSettingOrDefault('mainForeground', SettingDefaults.Foreground);
-      const dividerColor: string = await getSettingOrDefault('dividerColor', SettingDefaults.DividerColor);
 
       // prepare panel title if enabled
       let panelTitleHtml: string = '';
@@ -541,24 +567,6 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region MAP EVENTS
-
-    // TODO check if necessary - otherwise remove
-    // TODO if onSettingChange is implemented this might be removed
-    WORKSPACE.onNoteSelectionChange(async () => {
-      await updatePanelView();
-    });
-
-    // WORKSPACE.onNoteChange(async () => {
-    //   await updatePanelView();
-    // });
-
-    // WORKSPACE.onSyncComplete(async () => {
-    //   await updatePanelView();
-    // });
-
-    //#endregion
-
-    await updatePanelView();
+    await readSettingsAndUpdate();
   },
 });
