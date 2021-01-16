@@ -4,8 +4,6 @@ import { ChangeEvent } from 'api/JoplinSettings';
 import { FavoriteType, FavoriteDesc, Favorites } from './helpers';
 import { SettingDefaults, } from './helpers';
 
-const copy = require('../node_modules/copy-to-clipboard');
-
 joplin.plugins.register({
   onStart: async function () {
     const COMMANDS = joplin.commands;
@@ -232,6 +230,7 @@ joplin.plugins.register({
 
           // currently there's no command to trigger a global search, so the following workaround is used
           // 1. copy saved search to clipboard
+          const copy = require('../node_modules/copy-to-clipboard');
           copy(favorite.value as string);
           // 2. focus global search bar via command
           await COMMANDS.execute('focusSearch');
