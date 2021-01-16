@@ -4,6 +4,8 @@ import { ChangeEvent } from 'api/JoplinSettings';
 import { FavoriteType, FavoriteDesc, Favorites } from './helpers';
 import { SettingDefaults, } from './helpers';
 
+const copy = require('../node_modules/copy-to-clipboard');
+
 joplin.plugins.register({
   onStart: async function () {
     const COMMANDS = joplin.commands;
@@ -213,8 +215,18 @@ joplin.plugins.register({
           break;
 
         case FavoriteType.Search:
-          // TODO how to open searches?
+          // TODO there is a command `~\app-desktop\gui\MainScreen\commands\search.ts` avaiable, but currently empty
+          // use this once it is implemented
+
+          // currently there's no command to trigger a global search, so the following workaround is used
+          // 1. copy saved search to clipboard
+          copy(favorite.value as string);
+          // 2. focus global search bar via command
+          await COMMANDS.execute('focusSearch');
+          // 3. paste clipboard content to current cursor position (should be search bar now)
+          // TODO how?
           break;
+
         default:
           break;
       }
@@ -245,7 +257,7 @@ joplin.plugins.register({
           if (tag) return tag.title;
 
         case FavoriteType.Search:
-          return 'Search results.';
+          return 'Search results';
 
         default:
           break;
@@ -273,8 +285,9 @@ joplin.plugins.register({
       `;
     }
 
-    async function addFavorite(value: string, defaultTitle: string, type: FavoriteType, showUserInput: boolean = true) {
-      let title: string = defaultTitle;
+    async function addFavorite(value: string, title: string, type: FavoriteType, showUserInput: boolean = true) {
+      let newValue: string = value;
+      let newTitle: string = title;
 
       // check whether a favorite with handled value already exists
       if (favorites.hasFavorite(value)) {
@@ -287,19 +300,23 @@ joplin.plugins.register({
         if (showUserInput) {
 
           // prepare and open dialog
-          const dialogHtml: string = await prepareDialogHtml('Add to favorites', value, title, type);
+          const dialogHtml: string = await prepareDialogHtml('Add to favorites', value, newTitle, type);
           await DIALOGS.setHtml(dialogAdd, dialogHtml);
           const result: any = await DIALOGS.open(dialogAdd);
 
           // handle result
-          if (result.id == "ok" && result.formData != null && result.formData.inputForm.title != '') {
-            title = result.formData.inputForm.title;
-          } else {
+          if (result.id == 'ok' && result.formData != null) {
+            newTitle = result.formData.inputForm.title;
+            if (result.formData.inputForm.value)
+              newValue = result.formData.inputForm.value;
+          } else
             return;
-          }
         }
 
-        await favorites.add(value, title, type);
+        if (newValue === '' || newTitle === '')
+          return;
+
+        await favorites.add(newValue, newTitle, type);
         await updatePanelView();
       }
     }
@@ -393,6 +410,17 @@ joplin.plugins.register({
       }
     });
 
+    // Command: favsAddSearch
+    // Desc: Add entered search query to favorites
+    await COMMANDS.register({
+      name: 'favsAddSearch',
+      label: 'Favorites: Add Search',
+      iconName: 'fas fa-search',
+      execute: async () => {
+        await addFavorite('', 'New Search', FavoriteType.Search);
+      }
+    });
+
     // Command: favsClear
     // Desc: Remove all favorites
     await COMMANDS.register({
@@ -435,10 +463,10 @@ joplin.plugins.register({
         commandName: "favsAddTag",
         label: 'Add selected tag'
       },
-      // {
-      //   commandName: "favsAddSearch",
-      //   label: 'Add new search'
-      // },
+      {
+        commandName: "favsAddSearch",
+        label: 'Add search'
+      },
       // {
       //   commandName: "favsAddActiveSearch",
       //   label: 'Add current active search'

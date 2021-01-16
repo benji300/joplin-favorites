@@ -15,6 +15,7 @@ Save ave any notebooks, notes, tasks, tags, or searches as favorites in an extra
   - [Add favorite](#add-favorite)
   - [Edit favorite](#edit-favorite)
   - [Remove favorite](#remove-favorite)
+  - [Open saved searches](#open-saved-searches)
 - [Commands](#Commands)
 - [User options](#user-options)
 - [Installation](#installation)
@@ -34,8 +35,7 @@ Save ave any notebooks, notes, tasks, tags, or searches as favorites in an extra
   - Note, To-do
   - Tag
   - Searches
-    - Currently only supported to save searches and copy it to clipboard afterwards
-    - Opening the global search with saved searches will be added later (when supported by core features)
+    - Not fully supported right now - see [here](#open-saved-searches) for details
 - Set and edit user defined names for the favorites
 - Right-click on favorites to edit or remove
 - Change position of favorites within the panel via drag & drop
@@ -83,8 +83,19 @@ By default the panel will be on the right side of the screen, this can be adjust
 
 ### Remove favorite
 
-// righ-click on favorite - in dialog press `delete` button
+// TODO righ-click on favorite - in dialog press `delete` button
 // [command](#commands) "Favorites: Remove all favorites"
+
+### Open saved searches
+
+Currently favorites for searches are not fully supported. Due to restrictions of the App it is not possible to open the global search with a handled search query.
+To open a saved search follow this workaround:
+
+- Save your search via the `Favorites: Add search` command
+- You can enter a name and the search query in the dialog
+- Click on the search favorite to copy its query to the clipboard
+- This will also set the focus to the global search bar
+- Paste the clipboard content to the search bar and press `Enter`
 
 ## Commands
 
@@ -92,11 +103,10 @@ This plugin provides additional commands as described in the following table.
 
 | Command Label                   | Command ID             | Description                            | Menu contexts                                    |
 | ------------------------------- | ---------------------- | -------------------------------------- | ------------------------------------------------ |
-| Favorites: Add notebook         | `favsAddFolder`        | Add selected notebook to favorites     | `Tools>Favs`, `FolderContext`                    |
-| Favorites: Add note             | `favsAddNote`          | Add selected note(s) to favorites      | `Tools>Favs`, `NoteListContext`, `EditorContext` |
-| Favorites: Add tag              | `favsAddTag`           | Add selected tag to favorites          | `Tools>Favs`, `TagContext`                       |
-| Favorites: Add search           | `favsAddSearch`        | Add current active search to favorites | `Tools>Favs`                                     |
-| Favorites: Add new search       | `favsAddNewSearch`     | Add new search to favorites            | `Tools>Favs`                                     |
+| Favorites: Add notebook         | `favsAddFolder`        | Add favorite for selected notebook     | `Tools>Favs`, `FolderContext`                    |
+| Favorites: Add note             | `favsAddNote`          | Add favorite for selected note(s)      | `Tools>Favs`, `NoteListContext`, `EditorContext` |
+| Favorites: Add tag              | `favsAddTag`           | Add favorite for selected tag          | `Tools>Favs`, `TagContext`                       |
+| Favorites: Add search           | `favsAddSearch`        | Add favorite with entered search query | `Tools>Favs`                                     |
 | Favorites: Remove all favorites | `favsClear`            | Remove all favorites                   | `Tools>Favs`                                     |
 | Favorites: Toggle visibility    | `favsToggleVisibility` | Toggle panel visibility                | `Tools>Favs`                                     |
 
