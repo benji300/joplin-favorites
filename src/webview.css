@@ -63,9 +63,6 @@ span {
   border-style: solid;
   display: flex;
 }
-#favorite:hover {
-  background-color: var(--joplin-background-hover) !important;
-}
 .favorite-inner {
   border-width: 0;
   border-right-width: 1px;
@@ -87,9 +84,6 @@ span {
 }
 .dragging {
   opacity: 0.4;
-}
-.dragover {
-  background-color: var(--joplin-background-hover) !important;
 }
 
 /* VERCTICAL LAYOUT OVERWRITES */

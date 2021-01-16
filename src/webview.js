@@ -44,23 +44,22 @@ function dragEnd(event) {
   cancelDefault(event);
   event.currentTarget.classList.remove('dragging');
   document.querySelectorAll('#favorite').forEach(x => {
-    x.classList.remove('dragover');
+    x.style.background = 'none';
   });
   sourceId = '';
 }
 
-function dragOver(event) {
+function dragOver(event, hoverColor) {
   cancelDefault(event);
   if (sourceId) {
     const dataId = getDataId(event);
     if (dataId) {
       document.querySelectorAll('#favorite').forEach(x => {
-        if (x.dataset.id !== dataId) x.classList.remove('dragover');
+        if (x.dataset.id !== dataId) x.style.background = 'none';
       });
 
       if (sourceId !== dataId) {
-        const element = event.currentTarget;
-        element.classList.add('dragover');
+        event.currentTarget.style.background = hoverColor;
       }
     }
   }

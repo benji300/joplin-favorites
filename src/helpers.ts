@@ -8,6 +8,7 @@ export enum SettingDefaults {
   Default = 'default',
   Font = 'Roboto',
   Background = 'var(--joplin-background-color3)',
+  HoverBackground = 'var(--joplin-background-color-hover3)', // var(--joplin-background-hover)
   Foreground = 'var(--joplin-color-faded)',
   DividerColor = 'var(--joplin-divider-color)'
 }

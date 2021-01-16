@@ -81,7 +81,7 @@ joplin.plugins.register({
       section: 'favorites.settings',
       public: true,
       label: 'Minimum favorite width (px)',
-      description: 'Minimum width   of one favorite entry in pixel.'
+      description: 'Minimum width of one favorite in pixel.'
     });
 
     let maxWidth: number;
@@ -91,7 +91,7 @@ joplin.plugins.register({
       section: 'favorites.settings',
       public: true,
       label: 'Maximum favorite width (px)',
-      description: 'Maximum width of one favorite entry in pixel.'
+      description: 'Maximum width of one favorite in pixel.'
     });
 
     // Advanced settings
@@ -117,6 +117,17 @@ joplin.plugins.register({
       description: "Main background color of the panel. (default: Note list background color)"
     });
 
+    let hoverBackground: string;
+    await SETTINGS.registerSetting('hoverBackground', {
+      value: SettingDefaults.Default,
+      type: SettingItemType.String,
+      section: 'favorites.settings',
+      public: true,
+      advanced: true,
+      label: 'Hover Background color',
+      description: "Background color used when hovering a favorite. (default: App note list hover color)"
+    });
+
     let foreground: string;
     await SETTINGS.registerSetting('mainForeground', {
       value: SettingDefaults.Default,
@@ -125,7 +136,7 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Foreground color',
-      description: "Default foreground color used for text and icons. (default: App faded color)"
+      description: "Foreground color used for text and icons. (default: App faded color)"
     });
 
     let dividerColor: string;
@@ -162,6 +173,7 @@ joplin.plugins.register({
       minWidth = await getSettingOrDefault(event, minWidth, 'minFavoriteWidth');
       font = await getSettingOrDefault(event, font, 'fontFamily', SettingDefaults.Font);
       background = await getSettingOrDefault(event, background, 'mainBackground', SettingDefaults.Background);
+      hoverBackground = await getSettingOrDefault(event, hoverBackground, 'hoverBackground', SettingDefaults.HoverBackground);
       foreground = await getSettingOrDefault(event, foreground, 'mainForeground', SettingDefaults.Foreground);
       dividerColor = await getSettingOrDefault(event, dividerColor, 'dividerColor', SettingDefaults.DividerColor);
       await updatePanelView();
@@ -276,7 +288,7 @@ joplin.plugins.register({
             <label for="title"><strong>Name</strong></label>
             <input type="text" id="title" name="title" value="${title}" autofocus required>
             <label for="value"><strong>${FavoriteDesc[type].label}</strong></label>
-            <textarea id="value" name="value" rows="3" ${disabled}>${path}</textarea>
+            <textarea id="value" name="value" rows="3" ${disabled} required>${path}</textarea>
           </form>
         </div>
       `;
@@ -566,8 +578,9 @@ joplin.plugins.register({
         const typeIconHtml: string = showTypeIcons ? `<span class="fas ${FavoriteDesc[favorite.type].icon}" style="color:${foreground};"></span>` : '';
 
         favsHtml.push(`
-          <div id="favorite" data-id="${favorite.value}" onClick="favsClick(event);" oncontextmenu="favsContext(event);"
-            draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
+          <div id="favorite" data-id="${favorite.value}" draggable="${enableDragAndDrop}"
+            onClick="favsClick(event);" oncontextmenu="favsContext(event);" onMouseOver="this.style.background='${hoverBackground}';" onMouseOut="this.style.background='none';"
+            ondragstart="dragStart(event);" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
             style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};color:${foreground};">
             <span class="favorite-inner" style="border-color:${dividerColor};">
               ${typeIconHtml}
