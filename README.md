@@ -10,7 +10,7 @@ Save ave any notebooks, notes, tasks, tags, or searches as favorites in an extra
 
 - [Features](#features)
   - [Screenshots](#screenshots)
-- [Usage](#usage)
+- [How to use](#how-to-use)
 - [Commands](#Commands)
 - [User options](#user-options)
 - [Installation](#installation)
@@ -25,48 +25,49 @@ Save ave any notebooks, notes, tasks, tags, or searches as favorites in an extra
 
 // TODO
 
-- Add any of the following item types to a favorites panel
-  - Notebook (Folder)
-  - Note/to-do
+- Save any of the following item types as favorites
+  - Notebook
+  - Note, To-do
   - Tag
-  - Search query (currently not supported - hopefully added later)
-- Set user defined names for the favorites
+  - Searches
+    - Currently only supported to save searches and copy it to clipboard afterwards
+    - Opening the global search with saved searches will be added later (when supported by core features)
+- Set and edit user defined names for the favorites
 - Right-click on favorites to edit or remove
 - Change position of favorites within the panel via drag & drop
+- [Drag notebooks and notes](#how-to-use) from sidebar or note list directly to favorites
 - [Configurable](#user-options) style attributes
 - Support horizontal and vertical layout
 
-![screencast](./assets/screencast.gif)
-
 ### Screenshots
-
-// TODO siehe assets ordner
 
 #### Favorites above note content
 
-![tabs-top-horizontal](./assets/tabs-top-horizontal.png)
+// TODO standard ui ohne tabs
 
-### Tabs below note content
+![favorites-top-horizontal](./assets/favorites-top-horizontal.png)
 
-![tabs-bottom-horizontal](./assets/tabs-bottom-horizontal.png)
+### Favorites in sidebar (vertical layout)
+
+// TODO wanaka ui mit tabs
+
+![favorites-sidebar-vertical](./assets/favorites-sidebar-vertical.png)
 
 > **NOTE** - The used UI theme on this screenshot can be downloaded [here](https://github.com/benji300/joplin-wanaka-ui).
 
-### Tabs beside note content (vertical layout)
-
-![tabs-right-vertical](./assets/tabs-right-vertical.png)
-
-> **NOTE** - The used UI theme on this screenshot can be downloaded [here](https://github.com/benji300/joplin-milford-ui).
-
-## Usage
+## How to use
 
 ## Add to favorites
 
 // TODO describe how to add favorites
+// add via context menu
+// Drag notebooks and notes from sidebar or note list onto 'FAVORITES' title to add
 
 ## Edit/remove favorite
 
 // TODO describe how to edit or remove a favorite
+// righ-click on favorite
+// [command](#commands) "Favorites: Remove all favorites"
 
 ## Commands
 
@@ -133,11 +134,11 @@ By default the panel will be on the right side of the screen, this can be adjust
 // TODO replace with concrete thread links
 
 - :question: Need help?
-  - Ask a question on the [Joplin Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752)
+  - Ask a question on the [Joplin Forum](https://discourse.joplinapp.org/)
 - :bulb: An idea to improve or enhance the plugin?
-  - Start a new discussion on the [Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752) or upvote [popular feature requests](https://github.com/benji300/joplin-favorites/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc+)
+  - Start a new discussion on the [Forum](https://discourse.joplinapp.org/) or upvote [popular feature requests](https://github.com/benji300/joplin-favorites/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc+)
 - :bug: Found a bug?
-  - Check the [Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752) if anyone else already reported the same issue. Otherwise report it by yourself.
+  - Check the [Forum](https://discourse.joplinapp.org/) if anyone else already reported the same issue. Otherwise report it by yourself.
 
 ## Support
 
