@@ -1,7 +1,7 @@
 {
   "name": "joplin-plugin-benji-favorites",
   "version": "1.0.0",
-  "description": "Save any notebooks, notes, tasks, tags, or searches as favorites in an extra panel view for quick access.",
+  "description": "Save any notebook, note, to-do, tag, or search as favorite in an extra panel view for quick access.",
   "author": "Benji300",
   "homepage": "https://github.com/benji300/joplin-favorites",
   "bugs": {

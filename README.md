@@ -2,7 +2,7 @@
 
 Joplin Favorites is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
 
-Save ave any notebooks, notes, tasks, tags, or searches as favorites in an extra panel view for quick access.
+It allows to save any notebook, note, to-do, tag, or search as favorite in an extra panel view for quick access.
 
 > :warning: **CAUTION** - Requires Joplin **v1.6.5** or newer
 
@@ -28,13 +28,11 @@ Save ave any notebooks, notes, tasks, tags, or searches as favorites in an extra
 
 ## Features
 
-// TODO
-
 - Save any of the following item types as favorites
   - Notebook
   - Note, To-do
   - Tag
-  - Searches
+  - Search
     - Not fully supported right now - see [here](#open-saved-searches) for details
 - Set and edit user defined names for the favorites
 - Right-click on favorites to edit or remove
@@ -47,13 +45,9 @@ Save ave any notebooks, notes, tasks, tags, or searches as favorites in an extra
 
 #### Favorites above note content
 
-// TODO standard ui ohne tabs
-
 ![favorites-top-horizontal](./assets/favorites-top-horizontal.png)
 
 ### Favorites in sidebar (vertical layout)
-
-// TODO wanaka ui mit tabs
 
 ![favorites-sidebar-vertical](./assets/favorites-sidebar-vertical.png)
 
@@ -81,10 +75,14 @@ By default the panel will be on the right side of the screen, this can be adjust
 // TODO describe how to edit or remove a favorite
 // righ-click on favorite
 
+// TODO screenshot of edit dialog
+
 ### Remove favorite
 
-// TODO righ-click on favorite - in dialog press `delete` button
-// [command](#commands) "Favorites: Remove all favorites"
+- Right click on one of the favorites to open the edit dialog
+- Press `Delete` on the dialog to remove the favorite
+
+Alternatively you can also remove all favorites at once via the `Favorites: Remove all favorites` [command](#commands).
 
 ### Open saved searches
 
@@ -147,7 +145,7 @@ This plugin adds provides user options which can be changed via `Tools > Options
 - Open Joplin
 - Navigate to `Tools > Options > Plugins`
 - Search for the `Favorites` plugin
-- Press `Delete` to remove the plugin from the user profile directory
+- Press `Delete` to remove the plugin completely
   - Alternatively you can also disable the plugin by clicking on the toggle button
 - Restart Joplin
 
@@ -177,6 +175,8 @@ If you want to build the plugin by your own simply run:
 ```
 npm run dist
 ```
+
+The npm package of the plugin can be found [here](https://www.npmjs.com/package/joplin-plugin-benji-favorites).
 
 ## Changes
 
