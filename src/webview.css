@@ -59,15 +59,18 @@ span {
 
 #favorite {
   align-items: center;
+  border-width: 0;
+  border-style: solid;
   display: flex;
 }
 #favorite:hover {
-  background-color: var(--joplin-background-color-hover3) !important;
+  background-color: var(--joplin-background-hover) !important;
 }
 .favorite-inner {
   border-width: 0;
   border-right-width: 1px;
   border-style: solid;
+  padding: 0 3px;
   width: 100%;
 }
 #favorite:last-of-type > .favorite-inner {
@@ -86,7 +89,7 @@ span {
   opacity: 0.4;
 }
 .dragover {
-  background-color: var(--joplin-background-color-hover3) !important;
+  background-color: var(--joplin-background-hover) !important;
 }
 
 /* VERCTICAL LAYOUT OVERWRITES */
@@ -106,11 +109,11 @@ span {
   }
 
   #favorite {
+    border-bottom-width: 1px;
     max-width: 100% !important;
   }
   .favorite-inner {
     border-right-width: 0;
-    border-bottom-width: 1px;
     text-align: left;
     padding-left: 24px;
   }
