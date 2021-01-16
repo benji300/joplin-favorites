@@ -503,7 +503,7 @@ joplin.plugins.register({
       if (showPanelTitle) {
         panelTitleHtml = `
           <div id="panel-title" style="height:${lineHeight}px;"
-            ondragend="cancelDefault(event);" ondragover="dragOverTitle(event);" ondragleave="cancelDefault(event);" ondrop="dropOnTitle(event);">
+            ondragover="dragOverTitle(event);" ondragleave="dragLeave(event);" ondrop="dropOnTitle(event);" ondragend="dragLeave(event);">
             <span class="fas fa-star" style="color:${foreground};"></span>
             <span class="title" style="color:${foreground};">FAVORITES</span>
           </div>
@@ -515,12 +515,14 @@ joplin.plugins.register({
         const typeIconHtml: string = showTypeIcons ? `<span class="fas ${FavoriteDesc[favorite.type].icon}" style="color:${foreground};"></span>` : '';
 
         favsHtml.push(`
-          <div id="favorite" data-id="${favorite.value}"
-              draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
-              style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};color:${foreground};">
-            ${typeIconHtml}
-            <span class="title" style="border-color:${dividerColor};" title="${favorite.title}">
-              ${favorite.title}
+          <div id="favorite" data-id="${favorite.value}" onClick="favsClick(event);" oncontextmenu="favsContext(event);"
+            draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
+            style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};color:${foreground};">
+            <span class="favorite-inner" style="border-color:${dividerColor};">
+              ${typeIconHtml}
+              <span class="title" title="${favorite.title}">
+                ${favorite.title}
+              </span>
             </span>
           </div>
         `);

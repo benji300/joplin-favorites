@@ -20,7 +20,8 @@ a {
 }
 span {
   overflow: hidden;
-  padding: 2px 4px;
+  padding: 3px;
+  text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -53,6 +54,7 @@ span {
 #panel-title {
   align-items: center;
   display: flex;
+  padding: 0 5px;
 }
 
 #favorite {
@@ -61,14 +63,14 @@ span {
 }
 #favorite:hover {
   background-color: var(--joplin-background-color-hover3) !important;
-  cursor: pointer;
 }
-#favorite > .title {
-  border-style: solid;
+.favorite-inner {
   border-width: 0;
   border-right-width: 1px;
+  border-style: solid;
+  width: 100%;
 }
-#favorite:last-of-type > .title {
+#favorite:last-of-type > .favorite-inner {
   border-style: none;
 }
 
