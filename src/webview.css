@@ -101,9 +101,17 @@ span {
     width: 100%;
   }
 
+  #panel-title {
+    padding-left: 12px;
+  }
+
   #favorite {
+    max-width: 100% !important;
+  }
+  .favorite-inner {
     border-right-width: 0;
     border-bottom-width: 1px;
-    max-width: 100% !important;
+    text-align: left;
+    padding-left: 24px;
   }
 }
