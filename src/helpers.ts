@@ -29,18 +29,19 @@ export enum FavoriteType {
 interface IFavoriteDesc {
   name: string,
   icon: string,
-  dataType: string
+  dataType: string,
+  label
 }
 
 /**
  * Array of favorite descriptions. Order must match with FavoriteType enum.
  */
 export const FavoriteDesc: IFavoriteDesc[] = [
-  { name: 'Notebook', icon: 'fa-book', dataType: 'folders' }, // Folder
-  { name: 'Note', icon: 'fa-file-alt', dataType: 'notes' }, // Note
-  { name: 'To-do', icon: 'fa-check-square', dataType: 'notes' }, // Todo
-  { name: 'Tag', icon: 'fa-tag', dataType: 'tags' }, // Tag
-  { name: 'Search', icon: 'fa-search', dataType: 'searches' } // Search
+  { name: 'Notebook', icon: 'fa-book', dataType: 'folders', label: 'Target path' }, // Folder
+  { name: 'Note', icon: 'fa-file-alt', dataType: 'notes', label: 'Target path' }, // Note
+  { name: 'To-do', icon: 'fa-check-square', dataType: 'notes', label: 'Target path' }, // Todo
+  { name: 'Tag', icon: 'fa-tag', dataType: 'tags', label: 'Target tag' }, // Tag
+  { name: 'Search', icon: 'fa-search', dataType: 'searches', label: 'Search query' } // Search
 ];
 
 /**

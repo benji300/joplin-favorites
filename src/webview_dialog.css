@@ -3,6 +3,10 @@
   min-width: 400px;
 }
 
+h3 {
+  margin: 5px;
+}
+
 form {
   display: grid;
 }
@@ -11,6 +15,12 @@ label {
 }
 input {
   padding: 4px;
+}
+textarea {
+  padding: 4px;
+  resize: vertical;
+  width: auto !important;
+  word-break: break-all;
 }
 
 i {

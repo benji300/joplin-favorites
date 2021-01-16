@@ -257,7 +257,7 @@ joplin.plugins.register({
           if (tag) return tag.title;
 
         case FavoriteType.Search:
-          return 'Search results';
+          return value;
 
         default:
           break;
@@ -271,15 +271,12 @@ joplin.plugins.register({
 
       return `
         <div>
-          <h3>${header}</h3>
+          <h3><i class="fas ${FavoriteDesc[type].icon}"></i>${header} ${FavoriteDesc[type].name} Favorite</h3>
           <form name="inputForm">
-            <label><strong>${FavoriteDesc[type].name}</strong></label>
-            <label><i class="fas ${FavoriteDesc[type].icon}"></i>${path}</label>
             <label for="title"><strong>Name</strong></label>
-            <input type="text" id="title" name="title" value="${title}">
-            <label for="value"><strong>Value</strong></label>
-            <input type="text" id="value" name="value" value="${value}" ${disabled}>
-            <label><em>Notebook, note, tag ID or search string. Only editable for searches.</em></label>
+            <input type="text" id="title" name="title" value="${title}" autofocus required>
+            <label for="value"><strong>${FavoriteDesc[type].label}</strong></label>
+            <textarea id="value" name="value" rows="3" ${disabled}>${path}</textarea>
           </form>
         </div>
       `;
@@ -300,7 +297,7 @@ joplin.plugins.register({
         if (showUserInput) {
 
           // prepare and open dialog
-          const dialogHtml: string = await prepareDialogHtml('Add to favorites', value, newTitle, type);
+          const dialogHtml: string = await prepareDialogHtml('Add', value, newTitle, type);
           await DIALOGS.setHtml(dialogAdd, dialogHtml);
           const result: any = await DIALOGS.open(dialogAdd);
 
@@ -326,7 +323,7 @@ joplin.plugins.register({
       if (!favorite) return;
 
       // prepare and open dialog
-      const dialogHtml: string = await prepareDialogHtml('Edit favorite', favorite.value, favorite.title, favorite.type);
+      const dialogHtml: string = await prepareDialogHtml('Edit', favorite.value, favorite.title, favorite.type);
       await DIALOGS.setHtml(dialogEdit, dialogHtml);
       const result: any = await DIALOGS.open(dialogEdit);
 
