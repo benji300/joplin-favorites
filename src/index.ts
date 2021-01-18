@@ -317,7 +317,7 @@ joplin.plugins.register({
       }
     }
 
-    async function addFavorite(value: string, title: string, type: FavoriteType, showUserInput: boolean = true) {
+    async function addFavorite(value: string, title: string, type: FavoriteType, showDialog: boolean) {
       let newValue: string = value;
       let newTitle: string = title;
 
@@ -329,7 +329,7 @@ joplin.plugins.register({
       } else {
 
         // otherwise create new favorite, with or without user interaction
-        if (editBeforeAdd && showUserInput) {
+        if (showDialog) {
 
           // prepare and open dialog
           const dialogHtml: string = await prepareDialogHtml('Add', value, newTitle, type);
@@ -392,12 +392,12 @@ joplin.plugins.register({
           const folder = await DATA.get(['folders', folderId], { fields: ['id', 'title'] });
           if (!folder) return;
 
-          await addFavorite(folder.id, folder.title, FavoriteType.Folder);
+          await addFavorite(folder.id, folder.title, FavoriteType.Folder, editBeforeAdd);
         } else {
           const selectedFolder: any = await WORKSPACE.selectedFolder();
           if (!selectedFolder) return;
 
-          await addFavorite(selectedFolder.id, selectedFolder.title, FavoriteType.Folder);
+          await addFavorite(selectedFolder.id, selectedFolder.title, FavoriteType.Folder, editBeforeAdd);
         }
       }
     });
@@ -419,13 +419,15 @@ joplin.plugins.register({
             const note = await DATA.get(['notes', noteId], { fields: ['id', 'title', 'is_todo'] });
             if (!note) return;
 
-            await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note, (noteIds.length == 1));
+            // never show dialog for multiple notes
+            const showDialog: boolean = (editBeforeAdd && noteIds.length == 1);
+            await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note, showDialog);
           }
         } else {
           const selectedNote: any = await WORKSPACE.selectedNote();
           if (!selectedNote) return;
 
-          await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note);
+          await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note, editBeforeAdd);
         }
       }
     });
@@ -441,7 +443,7 @@ joplin.plugins.register({
           const tag = await DATA.get(['tags', tagId], { fields: ['id', 'title'] });
           if (!tag) return;
 
-          await addFavorite(tag.id, tag.title, FavoriteType.Tag);
+          await addFavorite(tag.id, tag.title, FavoriteType.Tag, editBeforeAdd);
         }
       }
     });
@@ -453,7 +455,7 @@ joplin.plugins.register({
       label: 'Favorites: Add Search',
       iconName: 'fas fa-search',
       execute: async () => {
-        await addFavorite('', 'New Search', FavoriteType.Search);
+        await addFavorite('', 'New Search', FavoriteType.Search, true); // always add with dialog
       }
     });
 
