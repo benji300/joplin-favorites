@@ -68,7 +68,7 @@ joplin.plugins.register({
       type: SettingItemType.Int,
       section: 'favorites.settings',
       public: true,
-      label: 'Favorites line height (px)',
+      label: 'Line height (px)',
       description: 'Line height of the favorites panel.'
     });
 
@@ -93,7 +93,7 @@ joplin.plugins.register({
     });
 
     // Advanced settings
-    let font: string;
+    let fontFamily: string;
     await SETTINGS.registerSetting('fontFamily', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -102,6 +102,17 @@ joplin.plugins.register({
       advanced: true,
       label: 'Font family',
       description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: Roboto)"
+    });
+
+    let fontSize: string;
+    await SETTINGS.registerSetting('fontSize', {
+      value: SettingDefaults.Default,
+      type: SettingItemType.String,
+      section: 'favorites.settings',
+      public: true,
+      advanced: true,
+      label: 'Font size',
+      description: "Font size used in the panel. Values other than 'default' must be specified in valid CSS syntax, e.g. '13px'. (default: App default font size)"
     });
 
     let background: string;
@@ -123,7 +134,7 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Hover Background color',
-      description: "Background color used when hovering a favorite. (default: App note list hover color)"
+      description: "Background color used when hovering a favorite. (default: Note list hover color)"
     });
 
     let foreground: string;
@@ -145,7 +156,7 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Divider color',
-      description: "Color of the divider between the favorites. (default: App divider/border color)"
+      description: "Color of the divider between the favorites. (default: App default border color)"
     });
 
     const regexp: RegExp = new RegExp(SettingDefaults.Default, "i");
@@ -169,7 +180,8 @@ joplin.plugins.register({
       lineHeight = await getSettingOrDefault(event, lineHeight, 'lineHeight');
       maxWidth = await getSettingOrDefault(event, maxWidth, 'maxFavoriteWidth');
       minWidth = await getSettingOrDefault(event, minWidth, 'minFavoriteWidth');
-      font = await getSettingOrDefault(event, font, 'fontFamily', SettingDefaults.Font);
+      fontFamily = await getSettingOrDefault(event, fontFamily, 'fontFamily', SettingDefaults.FontFamily);
+      fontSize = await getSettingOrDefault(event, fontSize, 'fontSize', SettingDefaults.FontSize);
       background = await getSettingOrDefault(event, background, 'mainBackground', SettingDefaults.Background);
       hoverBackground = await getSettingOrDefault(event, hoverBackground, 'hoverBackground', SettingDefaults.HoverBackground);
       foreground = await getSettingOrDefault(event, foreground, 'mainForeground', SettingDefaults.Foreground);
@@ -567,7 +579,7 @@ joplin.plugins.register({
 
     // set init message
     await PANELS.setHtml(panel, `
-      <div id="container" style="background:${background};font-family:'${font}',sans-serif;">
+      <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;font-size:${fontSize};">
         <div id="container-inner">
           <p style="padding-left:8px;">Loading panel...</p>
         </div>
@@ -611,7 +623,7 @@ joplin.plugins.register({
 
       // add entries to container and push to panel
       await PANELS.setHtml(panel, `
-        <div id="container" style="background:${background};font-family:'${font}',sans-serif;">
+        <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;font-size:${fontSize};">
           <div id="container-inner">
             ${panelTitleHtml}
             ${favsHtml.join('\n')}
