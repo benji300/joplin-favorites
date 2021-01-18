@@ -498,10 +498,6 @@ joplin.plugins.register({
         label: 'Add selected note'
       },
       {
-        commandName: "favsAddTag",
-        label: 'Add selected tag'
-      },
-      {
         commandName: "favsAddSearch",
         label: 'Add search'
       },
