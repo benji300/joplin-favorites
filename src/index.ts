@@ -206,11 +206,11 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region COMMANDS
+    //#region HELPERS
 
     /**
-     * Check if favorite target still exists - otherwise ask to remove favorite
-     */
+      * Check if favorite target still exists - otherwise ask to remove favorite
+      */
     async function checkAndRemoveFavorite(favorite: any): Promise<boolean> {
       try {
         await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id'] });
@@ -241,8 +241,41 @@ joplin.plugins.register({
     }
 
     /**
-     * Opens the handle favorite with the correct method
+     * Gets the full path, tag name or search query for the favorite.
      */
+    async function getFavoritePath(value: string, type: FavoriteType): Promise<string> {
+      switch (type) {
+        case FavoriteType.Folder:
+        case FavoriteType.Note:
+        case FavoriteType.Todo:
+          const item = await DATA.get([FavoriteDesc[type].dataType, value], { fields: ['title', 'parent_id'] });
+          if (item) {
+            let parents: any[] = new Array();
+            let parent_id: string = item.parent_id;
+
+            while (parent_id) {
+              const parent: any = await DATA.get(['folders', parent_id], { fields: ['title', 'parent_id'] });
+              if (!parent) break;
+              parent_id = parent.parent_id;
+              parents.push(parent.title);
+            }
+            parents.reverse().push(item.title);
+            return parents.join('/');
+          }
+
+        case FavoriteType.Tag:
+          const tag = await DATA.get([FavoriteDesc[type].dataType, value], { fields: ['title'] });
+          if (tag) return tag.title;
+
+        case FavoriteType.Search:
+          return value;
+
+        default:
+          break;
+      }
+      return '';
+    }
+
     async function openFavorite(value: string) {
       const favorite: any = await favorites.get(value);
       if (!favorite) return;
@@ -282,56 +315,6 @@ joplin.plugins.register({
         default:
           break;
       }
-    }
-
-    async function getFavoritePath(value: string, type: FavoriteType): Promise<string> {
-      switch (type) {
-        case FavoriteType.Folder:
-        case FavoriteType.Note:
-        case FavoriteType.Todo:
-          const item = await DATA.get([FavoriteDesc[type].dataType, value], { fields: ['title', 'parent_id'] });
-          if (item) {
-            let parents: any[] = new Array();
-            let parent_id: string = item.parent_id;
-
-            while (parent_id) {
-              const parent: any = await DATA.get(['folders', parent_id], { fields: ['title', 'parent_id'] });
-              if (!parent) break;
-              parent_id = parent.parent_id;
-              parents.push(parent.title);
-            }
-            parents.reverse().push(item.title);
-            return parents.join('/');
-          }
-
-        case FavoriteType.Tag:
-          const tag = await DATA.get([FavoriteDesc[type].dataType, value], { fields: ['title'] });
-          if (tag) return tag.title;
-
-        case FavoriteType.Search:
-          return value;
-
-        default:
-          break;
-      }
-      return '';
-    }
-
-    async function prepareDialogHtml(header: string, value: string, title: string, type: FavoriteType): Promise<string> {
-      const path: string = await getFavoritePath(value, type);
-      const disabled: string = (type === FavoriteType.Search) ? '' : 'disabled';
-
-      return `
-        <div>
-          <h3><i class="fas ${FavoriteDesc[type].icon}"></i>${header} ${FavoriteDesc[type].name} Favorite</h3>
-          <form name="inputForm">
-            <label for="title"><strong>Name</strong></label>
-            <input type="text" id="title" name="title" value="${title}" autofocus required>
-            <label for="value"><strong>${FavoriteDesc[type].label}</strong></label>
-            <textarea id="value" name="value" rows="3" ${disabled} required>${path}</textarea>
-          </form>
-        </div>
-      `;
     }
 
     async function addFavorite(value: string, title: string, type: FavoriteType, showUserInput: boolean = true) {
@@ -393,7 +376,11 @@ joplin.plugins.register({
       }
     }
 
-    // Cmmand: favsAddFolder
+    //#endregion
+
+    //#region COMMANDS
+
+    // Command: favsAddFolder
     // Desc: Add selected folder to favorites
     await COMMANDS.register({
       name: 'favsAddFolder',
@@ -547,6 +534,7 @@ joplin.plugins.register({
 
     //#region DIALOGS
 
+    // prepare dialog objects
     const dialogAdd = await DIALOGS.create('dialogAdd');
     await DIALOGS.addScript(dialogAdd, './assets/fontawesome/css/all.min.css');
     await DIALOGS.addScript(dialogAdd, './webview_dialog.css');
@@ -559,6 +547,24 @@ joplin.plugins.register({
       { id: 'ok', title: 'OK' },
       { id: 'cancel', title: 'Cancel' }
     ]);
+
+    // prepare dialog HTML content
+    async function prepareDialogHtml(header: string, value: string, title: string, type: FavoriteType): Promise<string> {
+      const path: string = await getFavoritePath(value, type);
+      const disabled: string = (type === FavoriteType.Search) ? '' : 'disabled';
+
+      return `
+        <div>
+          <h3><i class="fas ${FavoriteDesc[type].icon}"></i>${header} ${FavoriteDesc[type].name} Favorite</h3>
+          <form name="inputForm">
+            <label for="title"><strong>Name</strong></label>
+            <input type="text" id="title" name="title" value="${title}" autofocus required>
+            <label for="value"><strong>${FavoriteDesc[type].label}</strong></label>
+            <textarea id="value" name="value" rows="3" ${disabled} required>${path}</textarea>
+          </form>
+        </div>
+      `;
+    }
 
     //#endregion
 
