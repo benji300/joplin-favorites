@@ -32,6 +32,16 @@ joplin.plugins.register({
     await favorites.read();
 
     // general settings
+    let editBeforeAdd: boolean;
+    await SETTINGS.registerSetting('editBeforeAdd', {
+      value: true,
+      type: SettingItemType.Bool,
+      section: 'favorites.settings',
+      public: true,
+      label: 'Edit favorite before add',
+      description: 'Opens a dialog to edit the favorite before adding it. If disabled, the name can still be changed later.'
+    });
+
     let enableDragAndDrop: boolean;
     await SETTINGS.registerSetting('enableDragAndDrop', {
       value: true,
@@ -177,6 +187,7 @@ joplin.plugins.register({
       enableDragAndDrop = await getSettingOrDefault(event, enableDragAndDrop, 'enableDragAndDrop');
       showPanelTitle = await getSettingOrDefault(event, showPanelTitle, 'showPanelTitle');
       showTypeIcons = await getSettingOrDefault(event, showTypeIcons, 'showTypeIcons');
+      editBeforeAdd = await getSettingOrDefault(event, editBeforeAdd, 'editBeforeAdd');
       lineHeight = await getSettingOrDefault(event, lineHeight, 'lineHeight');
       maxWidth = await getSettingOrDefault(event, maxWidth, 'maxFavoriteWidth');
       minWidth = await getSettingOrDefault(event, minWidth, 'minFavoriteWidth');
@@ -335,7 +346,7 @@ joplin.plugins.register({
       } else {
 
         // otherwise create new favorite, with or without user interaction
-        if (showUserInput) {
+        if (editBeforeAdd && showUserInput) {
 
           // prepare and open dialog
           const dialogHtml: string = await prepareDialogHtml('Add', value, newTitle, type);
@@ -534,7 +545,7 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region INPUT DIALOGS
+    //#region DIALOGS
 
     const dialogAdd = await DIALOGS.create('dialogAdd');
     await DIALOGS.addScript(dialogAdd, './assets/fontawesome/css/all.min.css');
