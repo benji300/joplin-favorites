@@ -15,7 +15,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
   - [Add favorite](#add-favorite)
   - [Edit favorite](#edit-favorite)
   - [Remove favorite](#remove-favorite)
-  - [Open saved searches](#open-saved-searches)
+  - [Open saved search](#open-saved-search)
 - [Commands](#Commands)
 - [User options](#user-options)
 - [Installation](#installation)
@@ -33,13 +33,14 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
   - Note, To-do
   - Tag
   - Search
-    - Not fully supported right now - see [here](#open-saved-searches) for details
+    - Not fully supported right now - see [here](#open-saved-search) for details
 - Set and edit user defined names for the favorites
 - Right-click on favorites to edit or remove
 - Change position of favorites within the panel via drag & drop
 - [Drag notebooks and notes](#how-to-use) from sidebar or note list directly to favorites
 - [Configurable](#user-options) style attributes
 - Support horizontal and vertical layout
+- Toggle panel visibility
 
 ### Screenshots
 
@@ -66,25 +67,38 @@ By default the panel will be on the right side of the screen, this can be adjust
 
 ### Add favorite
 
-// TODO describe how to add favorites
-// add via context menu
-// Drag notebooks and notes from sidebar or note list onto 'FAVORITES' title to add
+- To add a new favorite to the panel, you have to trigger the appropriate [command](#commands)
+  - In the table you can see also from which menu context the commands can be triggered
+- Notebooks, notes and to-dos can also be added via drag & drop the selcted entries onto the `FAVORITES` title of the panel
+  - To enable this feature, the option `Show favorites panel title` must be enabled
+
+The `Edit favorite before add` option lets you choose whether or not to edit the name before adding a new favorite.
+
+- This is not supported when adding multiple selected notes
+- For searches the dialog is always opened to enter the search query
+
+![add-dialog](./assets/add-dialog.png)
 
 ### Edit favorite
 
-// TODO describe how to edit or remove a favorite
-// righ-click on favorite
+- Right click on one of the favorites to open the edit dialog
 
-// TODO screenshot of edit dialog
+In the edit dialog you can change the name of any favorite.
+
+![edit-dialog](./assets/edit-dialog.png)
+
+For searches, you can also edit the search query.
+
+![edit-search-dialog](./assets/edit-search-dialog.png)
 
 ### Remove favorite
 
-- Right click on one of the favorites to open the edit dialog
-- Press `Delete` on the dialog to remove the favorite
+- Right click on one of the favorites to open the edit dialog (see screenshots above)
+- Press `Delete` to remove the favorite
 
-Alternatively you can also remove all favorites at once via the `Favorites: Remove all favorites` [command](#commands).
+Alternatively you can remove all favorites at once via the `Favorites: Remove all favorites` command.
 
-### Open saved searches
+### Open saved search
 
 Currently favorites for searches are not fully supported. Due to restrictions of the App it is not possible to open the global search with a handled search query.
 To open a saved search follow this workaround:
@@ -99,18 +113,17 @@ To open a saved search follow this workaround:
 
 This plugin provides additional commands as described in the following table.
 
-| Command Label                   | Command ID             | Description                            | Menu contexts                                    |
-| ------------------------------- | ---------------------- | -------------------------------------- | ------------------------------------------------ |
-| Favorites: Add notebook         | `favsAddFolder`        | Add favorite for selected notebook     | `Tools>Favs`, `FolderContext`                    |
-| Favorites: Add note             | `favsAddNote`          | Add favorite for selected note(s)      | `Tools>Favs`, `NoteListContext`, `EditorContext` |
-| Favorites: Add tag              | `favsAddTag`           | Add favorite for selected tag          | `Tools>Favs`, `TagContext`                       |
-| Favorites: Add search           | `favsAddSearch`        | Add favorite with entered search query | `Tools>Favs`                                     |
-| Favorites: Remove all favorites | `favsClear`            | Remove all favorites                   | `Tools>Favs`                                     |
-| Favorites: Toggle visibility    | `favsToggleVisibility` | Toggle panel visibility                | `Tools>Favs`                                     |
+Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts` to all commands which are assigned to the `Tools>Favorites` menu context.
+Search for the command label where shortcuts shall be added.
 
-> **NOTE** - Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts`. Search for the command label where shortcuts shall be added.
-
-> **NOTE** - All commands can also be accessed via the `Command palette`.
+| Command Label                   | Command ID             | Description                            | Menu contexts                                                            |
+| ------------------------------- | ---------------------- | -------------------------------------- | ------------------------------------------------------------------------ |
+| Favorites: Add notebook         | `favsAddFolder`        | Add favorite for selected notebook     | `Tools>Favorites`, `FolderContext`, `Command palette`                    |
+| Favorites: Add note             | `favsAddNote`          | Add favorite for selected note(s)      | `Tools>Favorites`, `NoteListContext`, `EditorContext`, `Command palette` |
+| Favorites: Add tag              | `favsAddTag`           | Add favorite for selected tag          | `TagContext`                                                             |
+| Favorites: Add search           | `favsAddSearch`        | Add favorite with entered search query | `Tools>Favorites`, `Command palette`                                     |
+| Favorites: Remove all favorites | `favsClear`            | Remove all favorites                   | `Tools>Favorites`, `Command palette`                                     |
+| Favorites: Toggle visibility    | `favsToggleVisibility` | Toggle panel visibility                | `Tools>Favorites`, `Command palette`                                     |
 
 ## User options
 
