@@ -10,7 +10,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 
 - [Features](#features)
   - [Screenshots](#screenshots)
-- [How to use](#how-to-use)
+- [Usage](#usage)
   - [Place the panel](#place-the-panel)
   - [Add favorite](#add-favorite)
   - [Edit favorite](#edit-favorite)
@@ -37,7 +37,10 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 - Set and edit user defined names for the favorites
 - Right-click on favorites to edit or remove
 - Change position of favorites within the panel via drag & drop
-- [Drag notebooks and notes](#how-to-use) from sidebar or note list directly to favorites
+- [Drag notebooks and notes](#
+
+
+-use) from sidebar or note list directly to favorites
 - [Configurable](#user-options) style attributes
 - Support horizontal and vertical layout
 - Toggle panel visibility
@@ -54,7 +57,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 
 > **NOTE** - The used UI theme on this screenshot can be downloaded [here](https://github.com/benji300/joplin-wanaka-ui).
 
-## How to use
+## Usage
 
 ### Place the panel
 
@@ -135,23 +138,21 @@ This plugin adds provides user options which can be changed via `Tools > Options
 
 ## Installation
 
-### Joplin v1.6.4 and newer
+### Automatic (Joplin v1.6.4 and newer)
 
 - Open Joplin and navigate to `Tools > Options > Plugins`
 - Search for `favorites` and press install
 - Restart Joplin to enable the plugin
-- By default the panel will appear on the right side of the screen
-  - See here to [place the panel](#place-the-panel)
+- By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
 
-### Joplin v1.6.2 and previous
+### Manual
 
 - Download the latest released JPL package (`joplin.plugin.benji.favorites.jpl`) from [here](https://github.com/benji300/joplin-favorites/releases)
 - Open Joplin and navigate to `Tools > Options > Plugins`
 - Press `Install plugin` and select the previously downloaded `jpl` file
 - Confirm selection
 - Restart Joplin to enable the plugin
-- By default the panel will appear on the right side of the screen
-  - See here to [place the panel](#place-the-panel)
+- By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
 
 ## Uninstallation
 
@@ -179,15 +180,15 @@ Then I would be very happy if you would buy me a beer via [PayPal](https://www.p
 
 ## Development
 
+The npm package of the plugin can be found [here](https://www.npmjs.com/package/joplin-plugin-benji-favorites).
+
 ### Building the plugin
 
-If you want to build the plugin by your own simply run:
+If you want to build the plugin by your own simply run `npm run dist`.
 
-```
-npm run dist
-```
+### Updating the plugin framework
 
-The npm package of the plugin can be found [here](https://www.npmjs.com/package/joplin-plugin-benji-favorites).
+To update the plugin framework, run `npm run update`.
 
 ## Changes
 
