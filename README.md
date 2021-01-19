@@ -151,8 +151,8 @@ This plugin provides additional commands as described in the following table.
 
 ### Keyboard shortcuts
 
-Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts` to all commands which are assigned to the `Tools>Favorites` menu context.
-Search for the command label where shortcuts shall be added.
+Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts` to all [commands](#commands) which are assigned to the `Tools>Favorites` menu context.
+In the keyboard shortcut editor, search for the command label where shortcuts shall be added.
 
 ## User options
 
