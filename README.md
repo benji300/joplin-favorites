@@ -37,11 +37,8 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 - Set and edit user defined names for the favorites
 - Right-click on favorites to edit or remove
 - Change position of favorites within the panel via drag & drop
-- [Drag notebooks and notes](#
-
-
--use) from sidebar or note list directly to favorites
-- [Configurable](#user-options) style attributes
+- Drag notebooks and notes from sidebar or note list directly to favorites
+- Configurable style attributes
 - Support horizontal and vertical layout
 - Toggle panel visibility
 
