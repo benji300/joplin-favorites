@@ -10,6 +10,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 
 - [Features](#features)
   - [Screenshots](#screenshots)
+- [Installation](#installation)
 - [Usage](#usage)
   - [Place the panel](#place-the-panel)
   - [Add favorite](#add-favorite)
@@ -17,9 +18,8 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
   - [Remove favorite](#remove-favorite)
   - [Open saved search](#open-saved-search)
 - [Commands](#Commands)
+  - [Keyboard shortcuts](#keyboard-shortcuts)
 - [User options](#user-options)
-- [Installation](#installation)
-- [Uninstallation](#uninstallation)
 - [Feedback](#feedback)
 - [Support](#support)
 - [Development](#development)
@@ -54,6 +54,33 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 
 > **NOTE** - The used UI theme on this screenshot can be downloaded [here](https://github.com/benji300/joplin-wanaka-ui).
 
+## Installation
+
+### Automatic (Joplin v1.6.4 and newer)
+
+- Open Joplin and navigate to `Tools > Options > Plugins`
+- Search for `favorites` and press install
+- Restart Joplin to enable the plugin
+- By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
+
+### Manual
+
+- Download the latest released JPL package (`joplin.plugin.benji.favorites.jpl`) from [here](https://github.com/benji300/joplin-favorites/releases)
+- Open Joplin and navigate to `Tools > Options > Plugins`
+- Press `Install plugin` and select the previously downloaded `jpl` file
+- Confirm selection
+- Restart Joplin to enable the plugin
+- By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
+
+### Uninstall
+
+- Open Joplin
+- Navigate to `Tools > Options > Plugins`
+- Search for the `Favorites` plugin
+- Press `Delete` to remove the plugin completely
+  - Alternatively you can also disable the plugin by clicking on the toggle button
+- Restart Joplin
+
 ## Usage
 
 ### Place the panel
@@ -67,7 +94,7 @@ By default the panel will be on the right side of the screen, this can be adjust
 
 ### Add favorite
 
-- To add a new favorite to the panel, you have to trigger the appropriate [command](#commands)
+- To add a new favorite to the panel, you have to trigger the corresponding [command](#commands)
   - In the table you can see also from which menu context the commands can be triggered
 - Notebooks, notes and to-dos can also be added via drag & drop the selected entries onto the `FAVORITES` title of the panel
   - To enable this feature, the option `Show favorites panel title` must be enabled
@@ -113,9 +140,6 @@ To open a saved search follow this workaround:
 
 This plugin provides additional commands as described in the following table.
 
-Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts` to all commands which are assigned to the `Tools>Favorites` menu context.
-Search for the command label where shortcuts shall be added.
-
 | Command Label                   | Command ID             | Description                            | Menu contexts                                                            |
 | ------------------------------- | ---------------------- | -------------------------------------- | ------------------------------------------------------------------------ |
 | Favorites: Add notebook         | `favsAddFolder`        | Add favorite for selected notebook     | `Tools>Favorites`, `FolderContext`, `Command palette`                    |
@@ -125,6 +149,11 @@ Search for the command label where shortcuts shall be added.
 | Favorites: Remove all favorites | `favsClear`            | Remove all favorites                   | `Tools>Favorites`, `Command palette`                                     |
 | Favorites: Toggle visibility    | `favsToggleVisibility` | Toggle panel visibility                | `Tools>Favorites`, `Command palette`                                     |
 
+### Keyboard shortcuts
+
+Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts` to all commands which are assigned to the `Tools>Favorites` menu context.
+Search for the command label where shortcuts shall be added.
+
 ## User options
 
 This plugin adds provides user options which can be changed via `Tools > Options > Favorites`.
@@ -132,33 +161,6 @@ This plugin adds provides user options which can be changed via `Tools > Options
 > **NOTE** - If `default` is set for an advanced style setting, the corresponding default color, font family, etc. will be used to match the common App look.
 
 > **NOTE** - In case color settings shall be overwritten, they must be specified as valid CSS attribute values, e.g. `#ffffff`, `rgb(255,255,255)`, etc.
-
-## Installation
-
-### Automatic (Joplin v1.6.4 and newer)
-
-- Open Joplin and navigate to `Tools > Options > Plugins`
-- Search for `favorites` and press install
-- Restart Joplin to enable the plugin
-- By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
-
-### Manual
-
-- Download the latest released JPL package (`joplin.plugin.benji.favorites.jpl`) from [here](https://github.com/benji300/joplin-favorites/releases)
-- Open Joplin and navigate to `Tools > Options > Plugins`
-- Press `Install plugin` and select the previously downloaded `jpl` file
-- Confirm selection
-- Restart Joplin to enable the plugin
-- By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
-
-## Uninstallation
-
-- Open Joplin
-- Navigate to `Tools > Options > Plugins`
-- Search for the `Favorites` plugin
-- Press `Delete` to remove the plugin completely
-  - Alternatively you can also disable the plugin by clicking on the toggle button
-- Restart Joplin
 
 ## Feedback
 
