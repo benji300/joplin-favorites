@@ -35,7 +35,7 @@ function dragStart(event) {
   const dataId = getDataId(event);
   if (dataId) {
     event.currentTarget.classList.add('dragging');
-    event.dataTransfer.setData('text/favorite-id', dataId);
+    event.dataTransfer.setData('text/x-plugin-favorites-id', dataId);
     sourceId = dataId;
   }
 }
@@ -75,7 +75,7 @@ function dragLeave(event) {
 
 function drop(event) {
   cancelDefault(event);
-  const dataSourceId = event.dataTransfer.getData('text/favorite-id');
+  const dataSourceId = event.dataTransfer.getData('text/x-plugin-favorites-id');
   if (dataSourceId) {
     const dataTargetId = getDataId(event);
     if (dataTargetId !== sourceId) {
@@ -87,7 +87,7 @@ function drop(event) {
 function dropOnTitle(event) {
   cancelDefault(event);
 
-  // check whether folder was dragged from app onto the panel - trigger favsAddNote then
+  // check whether folder was dragged from app onto the panel - trigger favsAddFolder then
   const appDragFolderIds = event.dataTransfer.getData('text/x-jop-folder-ids');
   if (appDragFolderIds) {
     const folderIds = JSON.parse(appDragFolderIds);
@@ -103,6 +103,13 @@ function dropOnTitle(event) {
     for (const noteId of JSON.parse(appDragNoteIds)) {
       ids.push(noteId);
     }
+    webviewApi.postMessage({ name: 'favsAddNote', id: ids });
+  }
+
+  // check whether tab (from joplin.plugin.note.tabs plugin) was dragged onto the panel - trigger favsAddNote then
+  const appDragTabId = event.dataTransfer.getData('text/x-plugin-note-tabs-id'); // 'text/plain'
+  if (appDragTabId) {
+    const ids = new Array(appDragTabId);
     webviewApi.postMessage({ name: 'favsAddNote', id: ids });
   }
 }
