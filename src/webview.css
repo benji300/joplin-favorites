@@ -83,7 +83,7 @@ span {
   -ms-user-select: none;
 }
 .dragging {
-  opacity: 0.4;
+  opacity: 0.4 !important;
 }
 
 /* VERCTICAL LAYOUT OVERWRITES */
