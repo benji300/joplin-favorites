@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- None
+
+## [1.1.0] - 2021-01-21
+
 ### Changed
 
 - Improve style of scrollbar in vertical layout
