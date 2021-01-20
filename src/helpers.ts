@@ -140,15 +140,24 @@ export class Favorites {
   }
 
   /**
-   * Changes the name of the handled favorite.
+   * Changes the title of the handled favorite.
    */
-  async rename(value: string, newTitle: string) {
+  async changeValue(value: string, newValue: string) {
+    if (!newValue) return;
     const index: number = this.indexOf(value);
     if (index < 0) return;
+    this._favs[index].value = newValue;
+    await this.store();
+  }
 
-    let favorite: any = this._favs[index];
-    favorite.title = newTitle;
-    this._favs.splice(index, 1, favorite);
+  /**
+   * Changes the title of the handled favorite.
+   */
+  async changeTitle(value: string, newTitle: string) {
+    if (!newTitle) return;
+    const index: number = this.indexOf(value);
+    if (index < 0) return;
+    this._favs[index].title = newTitle;
     await this.store();
   }
 

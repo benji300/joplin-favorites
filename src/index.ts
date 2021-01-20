@@ -236,7 +236,6 @@ joplin.plugins.register({
       if (newType) {
         await favorites.changeType(favorite.value, newType);
         await updatePanelView();
-        return;
       }
     }
 
@@ -363,11 +362,10 @@ joplin.plugins.register({
       const result: any = await DIALOGS.open(dialogEdit);
 
       // handle result
-      if (result.id == "ok") {
-        if (result.formData != null && result.formData.inputForm.title != '') {
-          await favorites.rename(value, result.formData.inputForm.title);
-          await updatePanelView();
-        }
+      if (result.id == "ok" && result.formData != null) {
+        await favorites.changeTitle(value, result.formData.inputForm.title);
+        await favorites.changeValue(value, result.formData.inputForm.value);
+        await updatePanelView();
       } else if (result.id == "delete") {
         await favorites.delete(value);
         await updatePanelView();

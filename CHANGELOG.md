@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - None
 
+## [1.1.0] - 2021-01-21
+
+### Changed
+
+- Improve style of scrollbar in vertical layout
+
+### Fixed
+
+- Edited search queries not saved
+- Reduced opactiy of dragging favorite
+
 ## [1.0.0] - 2020-01-18
 
 - Initial Release
