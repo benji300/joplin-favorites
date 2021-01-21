@@ -48,7 +48,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 
 ![favorites-top-horizontal](./assets/favorites-top-horizontal.png)
 
-### Favorites in sidebar (vertical layout)
+#### Favorites in sidebar (vertical layout)
 
 ![favorites-sidebar-vertical](./assets/favorites-sidebar-vertical.png)
 
@@ -65,7 +65,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 
 ### Manual
 
-- Download the latest released JPL package (`joplin.plugin.benji.favorites.jpl`) from [here](https://github.com/benji300/joplin-favorites/releases)
+- Download the latest released JPL package (`*.jpl`) from [here](https://github.com/benji300/joplin-favorites/releases)
 - Open Joplin and navigate to `Tools > Options > Plugins`
 - Press `Install plugin` and select the previously downloaded `jpl` file
 - Confirm selection
@@ -74,8 +74,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 
 ### Uninstall
 
-- Open Joplin
-- Navigate to `Tools > Options > Plugins`
+- Open Joplin and navigate to `Tools > Options > Plugins`
 - Search for the `Favorites` plugin
 - Press `Delete` to remove the plugin completely
   - Alternatively you can also disable the plugin by clicking on the toggle button
@@ -173,9 +172,9 @@ This plugin adds provides user options which can be changed via `Tools > Options
 
 ## Support
 
-You like this plugin as much as I do and it helps you in your daily work with Joplin?
+You like this plugin as much as I do and it improves your daily work with Joplin?
 
-Then I would be very happy if you would buy me a beer via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink::beer:
+Then I would be very happy if you buy me a beer via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink::beer:
 
 ## Development
 
