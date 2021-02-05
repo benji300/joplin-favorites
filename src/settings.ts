@@ -278,9 +278,9 @@ export class Settings {
   }
 
   /**
-   * Store the handled tabs array back to the settings.
+   * Store the handled favorites array back to the settings.
    */
-  async storeTabs(noteTabs: any[]) {
-    await joplin.settings.setValue('noteTabs', noteTabs);
+  async storeFavorites(favorites: any[]) {
+    await joplin.settings.setValue('favorites', favorites);
   }
 }

@@ -35,7 +35,7 @@ span {
   overflow-y: overlay;
   width: 100%;
 }
-#container-inner {
+#favs-container {
   display: flex;
   float: left;
   overflow-x: overlay;
@@ -86,7 +86,7 @@ span {
 
 /* VERCTICAL LAYOUT OVERWRITES */
 @media screen and (max-width: 400px) {
-  #container-inner {
+  #favs-container {
     display: block;
     width: 100%;
   }

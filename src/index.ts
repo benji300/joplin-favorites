@@ -3,13 +3,13 @@ import { MenuItem, MenuItemLocation } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
 import { FavoriteType, FavoriteDesc, Favorites } from './favorites';
 import { Settings } from './settings';
+import { Panel } from './panel';
 
 joplin.plugins.register({
   onStart: async function () {
     const COMMANDS = joplin.commands;
     const DATA = joplin.data;
     const DIALOGS = joplin.views.dialogs;
-    const PANELS = joplin.views.panels;
     const SETTINGS = joplin.settings;
     const WORKSPACE = joplin.workspace;
 
@@ -17,6 +17,9 @@ joplin.plugins.register({
     await settings.register();
 
     const favorites = new Favorites(settings.favorites);
+
+    const panel = new Panel(favorites, settings);
+    await panel.register();
 
     //#region HELPERS
 
@@ -30,7 +33,7 @@ joplin.plugins.register({
         const result: number = await DIALOGS.showMessageBox(`Cannot open favorite. Seems that the target ${FavoriteDesc[favorite.type].name.toLocaleLowerCase()} was deleted.\n\nDo you want to delete the favorite also?`);
         if (!result) {
           await favorites.delete(favorite.value);
-          await updatePanelView();
+          await panel.updateWebview();
           return true;
         }
       }
@@ -47,7 +50,7 @@ joplin.plugins.register({
       if (favorite.type === FavoriteType.Todo && (!note.is_todo)) newType = FavoriteType.Note;
       if (newType) {
         await favorites.changeType(favorite.value, newType);
-        await updatePanelView();
+        await panel.updateWebview();
       }
     }
 
@@ -87,47 +90,6 @@ joplin.plugins.register({
       return '';
     }
 
-    async function openFavorite(value: string) {
-      const favorite: any = await favorites.get(value);
-      if (!favorite) return;
-
-      switch (favorite.type) {
-        case FavoriteType.Folder:
-          if (await checkAndRemoveFavorite(favorite)) return;
-          COMMANDS.execute('openFolder', value);
-          break;
-
-        case FavoriteType.Note:
-        case FavoriteType.Todo:
-          if (await checkAndRemoveFavorite(favorite)) return;
-          await checkAndUpdateType(favorite);
-          COMMANDS.execute('openNote', value);
-          break;
-
-        case FavoriteType.Tag:
-          if (await checkAndRemoveFavorite(favorite)) return;
-          COMMANDS.execute('openTag', value);
-          break;
-
-        case FavoriteType.Search:
-          // TODO there is a command `~\app-desktop\gui\MainScreen\commands\search.ts` avaiable, but currently empty
-          // use this once it is implemented
-
-          // currently there's no command to trigger a global search, so the following workaround is used
-          // 1. copy saved search to clipboard
-          const copy = require('../node_modules/copy-to-clipboard');
-          copy(favorite.value as string);
-          // 2. focus global search bar via command
-          await COMMANDS.execute('focusSearch');
-          // 3. paste clipboard content to current cursor position (should be search bar now)
-          // TODO how?
-          break;
-
-        default:
-          break;
-      }
-    }
-
     async function addFavorite(value: string, title: string, type: FavoriteType, showDialog: boolean) {
       let newValue: string = value;
       let newTitle: string = title;
@@ -136,7 +98,7 @@ joplin.plugins.register({
       if (favorites.hasFavorite(value)) {
 
         // if so... open editFavorite dialog
-        await editFavorite(value);
+        await COMMANDS.execute('favsEditFavorite', value);
       } else {
 
         // otherwise create new favorite, with or without user interaction
@@ -160,35 +122,86 @@ joplin.plugins.register({
           return;
 
         await favorites.add(newValue, newTitle, type);
-        await updatePanelView();
-      }
-    }
-
-    async function editFavorite(value: string) {
-      const favorite: any = await favorites.get(value);
-      if (!favorite) return;
-
-      // prepare and open dialog
-      const dialogHtml: string = await prepareDialogHtml('Edit', favorite.value, favorite.title, favorite.type);
-      await DIALOGS.setHtml(dialogEdit, dialogHtml);
-      const result: any = await DIALOGS.open(dialogEdit);
-
-      // handle result
-      if (result.id == "ok" && result.formData != null) {
-        await favorites.changeTitle(value, result.formData.inputForm.title);
-        await favorites.changeValue(value, result.formData.inputForm.value);
-        await updatePanelView();
-      } else if (result.id == "delete") {
-        await favorites.delete(value);
-        await updatePanelView();
-      } else {
-        return;
+        await panel.updateWebview();
       }
     }
 
     //#endregion
 
     //#region COMMANDS
+
+    // Command: favsOpenFavorite (INTERNAL)
+    // Desc: Internal command to open a favorite
+    await COMMANDS.register({
+      name: 'favsOpenFavorite',
+      execute: async (value: string) => {
+        const favorite: any = await favorites.get(value);
+        if (!favorite) return;
+
+        switch (favorite.type) {
+          case FavoriteType.Folder:
+            if (await checkAndRemoveFavorite(favorite)) return;
+            COMMANDS.execute('openFolder', value);
+            break;
+
+          case FavoriteType.Note:
+          case FavoriteType.Todo:
+            if (await checkAndRemoveFavorite(favorite)) return;
+            await checkAndUpdateType(favorite);
+            COMMANDS.execute('openNote', value);
+            break;
+
+          case FavoriteType.Tag:
+            if (await checkAndRemoveFavorite(favorite)) return;
+            COMMANDS.execute('openTag', value);
+            break;
+
+          case FavoriteType.Search:
+            // TODO there is a command `~\app-desktop\gui\MainScreen\commands\search.ts` avaiable, but currently empty
+            // use this once it is implemented
+
+            // currently there's no command to trigger a global search, so the following workaround is used
+            // 1. copy saved search to clipboard
+            const copy = require('../node_modules/copy-to-clipboard');
+            copy(favorite.value as string);
+            // 2. focus global search bar via command
+            await COMMANDS.execute('focusSearch');
+            // 3. paste clipboard content to current cursor position (should be search bar now)
+            // TODO how?
+            break;
+
+          default:
+            break;
+        }
+      }
+    });
+
+    // Command: favsEditFavorite (INTERNAL)
+    // Desc: Internal command to edit a favorite
+    await COMMANDS.register({
+      name: 'favsEditFavorite',
+      execute: async (value: string) => {
+        const favorite: any = await favorites.get(value);
+        if (!favorite) return;
+
+        // prepare and open dialog
+        const dialogHtml: string = await prepareDialogHtml('Edit', favorite.value, favorite.title, favorite.type);
+        await DIALOGS.setHtml(dialogEdit, dialogHtml);
+        const result: any = await DIALOGS.open(dialogEdit);
+
+        // handle result
+        if (result.id == "ok" && result.formData != null) {
+          await favorites.changeTitle(value, result.formData.inputForm.title);
+          await favorites.changeValue(value, result.formData.inputForm.value);
+        } else if (result.id == "delete") {
+          await favorites.delete(value);
+        } else {
+          return;
+        }
+
+        await panel.updateWebview();
+      }
+    });
 
     // Command: favsAddFolder
     // Desc: Add selected folder to favorites
@@ -281,7 +294,7 @@ joplin.plugins.register({
         if (result) return;
 
         await favorites.clearAll();
-        await updatePanelView();
+        await panel.updateWebview();
       }
     });
 
@@ -292,8 +305,7 @@ joplin.plugins.register({
       label: 'Favorites: Toggle visibility',
       iconName: 'fas fa-eye-slash',
       execute: async () => {
-        const isVisible: boolean = await PANELS.visible(panel);
-        await PANELS.show(panel, (!isVisible));
+        await panel.toggleVisibility();
       }
     });
 
@@ -376,100 +388,14 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region PANELS
-
-    // prepare panel object
-    const panel = await PANELS.create('favorites.panel');
-    await PANELS.addScript(panel, './assets/fontawesome/css/all.min.css');
-    await PANELS.addScript(panel, './webview.css');
-    await PANELS.addScript(panel, './webview.js');
-    await PANELS.onMessage(panel, async (message: any) => {
-      if (message.name === 'favsAddFolder') {
-        await COMMANDS.execute('favsAddFolder', message.id);
-      }
-      if (message.name === 'favsAddNote') {
-        await COMMANDS.execute('favsAddNote', message.id);
-      }
-      if (message.name === 'favsEdit') {
-        editFavorite(message.id);
-      }
-      if (message.name === 'favsOpen') {
-        openFavorite(message.id);
-      }
-      if (message.name === 'favsDrag') {
-        await favorites.moveWithValue(message.sourceId, message.targetId);
-        await updatePanelView();
-      }
-    });
-
-    // set init message
-    await PANELS.setHtml(panel, `
-      <div id="container" style="background:${settings.background};font-family:'${settings.fontFamily}',sans-serif;font-size:${settings.fontSize};">
-        <div id="container-inner">
-          <p style="padding-left:8px;">Loading panel...</p>
-        </div>
-      </div>
-    `);
-
-    // update HTML content
-    async function updatePanelView() {
-      const favsHtml: any = [];
-
-      // prepare panel title if enabled
-      let panelTitleHtml: string = '';
-      if (settings.showPanelTitle) {
-        panelTitleHtml = `
-          <div id="panel-title" style="height:${settings.lineHeight}px;"
-            ondragover="dragOverTitle(event);" ondragleave="dragLeave(event);" ondrop="dropOnTitle(event);" ondragend="dragLeave(event);">
-            <span class="fas fa-star" style="color:${settings.foreground};"></span>
-            <span class="title" style="color:${settings.foreground};">FAVORITES</span>
-          </div>
-        `;
-      }
-
-      // create HTML for each favorite
-      for (const favorite of favorites.all) {
-        let typeIconHtml: string = '';
-        if (settings.showTypeIcons)
-          typeIconHtml = `<span class="fas ${FavoriteDesc[favorite.type].icon}" style="color:${settings.foreground};"></span>`;
-
-        favsHtml.push(`
-          <div id="favorite" data-id="${favorite.value}" draggable="${settings.enableDragAndDrop}"
-            onclick="favsClick(event);" oncontextmenu="favsContext(event);" onMouseOver="this.style.background='${settings.hoverBackground}';" onMouseOut="this.style.background='none';"
-            ondragstart="dragStart(event);" ondragover="dragOver(event, '${settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
-            style="height:${settings.lineHeight}px;min-width:${settings.minFavWidth}px;max-width:${settings.maxFavWidth}px;background:${settings.background};border-color:${settings.dividerColor};color:${settings.foreground};">
-            <span class="favorite-inner" style="border-color:${settings.dividerColor};">
-              ${typeIconHtml}
-              <span class="title" title="${favorite.title}">
-                ${favorite.title}
-              </span>
-            </span>
-          </div>
-        `);
-      }
-
-      // add entries to container and push to panel
-      await PANELS.setHtml(panel, `
-        <div id="container" style="background:${settings.background};font-family:'${settings.fontFamily}',sans-serif;font-size:${settings.fontSize};">
-          <div id="container-inner">
-            ${panelTitleHtml}
-            ${favsHtml.join('\n')}
-          </div>
-        </div>
-      `);
-    }
-
-    //#endregion
-
     //#region EVENTS
 
     SETTINGS.onChange(async (event: ChangeEvent) => {
       await settings.read(event);
-      await updatePanelView(); // await panel.updateWebview();
+      await panel.updateWebview();
     });
 
     //#endregion
 
-    await updatePanelView(); // TODO remove once panel.ts was introduced
   }
 });
