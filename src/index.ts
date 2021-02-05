@@ -4,22 +4,31 @@ import { ChangeEvent } from 'api/JoplinSettings';
 import { FavoriteType, FavoriteDesc, Favorites } from './favorites';
 import { Settings } from './settings';
 import { Panel } from './panel';
+import { Dialog } from './dialog';
 
 joplin.plugins.register({
   onStart: async function () {
     const COMMANDS = joplin.commands;
     const DATA = joplin.data;
-    const DIALOGS = joplin.views.dialogs;
     const SETTINGS = joplin.settings;
     const WORKSPACE = joplin.workspace;
-
+    // settings
     const settings: Settings = new Settings();
     await settings.register();
-
+    // favorites
     const favorites = new Favorites(settings.favorites);
-
+    // panel
     const panel = new Panel(favorites, settings);
     await panel.register();
+    // dialogs
+    const addDialog = new Dialog('Add');
+    await addDialog.register();
+    const editDialog = new Dialog('Edit');
+    await editDialog.register([
+      { id: 'delete', title: 'Delete', },
+      { id: 'ok', title: 'OK' },
+      { id: 'cancel', title: 'Cancel' }
+    ]);
 
     //#region HELPERS
 
@@ -30,7 +39,7 @@ joplin.plugins.register({
       try {
         await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id'] });
       } catch (err) {
-        const result: number = await DIALOGS.showMessageBox(`Cannot open favorite. Seems that the target ${FavoriteDesc[favorite.type].name.toLocaleLowerCase()} was deleted.\n\nDo you want to delete the favorite also?`);
+        const result: number = await Dialog.showMessage(`Cannot open favorite. Seems that the target ${FavoriteDesc[favorite.type].name.toLocaleLowerCase()} was deleted.\n\nDo you want to delete the favorite also?`);
         if (!result) {
           await favorites.delete(favorite.value);
           await panel.updateWebview();
@@ -54,42 +63,6 @@ joplin.plugins.register({
       }
     }
 
-    /**
-     * Gets the full path, tag name or search query for the favorite.
-     */
-    async function getFavoritePath(value: string, type: FavoriteType): Promise<string> {
-      switch (type) {
-        case FavoriteType.Folder:
-        case FavoriteType.Note:
-        case FavoriteType.Todo:
-          const item = await DATA.get([FavoriteDesc[type].dataType, value], { fields: ['title', 'parent_id'] });
-          if (item) {
-            let parents: any[] = new Array();
-            let parent_id: string = item.parent_id;
-
-            while (parent_id) {
-              const parent: any = await DATA.get(['folders', parent_id], { fields: ['title', 'parent_id'] });
-              if (!parent) break;
-              parent_id = parent.parent_id;
-              parents.push(parent.title);
-            }
-            parents.reverse().push(item.title);
-            return parents.join('/');
-          }
-
-        case FavoriteType.Tag:
-          const tag = await DATA.get([FavoriteDesc[type].dataType, value], { fields: ['title'] });
-          if (tag) return tag.title;
-
-        case FavoriteType.Search:
-          return value;
-
-        default:
-          break;
-      }
-      return '';
-    }
-
     async function addFavorite(value: string, title: string, type: FavoriteType, showDialog: boolean) {
       let newValue: string = value;
       let newTitle: string = title;
@@ -104,12 +77,8 @@ joplin.plugins.register({
         // otherwise create new favorite, with or without user interaction
         if (showDialog) {
 
-          // prepare and open dialog
-          const dialogHtml: string = await prepareDialogHtml('Add', value, newTitle, type);
-          await DIALOGS.setHtml(dialogAdd, dialogHtml);
-          const result: any = await DIALOGS.open(dialogAdd);
-
-          // handle result
+          // open dialog and handle result
+          const result: any = await addDialog.open(value, newTitle, type);
           if (result.id == 'ok' && result.formData != null) {
             newTitle = result.formData.inputForm.title;
             if (result.formData.inputForm.value)
@@ -118,8 +87,7 @@ joplin.plugins.register({
             return;
         }
 
-        if (newValue === '' || newTitle === '')
-          return;
+        if (newValue === '' || newTitle === '') return;
 
         await favorites.add(newValue, newTitle, type);
         await panel.updateWebview();
@@ -184,12 +152,8 @@ joplin.plugins.register({
         const favorite: any = await favorites.get(value);
         if (!favorite) return;
 
-        // prepare and open dialog
-        const dialogHtml: string = await prepareDialogHtml('Edit', favorite.value, favorite.title, favorite.type);
-        await DIALOGS.setHtml(dialogEdit, dialogHtml);
-        const result: any = await DIALOGS.open(dialogEdit);
-
-        // handle result
+        // open dialog and handle result
+        const result: any = await editDialog.open(favorite.value, favorite.title, favorite.type);
         if (result.id == "ok" && result.formData != null) {
           await favorites.changeTitle(value, result.formData.inputForm.title);
           await favorites.changeValue(value, result.formData.inputForm.value);
@@ -290,7 +254,7 @@ joplin.plugins.register({
       iconName: 'fas fa-times',
       execute: async () => {
         // ask user before removing favorites
-        const result: number = await DIALOGS.showMessageBox(`Remove all favorites?`);
+        const result: number = await Dialog.showMessage(`Remove all favorites?`);
         if (result) return;
 
         await favorites.clearAll();
@@ -349,42 +313,6 @@ joplin.plugins.register({
 
     // add commands to editor context menu
     await joplin.views.menuItems.create('editorContextMenuAddNote', 'favsAddNote', MenuItemLocation.EditorContextMenu);
-
-    //#endregion
-
-    //#region DIALOGS
-
-    // prepare dialog objects
-    const dialogAdd = await DIALOGS.create('dialogAdd');
-    await DIALOGS.addScript(dialogAdd, './assets/fontawesome/css/all.min.css');
-    await DIALOGS.addScript(dialogAdd, './webview_dialog.css');
-
-    const dialogEdit = await DIALOGS.create('dialogEdit');
-    await DIALOGS.addScript(dialogEdit, './assets/fontawesome/css/all.min.css');
-    await DIALOGS.addScript(dialogEdit, './webview_dialog.css');
-    await DIALOGS.setButtons(dialogEdit, [
-      { id: 'delete', title: 'Delete', },
-      { id: 'ok', title: 'OK' },
-      { id: 'cancel', title: 'Cancel' }
-    ]);
-
-    // prepare dialog HTML content
-    async function prepareDialogHtml(header: string, value: string, title: string, type: FavoriteType): Promise<string> {
-      const path: string = await getFavoritePath(value, type);
-      const disabled: string = (type === FavoriteType.Search) ? '' : 'disabled';
-
-      return `
-        <div>
-          <h3><i class="fas ${FavoriteDesc[type].icon}"></i>${header} ${FavoriteDesc[type].name} Favorite</h3>
-          <form name="inputForm">
-            <label for="title"><strong>Name</strong></label>
-            <input type="text" id="title" name="title" value="${title}" autofocus required>
-            <label for="value"><strong>${FavoriteDesc[type].label}</strong></label>
-            <textarea id="value" name="value" rows="3" ${disabled} required>${path}</textarea>
-          </form>
-        </div>
-      `;
-    }
 
     //#endregion
 
