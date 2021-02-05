@@ -1,21 +1,5 @@
-import joplin from 'api';
-
 /**
- * Advanced style setting default values.
- * Used when setting is set to 'default'.
- */
-export enum SettingDefaults {
-  Default = 'default',
-  FontFamily = 'Roboto',
-  FontSize = 'var(--joplin-font-size)',
-  Background = 'var(--joplin-background-color3)',
-  HoverBackground = 'var(--joplin-background-color-hover3)', // var(--joplin-background-hover)
-  Foreground = 'var(--joplin-color-faded)',
-  DividerColor = 'var(--joplin-divider-color)'
-}
-
-/**
- * Favorite type definition.
+ * Favorite type definitions.
  */
 export enum FavoriteType {
   Folder = 0,
@@ -32,7 +16,7 @@ interface IFavoriteDesc {
   name: string,
   icon: string,
   dataType: string,
-  label
+  label: string
 }
 
 /**
@@ -48,54 +32,52 @@ export const FavoriteDesc: IFavoriteDesc[] = [
 
 /**
  * Helper class to work with favorites array.
+ * - Read settings array once at startup.
+ * - Then work on this._tabs array.
  */
 export class Favorites {
-  // [
-  //   {
-  //     "value": "folderId|noteId|tagId|searchQuery",
-  //     "title": "userConfiguredTitle",
-  //     "type": FavoriteType
-  //   }
-  // ]
-  private _favs: any[];
+  /**
+   * Temporary array to work with favorites.
+   * 
+   * Definition of one favorite entry:
+   * [{
+   *   "value": "folderId|noteId|tagId|searchQuery",
+   *   "title": "userConfiguredTitle",
+   *   "type": FavoriteType
+   * }]
+   */
+  private _store: any[];
 
-  constructor() {
-    this._favs = new Array();
+  /**
+   * Init with stored values from settings array.
+   */
+  constructor(settingsArray: any[]) {
+    this._store = settingsArray;
+  }
+
+  //#region  GETTER
+
+  /**
+   * All entries.
+   */
+  get all(): any[] {
+    return this._store;
   }
 
   /**
-   * Reads the favorites settings array.
+   * Number of entries.
    */
-  async read() {
-    this._favs = await joplin.settings.value('favorites');
+  get length(): number {
+    return this._store.length;
   }
 
-  /**
-   * Writes the temporay tabs store back to the settings array.
-   */
-  private async store() {
-    await joplin.settings.setValue('favorites', this._favs);
-  }
+  //#endregion
 
   /**
    * Gets a value whether the handled index would lead to out of bound access.
    */
   private indexOutOfBounds(index: number): boolean {
-    return (index < 0 || index >= this.length());
-  }
-
-  /**
-   * Gets the number of favorites.
-   */
-  length(): number {
-    return this._favs.length;
-  }
-
-  /**
-   * Gets all favorites.
-   */
-  getAll(): any[] {
-    return this._favs;
+    return (index < 0 || index >= this.length);
   }
 
   /**
@@ -104,8 +86,8 @@ export class Favorites {
   get(value: string): any {
     if (value == null) return;
 
-    for (let i: number = 0; i < this.length(); i++) {
-      if (this._favs[i]['value'] === value) return this._favs[i];
+    for (let i: number = 0; i < this.length; i++) {
+      if (this._store[i]['value'] === value) return this._store[i];
     }
     return null;
   }
@@ -115,8 +97,8 @@ export class Favorites {
    */
   indexOf(value: string): number {
     if (value) {
-      for (let i: number = 0; i < this.length(); i++) {
-        if (this._favs[i]['value'] === value) return i;
+      for (let i: number = 0; i < this.length; i++) {
+        if (this._store[i]['value'] === value) return i;
       }
     }
     return -1;
@@ -135,8 +117,7 @@ export class Favorites {
   async add(newValue: string, newTitle: string, newType: FavoriteType) {
     if (newValue == null || newTitle == null || newType == null) return;
 
-    this._favs.push({ value: newValue, title: newTitle, type: newType });
-    await this.store();
+    this._store.push({ value: newValue, title: newTitle, type: newType });
   }
 
   /**
@@ -146,8 +127,7 @@ export class Favorites {
     if (!newValue) return;
     const index: number = this.indexOf(value);
     if (index < 0) return;
-    this._favs[index].value = newValue;
-    await this.store();
+    this._store[index].value = newValue;
   }
 
   /**
@@ -157,8 +137,7 @@ export class Favorites {
     if (!newTitle) return;
     const index: number = this.indexOf(value);
     if (index < 0) return;
-    this._favs[index].title = newTitle;
-    await this.store();
+    this._store[index].title = newTitle;
   }
 
   /**
@@ -168,8 +147,7 @@ export class Favorites {
     const index: number = this.indexOf(value);
     if (index < 0) return;
 
-    this._favs[index].type = newType;
-    await this.store();
+    this._store[index].type = newType;
   }
 
   /**
@@ -179,10 +157,9 @@ export class Favorites {
     if (this.indexOutOfBounds(sourceIdx)) return;
     if (this.indexOutOfBounds(targetIdx)) return;
 
-    const favorite: any = this._favs[sourceIdx];
-    this._favs.splice(sourceIdx, 1);
-    this._favs.splice((targetIdx == 0 ? 0 : targetIdx), 0, favorite);
-    await this.store();
+    const favorite: any = this._store[sourceIdx];
+    this._store.splice(sourceIdx, 1);
+    this._store.splice((targetIdx == 0 ? 0 : targetIdx), 0, favorite);
   }
 
   /**
@@ -195,21 +172,19 @@ export class Favorites {
   }
 
   /**
-  * Removes favorite with handled value.
-  */
+   * Removes favorite with handled value.
+   */
   async delete(value: string) {
     const index = this.indexOf(value);
     if (index >= 0) {
-      this._favs.splice(index, 1);
+      this._store.splice(index, 1);
     }
-    await this.store();
   }
 
   /**
-   * Clears the stored favorites array.
+   * Clears the stored array.
    */
   async clearAll() {
-    this._favs = [];
-    await this.store();
+    this._store = [];
   }
 }

@@ -1,8 +1,8 @@
 import joplin from 'api';
-import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
+import { MenuItem, MenuItemLocation } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
-import { FavoriteType, FavoriteDesc, Favorites } from './helpers';
-import { SettingDefaults, } from './helpers';
+import { FavoriteType, FavoriteDesc, Favorites } from './favorites';
+import { Settings } from './settings';
 
 joplin.plugins.register({
   onStart: async function () {
@@ -13,198 +13,10 @@ joplin.plugins.register({
     const SETTINGS = joplin.settings;
     const WORKSPACE = joplin.workspace;
 
-    //#region SETTINGS
+    const settings: Settings = new Settings();
+    await settings.register();
 
-    await SETTINGS.registerSection('favorites.settings', {
-      label: 'Favorites',
-      iconName: 'fas fa-star'
-    });
-
-    // private settings
-    let favorites = new Favorites();
-    await SETTINGS.registerSetting('favorites', {
-      value: [],
-      type: SettingItemType.Array,
-      section: 'favorites.settings',
-      public: false,
-      label: 'Favorites'
-    });
-    await favorites.read();
-
-    // general settings
-    let editBeforeAdd: boolean;
-    await SETTINGS.registerSetting('editBeforeAdd', {
-      value: true,
-      type: SettingItemType.Bool,
-      section: 'favorites.settings',
-      public: true,
-      label: 'Edit favorite before add',
-      description: 'Opens a dialog to edit the favorite before adding it. If disabled, the name can still be changed later.'
-    });
-
-    let enableDragAndDrop: boolean;
-    await SETTINGS.registerSetting('enableDragAndDrop', {
-      value: true,
-      type: SettingItemType.Bool,
-      section: 'favorites.settings',
-      public: true,
-      label: 'Enable drag & drop of favorites',
-      description: 'If enabled, the position of favorites can be change via drag & drop.'
-    });
-
-    let showPanelTitle: boolean;
-    await SETTINGS.registerSetting('showPanelTitle', {
-      value: true,
-      type: SettingItemType.Bool,
-      section: 'favorites.settings',
-      public: true,
-      label: 'Show favorites panel title',
-      description: "Display 'FAVORITES' title in front of the favorites."
-    });
-
-    let showTypeIcons: boolean;
-    await SETTINGS.registerSetting('showTypeIcons', {
-      value: true,
-      type: SettingItemType.Bool,
-      section: 'favorites.settings',
-      public: true,
-      label: 'Show type icons for favorites',
-      description: 'Display icons before favorite titles representing the types (notebook, note, tag, etc.).'
-    });
-
-    let lineHeight: number;
-    await SETTINGS.registerSetting('lineHeight', {
-      value: "30",
-      type: SettingItemType.Int,
-      section: 'favorites.settings',
-      public: true,
-      label: 'Line height (px)',
-      description: 'Line height of the favorites panel.'
-    });
-
-    let minWidth: number;
-    await SETTINGS.registerSetting('minFavoriteWidth', {
-      value: "15",
-      type: SettingItemType.Int,
-      section: 'favorites.settings',
-      public: true,
-      label: 'Minimum favorite width (px)',
-      description: 'Minimum width of one favorite in pixel.'
-    });
-
-    let maxWidth: number;
-    await SETTINGS.registerSetting('maxFavoriteWidth', {
-      value: "100",
-      type: SettingItemType.Int,
-      section: 'favorites.settings',
-      public: true,
-      label: 'Maximum favorite width (px)',
-      description: 'Maximum width of one favorite in pixel.'
-    });
-
-    // advanced settings
-    let fontFamily: string;
-    await SETTINGS.registerSetting('fontFamily', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'favorites.settings',
-      public: true,
-      advanced: true,
-      label: 'Font family',
-      description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: Roboto)"
-    });
-
-    let fontSize: string;
-    await SETTINGS.registerSetting('fontSize', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'favorites.settings',
-      public: true,
-      advanced: true,
-      label: 'Font size',
-      description: "Font size used in the panel. Values other than 'default' must be specified in valid CSS syntax, e.g. '13px'. (default: App default font size)"
-    });
-
-    let background: string;
-    await SETTINGS.registerSetting('mainBackground', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'favorites.settings',
-      public: true,
-      advanced: true,
-      label: 'Background color',
-      description: 'Main background color of the panel. (default: Note list background color)'
-    });
-
-    let hoverBackground: string;
-    await SETTINGS.registerSetting('hoverBackground', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'favorites.settings',
-      public: true,
-      advanced: true,
-      label: 'Hover Background color',
-      description: 'Background color used when hovering a favorite. (default: Note list hover color)'
-    });
-
-    let foreground: string;
-    await SETTINGS.registerSetting('mainForeground', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'favorites.settings',
-      public: true,
-      advanced: true,
-      label: 'Foreground color',
-      description: 'Foreground color used for text and icons. (default: App faded color)'
-    });
-
-    let dividerColor: string;
-    await SETTINGS.registerSetting('dividerColor', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'favorites.settings',
-      public: true,
-      advanced: true,
-      label: 'Divider color',
-      description: 'Color of the divider between the favorites. (default: App default border color)'
-    });
-
-    const regexp: RegExp = new RegExp(SettingDefaults.Default, "i");
-    async function getSettingOrDefault(event: ChangeEvent, localVar: any, setting: string, defaultValue?: string): Promise<any> {
-      const read: boolean = (!event || event.keys.includes(setting));
-      if (read) {
-        const value: string = await SETTINGS.value(setting);
-        if (defaultValue && value.match(regexp)) {
-          return defaultValue;
-        } else {
-          return value;
-        }
-      }
-      return localVar;
-    }
-
-    async function readSettingsAndUpdate(event?: ChangeEvent) {
-      enableDragAndDrop = await getSettingOrDefault(event, enableDragAndDrop, 'enableDragAndDrop');
-      showPanelTitle = await getSettingOrDefault(event, showPanelTitle, 'showPanelTitle');
-      showTypeIcons = await getSettingOrDefault(event, showTypeIcons, 'showTypeIcons');
-      editBeforeAdd = await getSettingOrDefault(event, editBeforeAdd, 'editBeforeAdd');
-      lineHeight = await getSettingOrDefault(event, lineHeight, 'lineHeight');
-      maxWidth = await getSettingOrDefault(event, maxWidth, 'maxFavoriteWidth');
-      minWidth = await getSettingOrDefault(event, minWidth, 'minFavoriteWidth');
-      fontFamily = await getSettingOrDefault(event, fontFamily, 'fontFamily', SettingDefaults.FontFamily);
-      fontSize = await getSettingOrDefault(event, fontSize, 'fontSize', SettingDefaults.FontSize);
-      background = await getSettingOrDefault(event, background, 'mainBackground', SettingDefaults.Background);
-      hoverBackground = await getSettingOrDefault(event, hoverBackground, 'hoverBackground', SettingDefaults.HoverBackground);
-      foreground = await getSettingOrDefault(event, foreground, 'mainForeground', SettingDefaults.Foreground);
-      dividerColor = await getSettingOrDefault(event, dividerColor, 'dividerColor', SettingDefaults.DividerColor);
-      await updatePanelView();
-    }
-
-    SETTINGS.onChange(async (event: ChangeEvent) => {
-      await readSettingsAndUpdate(event);
-    });
-
-    //#endregion
+    const favorites = new Favorites(settings.favorites);
 
     //#region HELPERS
 
@@ -390,12 +202,12 @@ joplin.plugins.register({
           const folder = await DATA.get(['folders', folderId], { fields: ['id', 'title'] });
           if (!folder) return;
 
-          await addFavorite(folder.id, folder.title, FavoriteType.Folder, editBeforeAdd);
+          await addFavorite(folder.id, folder.title, FavoriteType.Folder, settings.editBeforeAdd);
         } else {
           const selectedFolder: any = await WORKSPACE.selectedFolder();
           if (!selectedFolder) return;
 
-          await addFavorite(selectedFolder.id, selectedFolder.title, FavoriteType.Folder, editBeforeAdd);
+          await addFavorite(selectedFolder.id, selectedFolder.title, FavoriteType.Folder, settings.editBeforeAdd);
         }
       }
     });
@@ -418,14 +230,14 @@ joplin.plugins.register({
             if (!note) return;
 
             // never show dialog for multiple notes
-            const showDialog: boolean = (editBeforeAdd && noteIds.length == 1);
+            const showDialog: boolean = (settings.editBeforeAdd && noteIds.length == 1);
             await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note, showDialog);
           }
         } else {
           const selectedNote: any = await WORKSPACE.selectedNote();
           if (!selectedNote) return;
 
-          await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note, editBeforeAdd);
+          await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note, settings.editBeforeAdd);
         }
       }
     });
@@ -441,7 +253,7 @@ joplin.plugins.register({
           const tag = await DATA.get(['tags', tagId], { fields: ['id', 'title'] });
           if (!tag) return;
 
-          await addFavorite(tag.id, tag.title, FavoriteType.Tag, editBeforeAdd);
+          await addFavorite(tag.id, tag.title, FavoriteType.Tag, settings.editBeforeAdd);
         }
       }
     });
@@ -592,7 +404,7 @@ joplin.plugins.register({
 
     // set init message
     await PANELS.setHtml(panel, `
-      <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;font-size:${fontSize};">
+      <div id="container" style="background:${settings.background};font-family:'${settings.fontFamily}',sans-serif;font-size:${settings.fontSize};">
         <div id="container-inner">
           <p style="padding-left:8px;">Loading panel...</p>
         </div>
@@ -605,28 +417,28 @@ joplin.plugins.register({
 
       // prepare panel title if enabled
       let panelTitleHtml: string = '';
-      if (showPanelTitle) {
+      if (settings.showPanelTitle) {
         panelTitleHtml = `
-          <div id="panel-title" style="height:${lineHeight}px;"
+          <div id="panel-title" style="height:${settings.lineHeight}px;"
             ondragover="dragOverTitle(event);" ondragleave="dragLeave(event);" ondrop="dropOnTitle(event);" ondragend="dragLeave(event);">
-            <span class="fas fa-star" style="color:${foreground};"></span>
-            <span class="title" style="color:${foreground};">FAVORITES</span>
+            <span class="fas fa-star" style="color:${settings.foreground};"></span>
+            <span class="title" style="color:${settings.foreground};">FAVORITES</span>
           </div>
         `;
       }
 
       // create HTML for each favorite
-      for (const favorite of favorites.getAll()) {
+      for (const favorite of favorites.all) {
         let typeIconHtml: string = '';
-        if (showTypeIcons)
-          typeIconHtml = `<span class="fas ${FavoriteDesc[favorite.type].icon}" style="color:${foreground};"></span>`;
+        if (settings.showTypeIcons)
+          typeIconHtml = `<span class="fas ${FavoriteDesc[favorite.type].icon}" style="color:${settings.foreground};"></span>`;
 
         favsHtml.push(`
-          <div id="favorite" data-id="${favorite.value}" draggable="${enableDragAndDrop}"
-            onclick="favsClick(event);" oncontextmenu="favsContext(event);" onMouseOver="this.style.background='${hoverBackground}';" onMouseOut="this.style.background='none';"
-            ondragstart="dragStart(event);" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
-            style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};border-color:${dividerColor};color:${foreground};">
-            <span class="favorite-inner" style="border-color:${dividerColor};">
+          <div id="favorite" data-id="${favorite.value}" draggable="${settings.enableDragAndDrop}"
+            onclick="favsClick(event);" oncontextmenu="favsContext(event);" onMouseOver="this.style.background='${settings.hoverBackground}';" onMouseOut="this.style.background='none';"
+            ondragstart="dragStart(event);" ondragover="dragOver(event, '${settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
+            style="height:${settings.lineHeight}px;min-width:${settings.minFavWidth}px;max-width:${settings.maxFavWidth}px;background:${settings.background};border-color:${settings.dividerColor};color:${settings.foreground};">
+            <span class="favorite-inner" style="border-color:${settings.dividerColor};">
               ${typeIconHtml}
               <span class="title" title="${favorite.title}">
                 ${favorite.title}
@@ -638,7 +450,7 @@ joplin.plugins.register({
 
       // add entries to container and push to panel
       await PANELS.setHtml(panel, `
-        <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;font-size:${fontSize};">
+        <div id="container" style="background:${settings.background};font-family:'${settings.fontFamily}',sans-serif;font-size:${settings.fontSize};">
           <div id="container-inner">
             ${panelTitleHtml}
             ${favsHtml.join('\n')}
@@ -651,8 +463,13 @@ joplin.plugins.register({
 
     //#region EVENTS
 
+    SETTINGS.onChange(async (event: ChangeEvent) => {
+      await settings.read(event);
+      await updatePanelView(); // await panel.updateWebview();
+    });
+
     //#endregion
 
-    await readSettingsAndUpdate();
+    await updatePanelView(); // TODO remove once panel.ts was introduced
   }
 });
