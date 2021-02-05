@@ -1,6 +1,6 @@
 # Joplin Favorites
 
-Joplin Favorites is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
+Favorites is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
 
 It allows to save any notebook, note, to-do, tag, or search as favorite in an extra panel view for quick access.
 
@@ -89,6 +89,7 @@ By default the panel will be on the right side of the screen, this can be adjust
 - `View > Change application layout`
 - Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
 - Move the splitter to reach the desired height/width of the panel
+  - As soon as the width of the panel goes below `400px`, it automatically switches from horizontal to vertical layout
 - Press `ESC` to save the layout and return to normal mode
 
 ### Add favorite

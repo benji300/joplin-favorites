@@ -2,11 +2,12 @@
 function getDataId(event) {
   if (event.currentTarget.id === 'favorite') {
     return event.currentTarget.dataset.id;
+  } else {
+    return;
   }
-  return;
 }
 
-/* RIGHT CLICK EVENT */
+/* CLICK EVENTS */
 function favsContext(event) {
   const dataId = getDataId(event);
   if (dataId) {
@@ -14,7 +15,6 @@ function favsContext(event) {
   }
 }
 
-/* CLICK EVENT */
 function favsClick(event) {
   const dataId = getDataId(event);
   if (dataId) {
@@ -55,7 +55,8 @@ function dragOver(event, hoverColor) {
     const dataId = getDataId(event);
     if (dataId) {
       document.querySelectorAll('#favorite').forEach(x => {
-        if (x.dataset.id !== dataId) x.style.background = 'none';
+        if (x.dataset.id !== dataId)
+          x.style.background = 'none';
       });
 
       if (sourceId !== dataId) {
@@ -63,10 +64,6 @@ function dragOver(event, hoverColor) {
       }
     }
   }
-}
-
-function dragOverTitle(event) {
-  cancelDefault(event);
 }
 
 function dragLeave(event) {
@@ -82,6 +79,10 @@ function drop(event) {
       webviewApi.postMessage({ name: 'favsDrag', targetId: dataTargetId, sourceId: dataSourceId });
     }
   }
+}
+
+function dragOverTitle(event) {
+  cancelDefault(event);
 }
 
 function dropOnTitle(event) {

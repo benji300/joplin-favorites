@@ -95,14 +95,14 @@ joplin.plugins.register({
     let maxWidth: number;
     await SETTINGS.registerSetting('maxFavoriteWidth', {
       value: "100",
-      type: 1,
+      type: SettingItemType.Int,
       section: 'favorites.settings',
       public: true,
       label: 'Maximum favorite width (px)',
       description: 'Maximum width of one favorite in pixel.'
     });
 
-    // Advanced settings
+    // advanced settings
     let fontFamily: string;
     await SETTINGS.registerSetting('fontFamily', {
       value: SettingDefaults.Default,
@@ -133,7 +133,7 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Background color',
-      description: "Main background color of the panel. (default: Note list background color)"
+      description: 'Main background color of the panel. (default: Note list background color)'
     });
 
     let hoverBackground: string;
@@ -144,7 +144,7 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Hover Background color',
-      description: "Background color used when hovering a favorite. (default: Note list hover color)"
+      description: 'Background color used when hovering a favorite. (default: Note list hover color)'
     });
 
     let foreground: string;
@@ -155,7 +155,7 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Foreground color',
-      description: "Foreground color used for text and icons. (default: App faded color)"
+      description: 'Foreground color used for text and icons. (default: App faded color)'
     });
 
     let dividerColor: string;
@@ -166,7 +166,7 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Divider color',
-      description: "Color of the divider between the favorites. (default: App default border color)"
+      description: 'Color of the divider between the favorites. (default: App default border color)'
     });
 
     const regexp: RegExp = new RegExp(SettingDefaults.Default, "i");
@@ -485,7 +485,7 @@ joplin.plugins.register({
       }
     });
 
-    // prepare Tools > Favorites menu
+    // prepare commands menu
     const commandsSubMenu: MenuItem[] = [
       {
         commandName: "favsAddFolder",
@@ -564,7 +564,7 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region PANEL VIEW
+    //#region PANELS
 
     // prepare panel object
     const panel = await PANELS.create('favorites.panel');
@@ -617,11 +617,13 @@ joplin.plugins.register({
 
       // create HTML for each favorite
       for (const favorite of favorites.getAll()) {
-        const typeIconHtml: string = showTypeIcons ? `<span class="fas ${FavoriteDesc[favorite.type].icon}" style="color:${foreground};"></span>` : '';
+        let typeIconHtml: string = '';
+        if (showTypeIcons)
+          typeIconHtml = `<span class="fas ${FavoriteDesc[favorite.type].icon}" style="color:${foreground};"></span>`;
 
         favsHtml.push(`
           <div id="favorite" data-id="${favorite.value}" draggable="${enableDragAndDrop}"
-            onClick="favsClick(event);" oncontextmenu="favsContext(event);" onMouseOver="this.style.background='${hoverBackground}';" onMouseOut="this.style.background='none';"
+            onclick="favsClick(event);" oncontextmenu="favsContext(event);" onMouseOver="this.style.background='${hoverBackground}';" onMouseOut="this.style.background='none';"
             ondragstart="dragStart(event);" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
             style="height:${lineHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;background:${background};border-color:${dividerColor};color:${foreground};">
             <span class="favorite-inner" style="border-color:${dividerColor};">
@@ -647,6 +649,10 @@ joplin.plugins.register({
 
     //#endregion
 
+    //#region EVENTS
+
+    //#endregion
+
     await readSettingsAndUpdate();
-  },
+  }
 });

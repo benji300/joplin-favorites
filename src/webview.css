@@ -31,13 +31,14 @@ span {
 /* HORIZONTAL LAYOUT */
 #container {
   height: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow-x: hidden;
+  overflow-y: overlay;
   width: 100%;
 }
 #container-inner {
   display: flex;
   float: left;
+  overflow-x: overlay;
   width: 100%;
 }
 
@@ -73,12 +74,10 @@ span {
   -webkit-user-select: none;
   -ms-user-select: none;
 }
-.dragging {
-  opacity: 0.4 !important;
-}
 
 ::-webkit-scrollbar {
   height: 4px;
+  width: 7px;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
@@ -87,11 +86,6 @@ span {
 
 /* VERCTICAL LAYOUT OVERWRITES */
 @media screen and (max-width: 400px) {
-  #container {
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-
   #container-inner {
     display: block;
     width: 100%;
@@ -109,9 +103,5 @@ span {
     border-right-width: 0;
     padding-left: 24px;
     text-align: left;
-  }
-
-  ::-webkit-scrollbar {
-    width: 7px;
   }
 }

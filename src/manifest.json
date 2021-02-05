@@ -7,5 +7,19 @@
   "description": "Save any notebook, note, to-do, tag, or search as favorite in an extra panel view for quick access.",
   "author": "Benji300",
   "homepage_url": "https://github.com/benji300/joplin-favorites",
-  "repository_url": "https://github.com/benji300/joplin-favorites"
+  "repository_url": "https://github.com/benji300/joplin-favorites",
+  "keywords": [
+    "favorite",
+    "shortcut",
+    "saved",
+    "quick",
+    "folder",
+    "notebook",
+    "note",
+    "todo",
+    "tag",
+    "search",
+    "panel",
+    "view"
+  ]
 }
