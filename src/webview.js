@@ -8,7 +8,7 @@ function getDataId(event) {
 }
 
 /* CLICK EVENTS */
-function favsContext(event) {
+function context(event) {
   const dataId = getDataId(event);
   if (dataId) {
     webviewApi.postMessage({ name: 'favsEdit', id: dataId });
@@ -31,38 +31,44 @@ function cancelDefault(event) {
   return false;
 }
 
+function setBackground(event, background) {
+  event.currentTarget.style.background = background;
+}
+
+function resetBackground(element) {
+  if (element.dataset.bg) {
+    element.style.background = element.dataset.bg;
+  }
+}
+
+function resetTabBackgrounds() {
+  document.querySelectorAll('#favorite').forEach(x => { resetBackground(x); });
+
+  container = document.querySelector('#favs-container');
+  if (container) {
+    container.style.background = 'none';
+  }
+}
+
 function dragStart(event) {
   const dataId = getDataId(event);
   if (dataId) {
-    event.currentTarget.classList.add('dragging');
     event.dataTransfer.setData('text/x-plugin-favorites-id', dataId);
     sourceId = dataId;
   }
 }
 
 function dragEnd(event) {
+  resetTabBackgrounds();
   cancelDefault(event);
-  event.currentTarget.classList.remove('dragging');
-  document.querySelectorAll('#favorite').forEach(x => {
-    x.style.background = 'none';
-  });
   sourceId = '';
 }
 
 function dragOver(event, hoverColor) {
+  resetTabBackgrounds();
   cancelDefault(event);
-  if (sourceId) {
-    const dataId = getDataId(event);
-    if (dataId) {
-      document.querySelectorAll('#favorite').forEach(x => {
-        if (x.dataset.id !== dataId)
-          x.style.background = 'none';
-      });
-
-      if (sourceId !== dataId) {
-        event.currentTarget.style.background = hoverColor;
-      }
-    }
+  if (sourceId !== getDataId(event)) {
+    setBackground(event, hoverColor);
   }
 }
 
@@ -71,46 +77,45 @@ function dragLeave(event) {
 }
 
 function drop(event) {
+  resetTabBackgrounds();
   cancelDefault(event);
+  const dataTargetId = getDataId(event);
+
+  // check whether plugin tab was dragged - trigger favsDrag message
   const dataSourceId = event.dataTransfer.getData('text/x-plugin-favorites-id');
   if (dataSourceId) {
-    const dataTargetId = getDataId(event);
     if (dataTargetId !== sourceId) {
       webviewApi.postMessage({ name: 'favsDrag', targetId: dataTargetId, sourceId: dataSourceId });
+      return;
     }
   }
-}
-
-function dragOverTitle(event) {
-  cancelDefault(event);
-}
-
-function dropOnTitle(event) {
-  cancelDefault(event);
 
   // check whether folder was dragged from app onto the panel - trigger favsAddFolder then
-  const appDragFolderIds = event.dataTransfer.getData('text/x-jop-folder-ids');
-  if (appDragFolderIds) {
-    const folderIds = JSON.parse(appDragFolderIds);
+  const joplinFolderIds = event.dataTransfer.getData('text/x-jop-folder-ids');
+  if (joplinFolderIds) {
+    const folderIds = JSON.parse(joplinFolderIds);
     if (folderIds.length == 1) {
-      webviewApi.postMessage({ name: 'favsAddFolder', id: folderIds[0] });
+      webviewApi.postMessage({ name: 'favsAddFolder', id: folderIds[0], targetId: dataTargetId });
+      return;
     }
   }
 
-  // check whether note was dragged from app onto the panel - trigger favsAddNote then
-  const appDragNoteIds = event.dataTransfer.getData('text/x-jop-note-ids');
-  if (appDragNoteIds) {
-    const ids = new Array();
-    for (const noteId of JSON.parse(appDragNoteIds)) {
-      ids.push(noteId);
+  // check whether note was dragged from app onto the panel - add new favorite at dropped index
+  const joplinNoteIds = event.dataTransfer.getData('text/x-jop-note-ids');
+  if (joplinNoteIds) {
+    const noteIds = new Array();
+    for (const noteId of JSON.parse(joplinNoteIds)) {
+      noteIds.push(noteId);
     }
-    webviewApi.postMessage({ name: 'favsAddNote', id: ids });
+    webviewApi.postMessage({ name: 'favsAddNote', id: noteIds, targetId: dataTargetId });
+    return;
   }
 
-  // check whether tab (from joplin.plugin.note.tabs plugin) was dragged onto the panel - trigger favsAddNote then
-  const appDragTabId = event.dataTransfer.getData('text/x-plugin-note-tabs-id'); // 'text/plain'
-  if (appDragTabId) {
-    const ids = new Array(appDragTabId);
-    webviewApi.postMessage({ name: 'favsAddNote', id: ids });
+  // check whether tab (from joplin.plugin.note.tabs plugin) was dragged onto the panel - add new favorite at dropped index
+  const noteTabsId = event.dataTransfer.getData('text/x-plugin-note-tabs-id');
+  if (noteTabsId) {
+    const noteIds = new Array(noteTabsId);
+    webviewApi.postMessage({ name: 'favsAddNote', id: noteIds, targetId: dataTargetId });
+    return;
   }
 }

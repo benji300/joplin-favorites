@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- None
+### Addded
+
+- Ability to drag & drop notes from [note-tabs plugin](https://github.com/benji300/joplin-note-tabs) to add as favorite
+
+### Changed
+
+- Drag & drop behavior to add notebooks and notes/to-dos
+  - Move them onto the panel to add new favorite at the dropped position
 
 ## [1.1.0] - 2021-01-21
 

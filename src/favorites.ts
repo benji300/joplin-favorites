@@ -74,6 +74,15 @@ export class Favorites {
   //#endregion
 
   /**
+   * Inserts handled favorite at specified index.
+   */
+  private async insertAtIndex(index: number, favorite: any) {
+    if (index < 0 || favorite === undefined) return;
+
+    this._store.splice(index, 0, favorite);
+  }
+
+  /**
    * Gets a value whether the handled index would lead to out of bound access.
    */
   private indexOutOfBounds(index: number): boolean {
@@ -84,7 +93,7 @@ export class Favorites {
    * Gets the favorites with the handled value. Null if not exist.
    */
   get(value: string): any {
-    if (value == null) return;
+    if (value === undefined) return;
 
     for (let i: number = 0; i < this.length; i++) {
       if (this._store[i]['value'] === value) return this._store[i];
@@ -112,12 +121,17 @@ export class Favorites {
   }
 
   /**
-   * Adds new favorite at the end.
+   * Adds note as new favorite at the handled index or at the end.
    */
-  async add(newValue: string, newTitle: string, newType: FavoriteType) {
-    if (newValue == null || newTitle == null || newType == null) return;
+  async add(newValue: string, newTitle: string, newType: FavoriteType, targetId?: string) {
+    if (newValue === undefined || newTitle === undefined || newType === undefined) return;
 
-    this._store.push({ value: newValue, title: newTitle, type: newType });
+    const newFavorite = { value: newValue, title: newTitle, type: newType };
+    if (targetId) {
+      await this.insertAtIndex(this.indexOf(targetId), newFavorite);
+    } else {
+      this._store.push(newFavorite);
+    }
   }
 
   /**
@@ -166,9 +180,8 @@ export class Favorites {
    * Moves the source favorite to the index of the target favorite.
    */
   async moveWithValue(sourceValue: string, targetValue: string) {
-    if (sourceValue == null || targetValue == null) return;
-
-    await this.moveWithIndex(this.indexOf(sourceValue), this.indexOf(targetValue));
+    const targetIdx: number = (targetValue) ? this.indexOf(targetValue) : (this.length - 1);
+    await this.moveWithIndex(this.indexOf(sourceValue), targetIdx);
   }
 
   /**

@@ -33,8 +33,8 @@ joplin.plugins.register({
     //#region HELPERS
 
     /**
-      * Check if favorite target still exists - otherwise ask to remove favorite
-      */
+     * Check if favorite target still exists - otherwise ask to remove favorite
+     */
     async function checkAndRemoveFavorite(favorite: any): Promise<boolean> {
       try {
         await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id'] });
@@ -63,7 +63,7 @@ joplin.plugins.register({
       }
     }
 
-    async function addFavorite(value: string, title: string, type: FavoriteType, showDialog: boolean) {
+    async function addFavorite(value: string, title: string, type: FavoriteType, showDialog: boolean, targetId?: string) {
       let newValue: string = value;
       let newTitle: string = title;
 
@@ -89,7 +89,7 @@ joplin.plugins.register({
 
         if (newValue === '' || newTitle === '') return;
 
-        await favorites.add(newValue, newTitle, type);
+        await favorites.add(newValue, newTitle, type, targetId);
         await panel.updateWebview();
       }
     }
@@ -141,6 +141,8 @@ joplin.plugins.register({
           default:
             break;
         }
+
+        await panel.updateWebview();
       }
     });
 
@@ -174,17 +176,17 @@ joplin.plugins.register({
       label: 'Favorites: Add notebook',
       iconName: 'fas fa-book',
       enabledCondition: 'oneFolderSelected',
-      execute: async (folderId: string) => {
+      execute: async (folderId: string, targetId?: string) => {
         if (folderId) {
           const folder = await DATA.get(['folders', folderId], { fields: ['id', 'title'] });
           if (!folder) return;
 
-          await addFavorite(folder.id, folder.title, FavoriteType.Folder, settings.editBeforeAdd);
+          await addFavorite(folder.id, folder.title, FavoriteType.Folder, settings.editBeforeAdd, targetId);
         } else {
           const selectedFolder: any = await WORKSPACE.selectedFolder();
           if (!selectedFolder) return;
 
-          await addFavorite(selectedFolder.id, selectedFolder.title, FavoriteType.Folder, settings.editBeforeAdd);
+          await addFavorite(selectedFolder.id, selectedFolder.title, FavoriteType.Folder, settings.editBeforeAdd, targetId);
         }
       }
     });
@@ -196,7 +198,7 @@ joplin.plugins.register({
       label: 'Favorites: Add note',
       iconName: 'fas fa-sticky-note',
       enabledCondition: "someNotesSelected",
-      execute: async (noteIds: string[]) => {
+      execute: async (noteIds: string[], targetId?: string) => {
         if (noteIds) {
 
           // in case multiple notes are selected - add them directly without user interaction
@@ -208,13 +210,13 @@ joplin.plugins.register({
 
             // never show dialog for multiple notes
             const showDialog: boolean = (settings.editBeforeAdd && noteIds.length == 1);
-            await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note, showDialog);
+            await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note, showDialog, targetId);
           }
         } else {
           const selectedNote: any = await WORKSPACE.selectedNote();
           if (!selectedNote) return;
 
-          await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note, settings.editBeforeAdd);
+          await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note, settings.editBeforeAdd, targetId);
         }
       }
     });

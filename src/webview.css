@@ -30,15 +30,8 @@ span {
 
 /* HORIZONTAL LAYOUT */
 #container {
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: overlay;
-  width: 100%;
-}
-#favs-container {
   display: flex;
-  float: left;
-  overflow-x: overlay;
+  height: 100%;
   width: 100%;
 }
 
@@ -48,12 +41,21 @@ span {
   padding: 0 5px;
 }
 
+#favs-container {
+  display: flex;
+  float: left;
+  overflow-x: overlay;
+  overflow-y: overlay;
+  width: 100%;
+}
+#favs-container:empty {
+  min-width: 100%;
+}
 #favorite {
   align-items: center;
   border-style: solid;
   border-width: 0;
   display: flex;
-  opacity: 0.8;
 }
 .favorite-inner {
   border-width: 0;
@@ -86,15 +88,22 @@ span {
 
 /* VERCTICAL LAYOUT OVERWRITES */
 @media screen and (max-width: 400px) {
-  #favs-container {
+  #container {
     display: block;
-    width: 100%;
   }
 
   #panel-title {
     padding-left: 12px;
   }
 
+  #favs-container {
+    display: block;
+    height: 100% !important;
+    width: 100%;
+  }
+  #favs-container:empty {
+    min-height: 100% !important;
+  }
   #favorite {
     border-bottom-width: 1px;
     max-width: 100% !important;

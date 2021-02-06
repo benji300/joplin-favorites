@@ -96,8 +96,8 @@ By default the panel will be on the right side of the screen, this can be adjust
 
 - To add a new favorite to the panel, you have to trigger the corresponding [command](#commands)
   - In the table you can see also from which menu context the commands can be triggered
-- Notebooks, notes and to-dos can also be added via drag & drop the selected entries onto the `FAVORITES` title of the panel
-  - To enable this feature, the option `Show favorites panel title` must be enabled
+- Notebooks, notes and to-dos can also be added via drag & drop the selected entries onto the panel
+  - This will add new favorites at the dropped position
 
 The `Edit favorite before add` option lets you choose whether or not to edit the name before adding a new favorite.
 
