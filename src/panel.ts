@@ -80,7 +80,7 @@ export class Panel {
 
       let typeIconHtml: string = '';
       if (this._settings.showTypeIcons) {
-        typeIconHtml = `<span class="fas ${FavoriteDesc[favorite.type].icon}" style="color:${fg};"></span>`;
+        typeIconHtml = `<span class="fas ${FavoriteDesc[favorite.type].icon}" title="${FavoriteDesc[favorite.type].name}" style="color:${fg};"></span>`;
       }
 
       // ondblclick="dblclick(event)"
