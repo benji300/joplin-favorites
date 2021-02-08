@@ -8,19 +8,70 @@ function getDataId(event) {
 }
 
 /* CLICK EVENTS */
-function context(event) {
+function openFav(event) {
+  const dataId = getDataId(event);
+  if (dataId) {
+    webviewApi.postMessage({ name: 'favsOpen', id: dataId });
+  }
+}
+
+// edit favorite in dialog
+function openDialog(event) {
   const dataId = getDataId(event);
   if (dataId) {
     webviewApi.postMessage({ name: 'favsEdit', id: dataId });
   }
 }
 
-function favsClick(event) {
-  const dataId = getDataId(event);
-  if (dataId) {
-    webviewApi.postMessage({ name: 'favsOpen', id: dataId });
-  }
+// RENAME FAVORITE IN PANEL
+var editStarted = 'false';
+
+function editFavStart(event) {
+  event.target.contentEditable = 'true';
+  editStarted = 'true';
 }
+// TODO dblclick geht bei search nicht richtig
+//  - test mit eventlistener hier statt dblclick an html?
+function setNewTitle(event) {
+  const element = event.target;
+  element.contentEditable = 'false';
+  editStarted = 'false';
+  const dataId = element.parentElement.parentElement.dataset.id;
+  if (dataId && element.innerText !== '') {
+    webviewApi.postMessage({ name: 'favsRename', id: dataId, newTitle: element.innerText });
+  } else {
+    element.innerText = element.title;
+  }
+  cancelDefault(event);
+}
+
+document.addEventListener('dblclick', event => {
+  const element = event.target;
+  if (element.className === 'title') {
+    element.contentEditable = 'true';
+    editStarted = 'true';
+  }
+});
+
+document.addEventListener('keydown', event => {
+  const element = event.target;
+  if (editStarted && element.className === 'title') {
+    if (event.key === 'Enter' || event.key === 'Tab') {
+      setNewTitle(event);
+    } else if (event.key === 'Escape') {
+      element.contentEditable = 'false';
+      element.innerText = element.title;
+      editStarted = 'false';
+      cancelDefault(event);
+    }
+  }
+});
+
+document.addEventListener('focusout', (event) => {
+  if (editStarted && event.target.className === 'title') {
+    setNewTitle(event);
+  }
+});
 
 /* DRAG AND DROP */
 let sourceId = '';

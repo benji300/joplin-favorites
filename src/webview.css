@@ -68,6 +68,12 @@ span {
   border-style: none;
 }
 
+.title:focus {
+  font-weight: bold;
+  /* padding: 8px; */
+  border: none !important;
+}
+
 /* DRAG AND DROP */
 [draggable="true"] {
   /* To prevent user selecting inside the drag source */

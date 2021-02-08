@@ -33,6 +33,10 @@ export class Panel {
       if (message.name === 'favsOpen') {
         await joplin.commands.execute('favsOpenFavorite', message.id);
       }
+      if (message.name === 'favsRename') {
+        await this._favs.changeTitle(message.id, message.newTitle);
+        await this.updateWebview();
+      }
       if (message.name === 'favsDrag') {
         await this._favs.moveWithValue(message.sourceId, message.targetId);
         await this.updateWebview();
@@ -83,10 +87,10 @@ export class Panel {
         typeIconHtml = `<span class="fas ${FavoriteDesc[favorite.type].icon}" title="${FavoriteDesc[favorite.type].name}" style="color:${fg};"></span>`;
       }
 
-      // ondblclick="dblclick(event)"
+      // ondblclick="editFavStart(event)"
       favsHtml.push(`
         <div id="favorite" data-id="${favorite.value}" data-bg="${bg}" draggable="${this._settings.enableDragAndDrop}" title="${favorite.title}"
-          onclick="favsClick(event)" oncontextmenu="context(event)" onmouseover="setBackground(event,'${hoverBg}')" onmouseout="resetBackground(this)"
+          onclick="openFav(event)" oncontextmenu="openDialog(event)" onmouseover="setBackground(event,'${hoverBg}')" onmouseout="resetBackground(this)"
           ondragstart="dragStart(event)" ondragover="dragOver(event, '${hoverBg}')" ondragleave="dragLeave(event)" ondrop="drop(event)" ondragend="dragEnd(event)"
           style="height:${this._settings.lineHeight}px;min-width:${this._settings.minFavWidth}px;max-width:${this._settings.maxFavWidth}px;background:${bg};border-color:${dividerColor};color:${fg};">
           <span class="favorite-inner" style="border-color:${dividerColor};">
