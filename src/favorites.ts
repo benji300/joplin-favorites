@@ -126,7 +126,7 @@ export class Favorites {
   async add(newValue: string, newTitle: string, newType: FavoriteType, targetId?: string) {
     if (newValue === undefined || newTitle === undefined || newType === undefined) return;
 
-    const newFavorite = { value: newValue, title: newTitle, type: newType };
+    const newFavorite = { value: newValue, title: newTitle.trim(), type: newType };
     if (targetId) {
       await this.insertAtIndex(this.indexOf(targetId), newFavorite);
     } else {
@@ -151,7 +151,7 @@ export class Favorites {
     if (!newTitle) return;
     const index: number = this.indexOf(value);
     if (index < 0) return;
-    this._store[index].title = newTitle;
+    this._store[index].title = newTitle.trim();
   }
 
   /**

@@ -35,7 +35,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
   - Search
     - Not fully supported right now - see [here](#open-saved-search) for details
 - Set and edit user defined names for the favorites
-- Right-click on favorites to edit or remove
+- Right-click on favorites to open edit dialog
 - Change position of favorites within the panel via drag & drop
 - Drag notebooks and notes from sidebar or note list directly to favorites
 - Configurable style attributes
@@ -95,35 +95,37 @@ By default the panel will be on the right side of the screen, this can be adjust
 ### Add favorite
 
 - To add a new favorite to the panel, you have to trigger the corresponding [command](#commands)
-  - In the table you can see also from which menu context the commands can be triggered
-- Notebooks, notes and to-dos can also be added via drag & drop the selected entries onto the panel
+
+  - In the table you can see from which menu context the commands can be triggered
+
+- Selected notebooks, notes or to-dos can also be added via drag & drop into the panel
+
   - This will add new favorites at the dropped position
 
-The `Edit favorite before add` option lets you choose whether or not to edit the name before adding a new favorite.
+- The `Edit favorite before add` option lets you choose whether or not to edit the name before adding a new favorite
 
-- This is not supported when adding multiple selected notes
-- For searches the dialog is always opened to enter the search query
+  - This is not supported when adding multiple selected notes
+  - For searches the dialog is always opened to enter the search query
 
-![add-dialog](./assets/add-dialog.png)
+  ![add-dialog](./assets/add-dialog.png)
 
 ### Edit favorite
 
 - Right click on one of the favorites to open the edit dialog
 
-In the edit dialog you can change the name of any favorite.
+  ![edit-dialog](./assets/edit-dialog.png)
 
-![edit-dialog](./assets/edit-dialog.png)
+- For searches, you can also edit the search query in the dialog
 
-For searches, you can also edit the search query.
+  ![edit-search-dialog](./assets/edit-search-dialog.png)
 
-![edit-search-dialog](./assets/edit-search-dialog.png)
+- Favorites can also be renamed by double-clicking directly in the panel
 
 ### Remove favorite
 
-- Right click on one of the favorites to open the edit dialog (see screenshots above)
-- Press `Delete` to remove the favorite
+- Right click on one of the favorites to open the edit dialog (see screenshots above) and press `Delete` to remove it
 
-Alternatively you can remove all favorites at once via the `Favorites: Remove all favorites` command.
+- Remove all favorites at once via the `Favorites: Remove all favorites` command
 
 ### Open saved search
 

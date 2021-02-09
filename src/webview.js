@@ -1,77 +1,96 @@
 let editStarted = false;
+let currentTarget = undefined;
+let sourceId = '';
+let timeout = 0;
+let clicks = 0;
 
-function getDataId(event) {
-  if (event.currentTarget.id === 'favorite') {
-    return event.currentTarget.dataset.id;
+function getDataId(currentTarget) {
+  if (currentTarget && currentTarget.id === 'favorite') {
+    return currentTarget.dataset.id;
   } else {
     return;
   }
 }
 
-/* CLICK EVENTS */
-function openFav(event) {
-  if (!editStarted) {
-    const dataId = getDataId(event);
-    if (dataId) {
-      webviewApi.postMessage({ name: 'favsOpen', id: dataId });
-    }
-  }
-}
-
-// edit favorite in dialog
+/* EDIT FAVORITE IN DIALOG (CONTEXT MENU) */
 function openDialog(event) {
   if (!editStarted) {
-    const dataId = getDataId(event);
+    const dataId = getDataId(event.currentTarget);
     if (dataId) {
       webviewApi.postMessage({ name: 'favsEdit', id: dataId });
     }
   }
 }
 
-// RENAME FAVORITE IN PANEL
-function editFavStart(event) {
-  event.target.contentEditable = 'true';
-  editStarted = true;
-  // set focus with delay because of search workaround which sets focus to global search bar
-  setTimeout(function () { event.target.focus(); }, 300);
-}
-
-function setNewTitle(event) {
-  cancelDefault(event);
-  const element = event.target;
-  element.contentEditable = 'false';
-  editStarted = false;
-  const dataId = element.parentElement.parentElement.dataset.id;
-  if (dataId && element.innerText !== '') {
-    webviewApi.postMessage({ name: 'favsRename', id: dataId, newTitle: element.innerText });
-  } else {
-    element.innerText = element.title;
+/* OPEN OR RENAME FAVORITE (CLICK) */
+function openFav(currentTarget) {
+  const dataId = getDataId(currentTarget);
+  if (dataId) {
+    webviewApi.postMessage({ name: 'favsOpen', id: dataId });
   }
 }
 
-document.addEventListener('keydown', event => {
+function enableEdit(element, value) {
+  editStarted = value;
+  element.readOnly = (!value);
+  element.style.fontWeight = value ? 'bold' : 'normal';
+  element.focus();
+  if (!value) clicks = 0;
+}
+
+function editFav(currentTarget) {
+  const input = currentTarget.getElementsByTagName('input')[0];
+  if (input) {
+    enableEdit(input, true);
+  }
+}
+
+// handle click and dblclick events
+// delay click event by 250ms and wait for (possible) second click
+// Workaround for current search favorite implementation:
+//  - dblClick for search favs does not work right as the command sets the focus to the global search
+//  - Thus the input from the panel loses its focus - so it never can be edited
+function clickFav(event) {
+  currentTarget = event.currentTarget;
+  clicks++;
+
+  if (clicks == 1 && !editStarted) {
+    setTimeout(function () {
+      if (clicks == 1) {
+        openFav(currentTarget);
+      } else {
+        editFav(currentTarget);
+      }
+      currentTarget = undefined;
+      clicks = 0;
+    }, timeout || 250);
+  }
+};
+
+document.addEventListener('change', event => {
+  cancelDefault(event);
   const element = event.target;
   if (editStarted && element.className === 'title') {
-    if (event.key === 'Enter' || event.key === 'Tab') {
-      setNewTitle(event);
-    } else if (event.key === 'Escape') {
-      cancelDefault(event);
-      editStarted = false;
-      element.contentEditable = 'false';
-      element.innerText = element.title;
+    enableEdit(element, false);
+    const dataId = element.parentElement.parentElement.dataset.id;
+    if (dataId && element.value !== '') {
+      webviewApi.postMessage({ name: 'favsRename', id: dataId, newTitle: element.value });
+    } else {
+      element.value = element.title;
     }
   }
 });
 
 document.addEventListener('focusout', (event) => {
-  if (editStarted && event.target.className === 'title') {
-    setNewTitle(event);
+  cancelDefault(event);
+  const element = event.target;
+  if (editStarted && element.className === 'title') {
+    enableEdit(element, false);
+    element.value = element.title;
   }
 });
 
 /* DRAG AND DROP */
-let sourceId = '';
-
 function cancelDefault(event) {
   event.preventDefault();
   event.stopPropagation();
@@ -98,7 +117,7 @@ function resetTabBackgrounds() {
 }
 
 function dragStart(event) {
-  const dataId = getDataId(event);
+  const dataId = getDataId(event.currentTarget);
   if (dataId) {
     event.dataTransfer.setData('text/x-plugin-favorites-id', dataId);
     sourceId = dataId;
@@ -114,7 +133,7 @@ function dragEnd(event) {
 function dragOver(event, hoverColor) {
   resetTabBackgrounds();
   cancelDefault(event);
-  if (sourceId !== getDataId(event)) {
+  if (sourceId !== getDataId(event.currentTarget)) {
     setBackground(event, hoverColor);
   }
 }
@@ -126,7 +145,7 @@ function dragLeave(event) {
 function drop(event) {
   resetTabBackgrounds();
   cancelDefault(event);
-  const dataTargetId = getDataId(event);
+  const dataTargetId = getDataId(event.currentTarget);
 
   // check whether plugin tab was dragged - trigger favsDrag message
   const dataSourceId = event.dataTransfer.getData('text/x-plugin-favorites-id');

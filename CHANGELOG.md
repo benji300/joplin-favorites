@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Addded
 
 - Ability to drag & drop notes from [note-tabs plugin](https://github.com/benji300/joplin-note-tabs) to add as favorite
+- Ability to rename favorites directly in panel
 
 ### Changed
 

@@ -1,5 +1,5 @@
 import joplin from 'api';
-import { FavoriteDesc, Favorites } from './favorites';
+import { FavoriteDesc, Favorites, FavoriteType } from './favorites';
 import { Settings } from './settings';
 
 export class Panel {
@@ -88,14 +88,12 @@ export class Panel {
 
       favsHtml.push(`
         <div id="favorite" data-id="${favorite.value}" data-bg="${bg}" draggable="${this._settings.enableDragAndDrop}" title="${favorite.title}"
-          onclick="openFav(event)" oncontextmenu="openDialog(event)" onmouseover="setBackground(event,'${hoverBg}')" onmouseout="resetBackground(this)"
+          onclick="clickFav(event)" oncontextmenu="openDialog(event)" onmouseover="setBackground(event,'${hoverBg}')" onmouseout="resetBackground(this)"
           ondragstart="dragStart(event)" ondragover="dragOver(event, '${hoverBg}')" ondragleave="dragLeave(event)" ondrop="drop(event)" ondragend="dragEnd(event)"
-          style="height:${this._settings.lineHeight}px;min-width:${this._settings.minFavWidth}px;max-width:${this._settings.maxFavWidth}px;background:${bg};border-color:${dividerColor};color:${fg};">
+          style="height:${this._settings.lineHeight}px;min-width:${this._settings.minFavWidth}px;max-width:${this._settings.maxFavWidth}px;background:${bg};border-color:${dividerColor};">
           <span class="favorite-inner" style="border-color:${dividerColor};">
             ${typeIconHtml}
-            <span class="title" title="${favorite.title}" ondblclick="editFavStart(event)">
-              ${favorite.title}
-            </span>
+            <input class="title" title="${favorite.title}" value="${favorite.title}" style="color:${fg};" readonly></input>
           </span>
         </div>
       `);

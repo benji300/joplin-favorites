@@ -61,6 +61,7 @@ span {
   border-width: 0;
   border-right-width: 1px;
   border-style: solid;
+  display: flex;
   padding: 0 3px;
   width: 100%;
 }
@@ -68,8 +69,17 @@ span {
   border-style: none;
 }
 
-.title:focus {
-  font-weight: bold;
+input.title {
+  background: none;
+  border: none;
+  display: flex;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+input.title:hover {
+  cursor: default;
+}
+input.title:focus {
   outline: none;
 }
 
