@@ -58,7 +58,6 @@ export class Panel {
   private getPanelTitleHtml(): string {
     let panelTitleHtml: string = '';
 
-    // ondragover="dragOver(event, '${this._settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
     if (this._settings.showPanelTitle) {
       const fg = this._settings.foreground;
 
@@ -87,7 +86,6 @@ export class Panel {
         typeIconHtml = `<span class="fas ${FavoriteDesc[favorite.type].icon}" title="${FavoriteDesc[favorite.type].name}" style="color:${fg};"></span>`;
       }
 
-      // ondblclick="editFavStart(event)"
       favsHtml.push(`
         <div id="favorite" data-id="${favorite.value}" data-bg="${bg}" draggable="${this._settings.enableDragAndDrop}" title="${favorite.title}"
           onclick="openFav(event)" oncontextmenu="openDialog(event)" onmouseover="setBackground(event,'${hoverBg}')" onmouseout="resetBackground(this)"
@@ -95,7 +93,7 @@ export class Panel {
           style="height:${this._settings.lineHeight}px;min-width:${this._settings.minFavWidth}px;max-width:${this._settings.maxFavWidth}px;background:${bg};border-color:${dividerColor};color:${fg};">
           <span class="favorite-inner" style="border-color:${dividerColor};">
             ${typeIconHtml}
-            <span class="title" title="${favorite.title}">
+            <span class="title" title="${favorite.title}" ondblclick="editFavStart(event)">
               ${favorite.title}
             </span>
           </span>

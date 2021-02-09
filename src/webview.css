@@ -70,8 +70,7 @@ span {
 
 .title:focus {
   font-weight: bold;
-  /* padding: 8px; */
-  border: none !important;
+  outline: none;
 }
 
 /* DRAG AND DROP */

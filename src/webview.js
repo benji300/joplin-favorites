@@ -1,3 +1,4 @@
+let editStarted = false;
 
 function getDataId(event) {
   if (event.currentTarget.id === 'favorite') {
@@ -9,49 +10,44 @@ function getDataId(event) {
 
 /* CLICK EVENTS */
 function openFav(event) {
-  const dataId = getDataId(event);
-  if (dataId) {
-    webviewApi.postMessage({ name: 'favsOpen', id: dataId });
+  if (!editStarted) {
+    const dataId = getDataId(event);
+    if (dataId) {
+      webviewApi.postMessage({ name: 'favsOpen', id: dataId });
+    }
   }
 }
 
 // edit favorite in dialog
 function openDialog(event) {
-  const dataId = getDataId(event);
-  if (dataId) {
-    webviewApi.postMessage({ name: 'favsEdit', id: dataId });
+  if (!editStarted) {
+    const dataId = getDataId(event);
+    if (dataId) {
+      webviewApi.postMessage({ name: 'favsEdit', id: dataId });
+    }
   }
 }
 
 // RENAME FAVORITE IN PANEL
-var editStarted = 'false';
-
 function editFavStart(event) {
   event.target.contentEditable = 'true';
-  editStarted = 'true';
+  editStarted = true;
+  // set focus with delay because of search workaround which sets focus to global search bar
+  setTimeout(function () { event.target.focus(); }, 300);
 }
-// TODO dblclick geht bei search nicht richtig
-//  - test mit eventlistener hier statt dblclick an html?
+
 function setNewTitle(event) {
+  cancelDefault(event);
   const element = event.target;
   element.contentEditable = 'false';
-  editStarted = 'false';
+  editStarted = false;
   const dataId = element.parentElement.parentElement.dataset.id;
   if (dataId && element.innerText !== '') {
     webviewApi.postMessage({ name: 'favsRename', id: dataId, newTitle: element.innerText });
   } else {
     element.innerText = element.title;
   }
-  cancelDefault(event);
 }
-
-document.addEventListener('dblclick', event => {
-  const element = event.target;
-  if (element.className === 'title') {
-    element.contentEditable = 'true';
-    editStarted = 'true';
-  }
-});
 
 document.addEventListener('keydown', event => {
   const element = event.target;
@@ -59,10 +55,10 @@ document.addEventListener('keydown', event => {
     if (event.key === 'Enter' || event.key === 'Tab') {
       setNewTitle(event);
     } else if (event.key === 'Escape') {
+      cancelDefault(event);
+      editStarted = false;
       element.contentEditable = 'false';
       element.innerText = element.title;
-      editStarted = 'false';
-      cancelDefault(event);
     }
   }
 });
