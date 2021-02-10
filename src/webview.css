@@ -81,15 +81,20 @@ input.title:hover {
   cursor: default;
 }
 input.title:focus {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  border-width: 1px;
+  border-style: solid;
+  margin-right: 8px;
   outline: none;
+  padding: 3px;
 }
 
 .controls {
   display: none;
   opacity: 0;
   position: absolute;
-  right: 5px;
-  z-index: 10;
+  right: 8px;
 }
 .controls:hover {
   opacity: 1;

@@ -42,7 +42,7 @@ function openDialog(event) {
 
 function enableEdit(element, value) {
   editStarted = value;
-  element.readOnly = (!value);
+  element.disabled = (!value);
   element.style.fontWeight = value ? 'bold' : 'normal';
   element.focus();
   element.select();
@@ -92,6 +92,14 @@ document.addEventListener('focusout', (event) => {
     enableEdit(element, false);
     element.value = element.title;
   }
+});
+
+document.addEventListener('wheel', (event) => {
+  const element = document.getElementById('favs-container');
+  if (element) {
+    element.scrollLeft -= (-event.deltaY);
+  }
+  // event.preventDefault();
 });
 
 /* DRAG AND DROP */

@@ -91,13 +91,13 @@ export class Panel {
       }
 
       favsHtml.push(`
-        <div id="favorite" data-id="${favorite.value}" data-bg="${bg}" draggable="${this._settings.enableDragAndDrop}" title="${favorite.title}"
+        <div id="favorite" data-id="${favorite.value}" data-bg="${bg}" draggable="${this._settings.enableDragAndDrop}"
           onclick="clickFav(event)" oncontextmenu="openDialog(event)" onmouseover="setBackground(event,'${hoverBg}')" onmouseout="resetBackground(this)"
           ondragstart="dragStart(event)" ondragover="dragOver(event, '${hoverBg}')" ondragleave="dragLeave(event)" ondrop="drop(event)" ondragend="dragEnd(event)"
           style="height:${this._settings.lineHeight}px;min-width:${this._settings.minFavWidth}px;max-width:${this._settings.maxFavWidth}px;background:${bg};border-color:${dividerColor};">
           <span class="favorite-inner" style="border-color:${dividerColor};">
             ${typeIconHtml}
-            <input class="title" title="${favorite.title}" value="${favorite.title}" style="color:${fg};" readonly></input>
+            <input class="title" title="${favorite.title}" value="${favorite.title}" style="color:${fg};border-color:${dividerColor};" disabled></input>
             <span class="controls" style="background:${hoverBg};">
               <span class="rename fas fa-pen" title="Rename" style="color:${fg};"></span>
               <span class="delete fas fa-trash" title="Delete" style="color:${fg};"></span>
@@ -121,6 +121,7 @@ export class Panel {
           ondragover="dragOver(event, '${this._settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
           style="height:${this._settings.lineHeight}px;">
           ${favsHtml}
+          <div style="height:${this._settings.lineHeight}px;min-width:10px;"></div>
         </div>
       </div>
     `);
