@@ -58,6 +58,7 @@ span {
   display: flex;
 }
 .favorite-inner {
+  align-items: center;
   border-width: 0;
   border-right-width: 1px;
   border-style: solid;
@@ -81,6 +82,20 @@ input.title:hover {
 }
 input.title:focus {
   outline: none;
+}
+
+.controls {
+  display: none;
+  opacity: 0;
+  position: absolute;
+  right: 5px;
+  z-index: 10;
+}
+.controls:hover {
+  opacity: 1;
+}
+.controls > .fas {
+  cursor: pointer;
 }
 
 /* DRAG AND DROP */
@@ -127,5 +142,9 @@ input.title:focus {
     border-right-width: 0;
     padding-left: 24px;
     text-align: left;
+  }
+
+  .controls {
+    display: flex;
   }
 }

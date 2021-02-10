@@ -119,11 +119,13 @@ By default the panel will be on the right side of the screen, this can be adjust
 
   ![edit-search-dialog](./assets/edit-search-dialog.png)
 
-- Favorites can also be renamed by double-clicking directly in the panel
+- Rename favorite by clicking the rename icon on the right side in the vertical layout
 
 ### Remove favorite
 
-- Right click on one of the favorites to open the edit dialog (see screenshots above) and press `Delete` to remove it
+- Right click on a favorite to open the edit dialog (see screenshots above) and press `Delete` to remove it
+
+- Remove favorite by clicking the delete icon on the right side in the vertical layout
 
 - Remove all favorites at once via the `Favorites: Remove all favorites` command
 

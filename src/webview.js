@@ -1,8 +1,11 @@
 let editStarted = false;
-let currentTarget = undefined;
 let sourceId = '';
-let timeout = 0;
-let clicks = 0;
+
+function cancelDefault(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  return false;
+}
 
 function getDataId(currentTarget) {
   if (currentTarget && currentTarget.id === 'favorite') {
@@ -12,7 +15,22 @@ function getDataId(currentTarget) {
   }
 }
 
-/* EDIT FAVORITE IN DIALOG (CONTEXT MENU) */
+/* EVENT HANDLER */
+
+function openFav(currentTarget) {
+  const dataId = getDataId(currentTarget);
+  if (dataId) {
+    webviewApi.postMessage({ name: 'favsOpen', id: dataId });
+  }
+}
+
+function deleteFav(currentTarget) {
+  const dataId = getDataId(currentTarget);
+  if (dataId) {
+    webviewApi.postMessage({ name: 'favsDelete', id: dataId });
+  }
+}
+
 function openDialog(event) {
   if (!editStarted) {
     const dataId = getDataId(event.currentTarget);
@@ -22,20 +40,12 @@ function openDialog(event) {
   }
 }
 
-/* OPEN OR RENAME FAVORITE (CLICK) */
-function openFav(currentTarget) {
-  const dataId = getDataId(currentTarget);
-  if (dataId) {
-    webviewApi.postMessage({ name: 'favsOpen', id: dataId });
-  }
-}
-
 function enableEdit(element, value) {
   editStarted = value;
   element.readOnly = (!value);
   element.style.fontWeight = value ? 'bold' : 'normal';
   element.focus();
-  if (!value) clicks = 0;
+  element.select();
 }
 
 function editFav(currentTarget) {
@@ -45,28 +55,21 @@ function editFav(currentTarget) {
   }
 }
 
-// handle click and dblclick events
-// delay click event by 250ms and wait for (possible) second click
-// Workaround for current search favorite implementation:
-//  - dblClick for search favs does not work right as the command sets the focus to the global search
-//  - Thus the input from the panel loses its focus - so it never can be edited
+// default click handler
 function clickFav(event) {
-  currentTarget = event.currentTarget;
-  clicks++;
-
-  if (clicks == 1 && !editStarted) {
-    setTimeout(function () {
-      if (clicks == 1) {
-        openFav(currentTarget);
-      } else {
-        editFav(currentTarget);
-      }
-      currentTarget = undefined;
-      clicks = 0;
-    }, timeout || 250);
+  cancelDefault(event);
+  if (!editStarted) {
+    if (event.target.classList.contains('rename')) {
+      editFav(event.currentTarget);
+    } else if (event.target.classList.contains('delete')) {
+      deleteFav(event.currentTarget);
+    } else {
+      openFav(event.currentTarget);
+    }
   }
-};
+}
 
+// rename finished with changes
 document.addEventListener('change', event => {
   cancelDefault(event);
   const element = event.target;
@@ -81,6 +84,7 @@ document.addEventListener('change', event => {
   }
 });
 
+// input lost focus (w/o changes)
 document.addEventListener('focusout', (event) => {
   cancelDefault(event);
   const element = event.target;
@@ -91,11 +95,6 @@ document.addEventListener('focusout', (event) => {
 });
 
 /* DRAG AND DROP */
-function cancelDefault(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  return false;
-}
 
 function setBackground(event, background) {
   event.currentTarget.style.background = background;

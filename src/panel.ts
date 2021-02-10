@@ -41,6 +41,10 @@ export class Panel {
         await this._favs.moveWithValue(message.sourceId, message.targetId);
         await this.updateWebview();
       }
+      if (message.name === 'favsDelete') {
+        await this._favs.delete(message.id);
+        await this.updateWebview();
+      }
     });
 
     // set init message
@@ -94,6 +98,10 @@ export class Panel {
           <span class="favorite-inner" style="border-color:${dividerColor};">
             ${typeIconHtml}
             <input class="title" title="${favorite.title}" value="${favorite.title}" style="color:${fg};" readonly></input>
+            <span class="controls" style="background:${hoverBg};">
+              <span class="rename fas fa-pen" title="Rename" style="color:${fg};"></span>
+              <span class="delete fas fa-trash" title="Delete" style="color:${fg};"></span>
+            </span>
           </span>
         </div>
       `);
