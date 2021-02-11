@@ -93,7 +93,7 @@ input.title:focus {
 .controls {
   display: none;
   opacity: 0;
-  position: absolute;
+  position: relative;
   right: 8px;
 }
 .controls:hover {
@@ -150,6 +150,6 @@ input.title:focus {
   }
 
   .controls {
-    display: flex;
+    display: table;
   }
 }

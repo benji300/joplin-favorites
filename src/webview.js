@@ -94,12 +94,12 @@ document.addEventListener('focusout', (event) => {
   }
 });
 
+// scroll horizontally without 'shift' key
 document.addEventListener('wheel', (event) => {
   const element = document.getElementById('favs-container');
   if (element) {
     element.scrollLeft -= (-event.deltaY);
   }
-  // event.preventDefault();
 });
 
 /* DRAG AND DROP */
