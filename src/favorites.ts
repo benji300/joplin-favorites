@@ -90,6 +90,20 @@ export class Favorites {
   }
 
   /**
+   * Escapes HTML special characters.
+   * From https://github.com/laurent22/joplin/tree/dev/packages/app-cli/tests/support/plugins/toc/src/index.ts
+   */
+  private escapeHtml(unsafe: string): string {
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;")
+      .trim();
+  }
+
+  /**
    * Gets the favorites with the handled value. Null if not exist.
    */
   get(value: string): any {
@@ -126,7 +140,7 @@ export class Favorites {
   async add(newValue: string, newTitle: string, newType: FavoriteType, targetId?: string) {
     if (newValue === undefined || newTitle === undefined || newType === undefined) return;
 
-    const newFavorite = { value: newValue, title: newTitle.trim(), type: newType };
+    const newFavorite = { value: this.escapeHtml(newValue), title: this.escapeHtml(newTitle), type: newType };
     if (targetId) {
       await this.insertAtIndex(this.indexOf(targetId), newFavorite);
     } else {
@@ -141,7 +155,7 @@ export class Favorites {
     if (!newValue) return;
     const index: number = this.indexOf(value);
     if (index < 0) return;
-    this._store[index].value = newValue;
+    this._store[index].value = this.escapeHtml(newValue);
   }
 
   /**
@@ -151,7 +165,7 @@ export class Favorites {
     if (!newTitle) return;
     const index: number = this.indexOf(value);
     if (index < 0) return;
-    this._store[index].title = newTitle.trim();
+    this._store[index].title = this.escapeHtml(newTitle);
   }
 
   /**
