@@ -74,27 +74,31 @@ input.title {
   background: none;
   border: none;
   display: flex;
+  font-family: inherit;
+  font-size: inherit;
   text-overflow: ellipsis;
   width: 100%;
 }
 input.title:hover {
+  background: none;
   cursor: default;
 }
 input.title:focus {
-  background: rgba(0, 0, 0, 0.05);
+  border-color: var(--joplin-warning-background-color);
   border-radius: 3px;
-  border-width: 1px;
   border-style: solid;
+  border-width: 1px;
   margin-right: 8px;
   outline: none;
-  padding: 3px;
+  padding: 3px 1px;
 }
 
 .controls {
+  border-radius: 3px;
   display: none;
   opacity: 0;
   position: relative;
-  right: 8px;
+  right: 10px;
 }
 .controls:hover {
   opacity: 1;

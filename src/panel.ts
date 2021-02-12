@@ -97,7 +97,7 @@ export class Panel {
           style="height:${this._settings.lineHeight}px;min-width:${this._settings.minFavWidth}px;max-width:${this._settings.maxFavWidth}px;background:${bg};border-color:${dividerColor};">
           <span class="favorite-inner" style="border-color:${dividerColor};">
             ${typeIconHtml}
-            <input class="title" title="${favorite.title}" value="${favorite.title}" style="color:${fg};border-color:${dividerColor};" disabled></input>
+            <input class="title" title="${favorite.title}" value="${favorite.title}" style="color:${fg};" disabled></input>
             <span class="controls" style="background:${hoverBg};">
               <span class="rename fas fa-pen" title="Rename" style="color:${fg};"></span>
               <span class="delete fas fa-trash" title="Delete" style="color:${fg};"></span>

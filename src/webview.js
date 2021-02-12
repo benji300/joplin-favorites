@@ -43,7 +43,6 @@ function openDialog(event) {
 function enableEdit(element, value) {
   editStarted = value;
   element.disabled = (!value);
-  element.style.fontWeight = value ? 'bold' : 'normal';
   element.focus();
   element.select();
 }
