@@ -165,6 +165,7 @@ export class Settings {
       type: SettingItemType.Int,
       section: 'favorites.settings',
       public: true,
+      minimum: 20,
       label: 'Line height (px)',
       description: 'Line height of the favorites panel.'
     });
