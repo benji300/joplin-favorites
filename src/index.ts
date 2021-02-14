@@ -1,7 +1,7 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
-import { FavoriteType, FavoriteDesc, Favorites } from './favorites';
+import { FavoriteType, IFavorite, FavoriteDesc, Favorites } from './favorites';
 import { Settings } from './settings';
 import { Panel } from './panel';
 import { Dialog } from './dialog';
@@ -35,7 +35,7 @@ joplin.plugins.register({
     /**
      * Check if favorite target still exists - otherwise ask to remove favorite
      */
-    async function checkAndRemoveFavorite(favorite: any, index: number): Promise<boolean> {
+    async function checkAndRemoveFavorite(favorite: IFavorite, index: number): Promise<boolean> {
       try {
         await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id'] });
       } catch (err) {
@@ -52,7 +52,7 @@ joplin.plugins.register({
     /**
      * Check if note/todo is still of the same type - otherwise change type
      */
-    async function checkAndUpdateType(favorite: any, index: number) {
+    async function checkAndUpdateType(favorite: IFavorite, index: number) {
       let newType: FavoriteType;
       const note: any = await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id', 'is_todo'] });
       if (favorite.type === FavoriteType.Note && note.is_todo) newType = FavoriteType.Todo;
@@ -107,7 +107,7 @@ joplin.plugins.register({
     await COMMANDS.register({
       name: 'favsOpenFavorite',
       execute: async (index: number) => {
-        const favorite: any = await favorites.get(index);
+        const favorite: IFavorite = favorites.get(index);
         if (!favorite) return;
 
         switch (favorite.type) {
@@ -155,7 +155,7 @@ joplin.plugins.register({
     await COMMANDS.register({
       name: 'favsEditFavorite',
       execute: async (index: number) => {
-        const favorite: any = await favorites.get(index);
+        const favorite: IFavorite = favorites.get(index);
         if (!favorite) return;
 
         // open dialog and handle result

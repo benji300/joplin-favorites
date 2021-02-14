@@ -10,6 +10,18 @@ export enum FavoriteType {
 }
 
 /**
+ * Definition of favorite entries.
+ */
+export interface IFavorite {
+  // Favorite value = folderId|noteId|tagId|searchQuery
+  value: string,
+  // User configured title
+  title: string,
+  // Type of the favorite
+  type: FavoriteType
+}
+
+/**
  * Definition of the favorite descriptions.
  */
 interface IFavoriteDesc {
@@ -38,20 +50,13 @@ export const FavoriteDesc: IFavoriteDesc[] = [
 export class Favorites {
   /**
    * Temporary array to work with favorites.
-   * 
-   * Definition of one favorite entry:
-   * [{
-   *   "value": "folderId|noteId|tagId|searchQuery",
-   *   "title": "userConfiguredTitle",
-   *   "type": FavoriteType
-   * }]
    */
-  private _store: any[];
+  private _store: IFavorite[];
 
   /**
    * Init with stored values from settings array.
    */
-  constructor(settingsArray: any[]) {
+  constructor(settingsArray: IFavorite[]) {
     this._store = settingsArray;
   }
 
@@ -60,7 +65,7 @@ export class Favorites {
   /**
    * All entries.
    */
-  get all(): any[] {
+  get all(): IFavorite[] {
     return this._store;
   }
 
@@ -76,7 +81,7 @@ export class Favorites {
   /**
    * Inserts handled favorite at specified index.
    */
-  private async insertAtIndex(index: number, favorite: any) {
+  private async insertAtIndex(index: number, favorite: IFavorite) {
     if (index < 0 || favorite === undefined) return;
 
     this._store.splice(index, 0, favorite);
@@ -106,7 +111,7 @@ export class Favorites {
   /**
    * Gets the favorites with the handled value. Null if not exist.
    */
-  get(index: number): any {
+  get(index: number): IFavorite {
     if (this.indexOutOfBounds(index)) return;
     return this._store[index];
   }
@@ -181,7 +186,7 @@ export class Favorites {
       // else move at desired index
       target = targetIdx;
     }
-    const favorite: any = this._store[sourceIdx];
+    const favorite: IFavorite = this._store[sourceIdx];
     this._store.splice(sourceIdx, 1);
     this._store.splice(target, 0, favorite);
   }
