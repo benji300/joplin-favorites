@@ -35,13 +35,13 @@ joplin.plugins.register({
     /**
      * Check if favorite target still exists - otherwise ask to remove favorite
      */
-    async function checkAndRemoveFavorite(favorite: any): Promise<boolean> {
+    async function checkAndRemoveFavorite(favorite: any, index: number): Promise<boolean> {
       try {
         await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id'] });
       } catch (err) {
         const result: number = await Dialog.showMessage(`Cannot open favorite. Seems that the target ${FavoriteDesc[favorite.type].name.toLocaleLowerCase()} was deleted.\n\nDo you want to delete the favorite also?`);
         if (!result) {
-          await favorites.delete(favorite.value);
+          await favorites.delete(index);
           await panel.updateWebview();
           return true;
         }
@@ -52,26 +52,30 @@ joplin.plugins.register({
     /**
      * Check if note/todo is still of the same type - otherwise change type
      */
-    async function checkAndUpdateType(favorite: any) {
+    async function checkAndUpdateType(favorite: any, index: number) {
       let newType: FavoriteType;
       const note: any = await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id', 'is_todo'] });
       if (favorite.type === FavoriteType.Note && note.is_todo) newType = FavoriteType.Todo;
       if (favorite.type === FavoriteType.Todo && (!note.is_todo)) newType = FavoriteType.Note;
       if (newType) {
-        await favorites.changeType(favorite.value, newType);
+        await favorites.changeType(index, newType);
         await panel.updateWebview();
       }
     }
 
-    async function addFavorite(value: string, title: string, type: FavoriteType, showDialog: boolean, targetId?: string) {
+    /**
+     * Add new favorite entry
+     */
+    async function addFavorite(value: string, title: string, type: FavoriteType, showDialog: boolean, targetIdx?: number) {
       let newValue: string = value;
       let newTitle: string = title;
 
       // check whether a favorite with handled value already exists
-      if (favorites.hasFavorite(value)) {
+      const index: number = favorites.indexOf(value);
+      if (index >= 0) {
 
         // if so... open editFavorite dialog
-        await COMMANDS.execute('favsEditFavorite', value);
+        await COMMANDS.execute('favsEditFavorite', index);
       } else {
 
         // otherwise create new favorite, with or without user interaction
@@ -89,7 +93,7 @@ joplin.plugins.register({
 
         if (newValue === '' || newTitle === '') return;
 
-        await favorites.add(newValue, newTitle, type, targetId);
+        await favorites.add(newValue, newTitle, type, targetIdx);
         await panel.updateWebview();
       }
     }
@@ -102,26 +106,26 @@ joplin.plugins.register({
     // Desc: Internal command to open a favorite
     await COMMANDS.register({
       name: 'favsOpenFavorite',
-      execute: async (value: string) => {
-        const favorite: any = await favorites.get(value);
+      execute: async (index: number) => {
+        const favorite: any = await favorites.get(index);
         if (!favorite) return;
 
         switch (favorite.type) {
           case FavoriteType.Folder:
-            if (await checkAndRemoveFavorite(favorite)) return;
-            COMMANDS.execute('openFolder', value);
+            if (await checkAndRemoveFavorite(favorite, index)) return;
+            COMMANDS.execute('openFolder', favorite.value);
             break;
 
           case FavoriteType.Note:
           case FavoriteType.Todo:
-            if (await checkAndRemoveFavorite(favorite)) return;
-            await checkAndUpdateType(favorite);
-            COMMANDS.execute('openNote', value);
+            if (await checkAndRemoveFavorite(favorite, index)) return;
+            await checkAndUpdateType(favorite, index);
+            COMMANDS.execute('openNote', favorite.value);
             break;
 
           case FavoriteType.Tag:
-            if (await checkAndRemoveFavorite(favorite)) return;
-            COMMANDS.execute('openTag', value);
+            if (await checkAndRemoveFavorite(favorite, index)) return;
+            COMMANDS.execute('openTag', favorite.value);
             break;
 
           case FavoriteType.Search:
@@ -150,17 +154,17 @@ joplin.plugins.register({
     // Desc: Internal command to edit a favorite
     await COMMANDS.register({
       name: 'favsEditFavorite',
-      execute: async (value: string) => {
-        const favorite: any = await favorites.get(value);
+      execute: async (index: number) => {
+        const favorite: any = await favorites.get(index);
         if (!favorite) return;
 
         // open dialog and handle result
         const result: any = await editDialog.open(favorite.value, favorite.title, favorite.type);
         if (result.id == "ok" && result.formData != null) {
-          await favorites.changeTitle(value, result.formData.inputForm.title);
-          await favorites.changeValue(value, result.formData.inputForm.value);
+          await favorites.changeTitle(index, result.formData.inputForm.title);
+          await favorites.changeValue(index, result.formData.inputForm.value);
         } else if (result.id == "delete") {
-          await favorites.delete(value);
+          await favorites.delete(index);
         } else {
           return;
         }
@@ -176,17 +180,17 @@ joplin.plugins.register({
       label: 'Favorites: Add notebook',
       iconName: 'fas fa-book',
       enabledCondition: 'oneFolderSelected',
-      execute: async (folderId: string, targetId?: string) => {
+      execute: async (folderId: string, targetIdx?: number) => {
         if (folderId) {
           const folder = await DATA.get(['folders', folderId], { fields: ['id', 'title'] });
           if (!folder) return;
 
-          await addFavorite(folder.id, folder.title, FavoriteType.Folder, settings.editBeforeAdd, targetId);
+          await addFavorite(folder.id, folder.title, FavoriteType.Folder, settings.editBeforeAdd, targetIdx);
         } else {
           const selectedFolder: any = await WORKSPACE.selectedFolder();
           if (!selectedFolder) return;
 
-          await addFavorite(selectedFolder.id, selectedFolder.title, FavoriteType.Folder, settings.editBeforeAdd, targetId);
+          await addFavorite(selectedFolder.id, selectedFolder.title, FavoriteType.Folder, settings.editBeforeAdd, targetIdx);
         }
       }
     });
@@ -198,7 +202,7 @@ joplin.plugins.register({
       label: 'Favorites: Add note',
       iconName: 'fas fa-sticky-note',
       enabledCondition: "someNotesSelected",
-      execute: async (noteIds: string[], targetId?: string) => {
+      execute: async (noteIds: string[], targetIdx?: number) => {
         if (noteIds) {
 
           // in case multiple notes are selected - add them directly without user interaction
@@ -210,13 +214,13 @@ joplin.plugins.register({
 
             // never show dialog for multiple notes
             const showDialog: boolean = (settings.editBeforeAdd && noteIds.length == 1);
-            await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note, showDialog, targetId);
+            await addFavorite(note.id, note.title, note.is_todo ? FavoriteType.Todo : FavoriteType.Note, showDialog, targetIdx);
           }
         } else {
           const selectedNote: any = await WORKSPACE.selectedNote();
           if (!selectedNote) return;
 
-          await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note, settings.editBeforeAdd, targetId);
+          await addFavorite(selectedNote.id, selectedNote.title, selectedNote.is_todo ? FavoriteType.Todo : FavoriteType.Note, settings.editBeforeAdd, targetIdx);
         }
       }
     });

@@ -22,27 +22,27 @@ export class Panel {
     await joplin.views.panels.addScript(this._panel, './webview.js');
     await joplin.views.panels.onMessage(this._panel, async (message: any) => {
       if (message.name === 'favsAddFolder') {
-        await joplin.commands.execute('favsAddFolder', message.id, message.targetId);
+        await joplin.commands.execute('favsAddFolder', message.id, message.targetIdx);
       }
       if (message.name === 'favsAddNote') {
-        await joplin.commands.execute('favsAddNote', message.id, message.targetId);
+        await joplin.commands.execute('favsAddNote', message.id, message.targetIdx);
       }
       if (message.name === 'favsEdit') {
-        await joplin.commands.execute('favsEditFavorite', message.id);
+        await joplin.commands.execute('favsEditFavorite', message.index);
       }
       if (message.name === 'favsOpen') {
-        await joplin.commands.execute('favsOpenFavorite', message.id);
+        await joplin.commands.execute('favsOpenFavorite', message.index);
       }
       if (message.name === 'favsRename') {
-        await this._favs.changeTitle(message.id, message.newTitle);
+        await this._favs.changeTitle(message.index, message.newTitle);
         await this.updateWebview();
       }
       if (message.name === 'favsDrag') {
-        await this._favs.moveWithValue(message.sourceId, message.targetId);
+        await this._favs.moveWithIndex(message.index, message.targetIdx);
         await this.updateWebview();
       }
       if (message.name === 'favsDelete') {
-        await this._favs.delete(message.id);
+        await this._favs.delete(message.index);
         await this.updateWebview();
       }
     });
@@ -78,6 +78,7 @@ export class Panel {
   // create HTML for each favorite
   private getFavoritesHtml(): string {
     const favsHtml: any = [];
+    let index: number = 0;
 
     for (const favorite of this._favs.all) {
       const fg = this._settings.foreground;
@@ -91,7 +92,7 @@ export class Panel {
       }
 
       favsHtml.push(`
-        <div id="favorite" data-id="${favorite.value}" data-bg="${bg}" draggable="${this._settings.enableDragAndDrop}"
+        <div id="favorite" data-id="${index++}" data-bg="${bg}" draggable="${this._settings.enableDragAndDrop}"
           onclick="clickFav(event)" oncontextmenu="openDialog(event)" onmouseover="setBackground(event,'${hoverBg}')" onmouseout="resetBackground(this)"
           ondragstart="dragStart(event)" ondragover="dragOver(event, '${hoverBg}')" ondragleave="dragLeave(event)" ondrop="drop(event)" ondragend="dragEnd(event)"
           style="height:${this._settings.lineHeight}px;min-width:${this._settings.minFavWidth}px;max-width:${this._settings.maxFavWidth}px;background:${bg};border-color:${dividerColor};">

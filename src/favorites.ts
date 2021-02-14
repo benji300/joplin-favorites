@@ -106,13 +106,9 @@ export class Favorites {
   /**
    * Gets the favorites with the handled value. Null if not exist.
    */
-  get(value: string): any {
-    if (value === undefined) return;
-
-    for (let i: number = 0; i < this.length; i++) {
-      if (this._store[i]['value'] === value) return this._store[i];
-    }
-    return null;
+  get(index: number): any {
+    if (this.indexOutOfBounds(index)) return;
+    return this._store[index];
   }
 
   /**
@@ -137,12 +133,12 @@ export class Favorites {
   /**
    * Adds note as new favorite at the handled index or at the end.
    */
-  async add(newValue: string, newTitle: string, newType: FavoriteType, targetId?: string) {
+  async add(newValue: string, newTitle: string, newType: FavoriteType, targetIdx?: number) {
     if (newValue === undefined || newTitle === undefined || newType === undefined) return;
 
     const newFavorite = { value: this.escapeHtml(newValue), title: this.escapeHtml(newTitle), type: newType };
-    if (targetId) {
-      await this.insertAtIndex(this.indexOf(targetId), newFavorite);
+    if (targetIdx) {
+      await this.insertAtIndex(targetIdx, newFavorite);
     } else {
       this._store.push(newFavorite);
     }
@@ -151,58 +147,49 @@ export class Favorites {
   /**
    * Changes the title of the handled favorite.
    */
-  async changeValue(value: string, newValue: string) {
-    if (!newValue) return;
-    const index: number = this.indexOf(value);
-    if (index < 0) return;
+  async changeValue(index: number, newValue: string) {
+    if (index < 0 || newValue === undefined || newValue === '') return;
     this._store[index].value = this.escapeHtml(newValue);
   }
 
   /**
    * Changes the title of the handled favorite.
    */
-  async changeTitle(value: string, newTitle: string) {
-    if (!newTitle) return;
-    const index: number = this.indexOf(value);
-    if (index < 0) return;
+  async changeTitle(index: number, newTitle: string) {
+    if (index < 0 || newTitle === undefined || newTitle === '') return;
     this._store[index].title = this.escapeHtml(newTitle);
   }
 
   /**
    * Changes the type of the handled favorite.
    */
-  async changeType(value: string, newType: FavoriteType) {
-    const index: number = this.indexOf(value);
-    if (index < 0) return;
-
+  async changeType(index: number, newType: FavoriteType) {
+    if (index < 0 || newType === undefined) return;
     this._store[index].type = newType;
   }
 
   /**
    * Moves the favorite from source index to the target index.
    */
-  async moveWithIndex(sourceIdx: number, targetIdx: number) {
+  async moveWithIndex(sourceIdx: number, targetIdx?: number) {
     if (this.indexOutOfBounds(sourceIdx)) return;
-    if (this.indexOutOfBounds(targetIdx)) return;
+    if (targetIdx && this.indexOutOfBounds(targetIdx)) return;
 
+    // undefined targetIdx => move to the end
+    let target: number = this.length - 1;
+    if (targetIdx) {
+      // else move at desired index
+      target = targetIdx;
+    }
     const favorite: any = this._store[sourceIdx];
     this._store.splice(sourceIdx, 1);
-    this._store.splice((targetIdx == 0 ? 0 : targetIdx), 0, favorite);
+    this._store.splice(target, 0, favorite);
   }
 
   /**
-   * Moves the source favorite to the index of the target favorite.
+   * Removes favorite with handled index.
    */
-  async moveWithValue(sourceValue: string, targetValue: string) {
-    const targetIdx: number = (targetValue) ? this.indexOf(targetValue) : (this.length - 1);
-    await this.moveWithIndex(this.indexOf(sourceValue), targetIdx);
-  }
-
-  /**
-   * Removes favorite with handled value.
-   */
-  async delete(value: string) {
-    const index = this.indexOf(value);
+  async delete(index: number) {
     if (index >= 0) {
       this._store.splice(index, 1);
     }

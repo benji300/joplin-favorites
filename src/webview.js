@@ -1,5 +1,5 @@
 let editStarted = false;
-let sourceId = '';
+let sourceIdx = '';
 
 function cancelDefault(event) {
   event.preventDefault();
@@ -18,24 +18,24 @@ function getDataId(currentTarget) {
 /* EVENT HANDLER */
 
 function openFav(currentTarget) {
-  const dataId = getDataId(currentTarget);
-  if (dataId) {
-    webviewApi.postMessage({ name: 'favsOpen', id: dataId });
+  const dataIdx = getDataId(currentTarget);
+  if (dataIdx) {
+    webviewApi.postMessage({ name: 'favsOpen', index: dataIdx });
   }
 }
 
 function deleteFav(currentTarget) {
-  const dataId = getDataId(currentTarget);
-  if (dataId) {
-    webviewApi.postMessage({ name: 'favsDelete', id: dataId });
+  const dataIdx = getDataId(currentTarget);
+  if (dataIdx) {
+    webviewApi.postMessage({ name: 'favsDelete', index: dataIdx });
   }
 }
 
 function openDialog(event) {
   if (!editStarted) {
-    const dataId = getDataId(event.currentTarget);
-    if (dataId) {
-      webviewApi.postMessage({ name: 'favsEdit', id: dataId });
+    const dataIdx = getDataId(event.currentTarget);
+    if (dataIdx) {
+      webviewApi.postMessage({ name: 'favsEdit', index: dataIdx });
     }
   }
 }
@@ -74,9 +74,9 @@ document.addEventListener('change', event => {
   const element = event.target;
   if (editStarted && element.className === 'title') {
     enableEdit(element, false);
-    const dataId = element.parentElement.parentElement.dataset.id;
-    if (dataId && element.value !== '') {
-      webviewApi.postMessage({ name: 'favsRename', id: dataId, newTitle: element.value });
+    const dataIdx = element.parentElement.parentElement.dataset.id;
+    if (dataIdx && element.value !== '') {
+      webviewApi.postMessage({ name: 'favsRename', index: dataIdx, newTitle: element.value });
     } else {
       element.value = element.title;
     }
@@ -123,23 +123,23 @@ function resetTabBackgrounds() {
 }
 
 function dragStart(event) {
-  const dataId = getDataId(event.currentTarget);
-  if (dataId) {
-    event.dataTransfer.setData('text/x-plugin-favorites-id', dataId);
-    sourceId = dataId;
+  const dataIdx = getDataId(event.currentTarget);
+  if (dataIdx) {
+    event.dataTransfer.setData('text/x-plugin-favorites-id', dataIdx);
+    sourceIdx = dataIdx;
   }
 }
 
 function dragEnd(event) {
   resetTabBackgrounds();
   cancelDefault(event);
-  sourceId = '';
+  sourceIdx = '';
 }
 
 function dragOver(event, hoverColor) {
   resetTabBackgrounds();
   cancelDefault(event);
-  if (sourceId !== getDataId(event.currentTarget)) {
+  if (sourceIdx !== getDataId(event.currentTarget)) {
     setBackground(event, hoverColor);
   }
 }
@@ -151,13 +151,13 @@ function dragLeave(event) {
 function drop(event) {
   resetTabBackgrounds();
   cancelDefault(event);
-  const dataTargetId = getDataId(event.currentTarget);
+  const dataTargetIdx = getDataId(event.currentTarget);
 
   // check whether plugin tab was dragged - trigger favsDrag message
-  const dataSourceId = event.dataTransfer.getData('text/x-plugin-favorites-id');
-  if (dataSourceId) {
-    if (dataTargetId !== sourceId) {
-      webviewApi.postMessage({ name: 'favsDrag', targetId: dataTargetId, sourceId: dataSourceId });
+  const dataSourceIdx = event.dataTransfer.getData('text/x-plugin-favorites-id');
+  if (dataSourceIdx) {
+    if (dataTargetIdx !== sourceIdx) {
+      webviewApi.postMessage({ name: 'favsDrag', index: dataSourceIdx, targetIdx: dataTargetIdx, });
       return;
     }
   }
@@ -167,7 +167,7 @@ function drop(event) {
   if (joplinFolderIds) {
     const folderIds = JSON.parse(joplinFolderIds);
     if (folderIds.length == 1) {
-      webviewApi.postMessage({ name: 'favsAddFolder', id: folderIds[0], targetId: dataTargetId });
+      webviewApi.postMessage({ name: 'favsAddFolder', id: folderIds[0], targetIdx: dataTargetIdx });
       return;
     }
   }
@@ -179,7 +179,7 @@ function drop(event) {
     for (const noteId of JSON.parse(joplinNoteIds)) {
       noteIds.push(noteId);
     }
-    webviewApi.postMessage({ name: 'favsAddNote', id: noteIds, targetId: dataTargetId });
+    webviewApi.postMessage({ name: 'favsAddNote', id: noteIds, targetIdx: dataTargetIdx });
     return;
   }
 
@@ -187,7 +187,7 @@ function drop(event) {
   const noteTabsId = event.dataTransfer.getData('text/x-plugin-note-tabs-id');
   if (noteTabsId) {
     const noteIds = new Array(noteTabsId);
-    webviewApi.postMessage({ name: 'favsAddNote', id: noteIds, targetId: dataTargetId });
+    webviewApi.postMessage({ name: 'favsAddNote', id: noteIds, targetIdx: dataTargetIdx });
     return;
   }
 }
