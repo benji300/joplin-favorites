@@ -65,9 +65,9 @@ export class Dialog {
         <h3><i class="fas ${FavoriteDesc[type].icon}"></i>${this._title} ${FavoriteDesc[type].name} Favorite</h3>
         <form name="inputForm">
           <label for="title"><strong>Name</strong></label>
-          <input type="text" id="title" name="title" value="${title}" autofocus required>
+          <input type="text" id="title" name="title" value="${title}" tabindex="0" autofocus required>
           <label for="value"><strong>${FavoriteDesc[type].label}</strong></label>
-          <textarea id="value" name="value" rows="3" ${disabled} required>${path}</textarea>
+          <textarea id="value" name="value" rows="3" ${disabled} tabindex="0" required>${path}</textarea>
         </form>
       </div>
     `;
