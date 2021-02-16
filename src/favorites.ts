@@ -98,7 +98,7 @@ export class Favorites {
    * Escapes HTML special characters.
    * From https://github.com/laurent22/joplin/tree/dev/packages/app-cli/tests/support/plugins/toc/src/index.ts
    */
-  private escapeHtml(unsafe: string): string {
+  private encodeHtml(unsafe: string): string {
     return unsafe
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
@@ -109,11 +109,33 @@ export class Favorites {
   }
 
   /**
+   * Decodes escaped HTML characters back.
+   */
+  private decodeHtml(unsafe: string): string {
+    return unsafe
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      .trim();
+  }
+
+  /**
    * Gets the favorites with the handled value. Null if not exist.
    */
   get(index: number): IFavorite {
     if (this.indexOutOfBounds(index)) return;
     return this._store[index];
+  }
+
+  /**
+   * Gets the HTML decoded value of the handled favorite.
+   * Workaround to copy search strings to clipboard.
+   */
+  getDecodedValue(favorite: IFavorite): string {
+    if (favorite === undefined) return;
+    return this.decodeHtml(favorite.value);
   }
 
   /**
@@ -141,7 +163,7 @@ export class Favorites {
   async add(newValue: string, newTitle: string, newType: FavoriteType, targetIdx?: number) {
     if (newValue === undefined || newTitle === undefined || newType === undefined) return;
 
-    const newFavorite = { value: this.escapeHtml(newValue), title: this.escapeHtml(newTitle), type: newType };
+    const newFavorite = { value: this.encodeHtml(newValue), title: this.encodeHtml(newTitle), type: newType };
     if (targetIdx) {
       await this.insertAtIndex(targetIdx, newFavorite);
     } else {
@@ -154,7 +176,7 @@ export class Favorites {
    */
   async changeValue(index: number, newValue: string) {
     if (index < 0 || newValue === undefined || newValue === '') return;
-    this._store[index].value = this.escapeHtml(newValue);
+    this._store[index].value = this.encodeHtml(newValue);
   }
 
   /**
@@ -162,7 +184,7 @@ export class Favorites {
    */
   async changeTitle(index: number, newTitle: string) {
     if (index < 0 || newTitle === undefined || newTitle === '') return;
-    this._store[index].title = this.escapeHtml(newTitle);
+    this._store[index].title = this.encodeHtml(newTitle);
   }
 
   /**

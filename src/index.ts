@@ -135,7 +135,7 @@ joplin.plugins.register({
             // currently there's no command to trigger a global search, so the following workaround is used
             // 1. copy saved search to clipboard
             const copy = require('../node_modules/copy-to-clipboard');
-            copy(favorite.value as string);
+            copy(favorites.getDecodedValue(favorite));
             // 2. focus global search bar via command
             await COMMANDS.execute('focusSearch');
             // 3. paste clipboard content to current cursor position (should be search bar now)
