@@ -26,6 +26,8 @@ span {
 }
 .fas {
   overflow: initial;
+  /* Regular does not support all required icons */
+  /* font-weight: 400; */
 }
 
 /* HORIZONTAL LAYOUT */
