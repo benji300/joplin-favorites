@@ -177,7 +177,7 @@ joplin.plugins.register({
     // Desc: Add selected folder to favorites
     await COMMANDS.register({
       name: 'favsAddFolder',
-      label: 'Favorites: Add notebook',
+      label: 'Add notebook to Favorites',
       iconName: 'fas fa-book',
       enabledCondition: 'oneFolderSelected',
       execute: async (folderId: string, targetIdx?: number) => {
@@ -199,7 +199,7 @@ joplin.plugins.register({
     // Desc: Add selected note to favorites
     await COMMANDS.register({
       name: 'favsAddNote',
-      label: 'Favorites: Add note',
+      label: 'Add note to Favorites',
       iconName: 'fas fa-sticky-note',
       enabledCondition: "someNotesSelected",
       execute: async (noteIds: string[], targetIdx?: number) => {
@@ -229,7 +229,7 @@ joplin.plugins.register({
     // Desc: Add tag to favorites
     await COMMANDS.register({
       name: 'favsAddTag',
-      label: 'Favorites: Add tag',
+      label: 'Add tag to Favorites',
       iconName: 'fas fa-tag',
       execute: async (tagId: string) => {
         if (tagId) {
@@ -245,7 +245,7 @@ joplin.plugins.register({
     // Desc: Add entered search query to favorites
     await COMMANDS.register({
       name: 'favsAddSearch',
-      label: 'Favorites: Add Search',
+      label: 'Add new search to Favorites',
       iconName: 'fas fa-search',
       execute: async () => {
         await addFavorite('', 'New Search', FavoriteType.Search, true); // always add with dialog
@@ -256,11 +256,11 @@ joplin.plugins.register({
     // Desc: Remove all favorites
     await COMMANDS.register({
       name: 'favsClear',
-      label: 'Favorites: Remove all favorites',
+      label: 'Remove all Favorites',
       iconName: 'fas fa-times',
       execute: async () => {
         // ask user before removing favorites
-        const result: number = await Dialog.showMessage(`Remove all favorites?`);
+        const result: number = await Dialog.showMessage('Do you really want to remove all Favorites?');
         if (result) return;
 
         await favorites.clearAll();
@@ -272,7 +272,7 @@ joplin.plugins.register({
     // Desc: Toggle panel visibility
     await COMMANDS.register({
       name: 'favsToggleVisibility',
-      label: 'Favorites: Toggle visibility',
+      label: 'Toggle Favorites panel visibility',
       iconName: 'fas fa-eye-slash',
       execute: async () => {
         await panel.toggleVisibility();
@@ -282,27 +282,27 @@ joplin.plugins.register({
     // prepare commands menu
     const commandsSubMenu: MenuItem[] = [
       {
-        commandName: "favsAddFolder",
-        label: 'Add selected notebook'
+        commandName: 'favsAddFolder',
+        label: 'Add active notebook'
       },
       {
-        commandName: "favsAddNote",
-        label: 'Add selected note'
+        commandName: 'favsAddNote',
+        label: 'Add selected note(s)'
       },
       {
-        commandName: "favsAddSearch",
-        label: 'Add search'
+        commandName: 'favsAddSearch',
+        label: 'Add new search'
       },
       // {
       //   commandName: "favsAddActiveSearch",
       //   label: 'Add current active search'
       // },
       {
-        commandName: "favsClear",
-        label: 'Remove all favorites'
+        commandName: 'favsClear',
+        label: 'Remove all Favorites'
       },
       {
-        commandName: "favsToggleVisibility",
+        commandName: 'favsToggleVisibility',
         label: 'Toggle panel visibility'
       }
     ];

@@ -127,14 +127,14 @@ By default the panel will be on the right side of the screen, this can be adjust
 
 - Remove favorite by clicking the delete icon on the right side in the vertical layout
 
-- Remove all favorites at once via the `Favorites: Remove all favorites` command
+- Remove all favorites at once via the `Remove all Favorites` command
 
 ### Open saved search
 
 Currently favorites for searches are not fully supported. Due to restrictions of the App it is not possible to open the global search with a handled search query.
 To open a saved search follow this workaround:
 
-- Save your search via the `Favorites: Add search` command
+- Save your search via the `Add search to Favorites` command
 - You can enter a name and the search query in the dialog
 - Click on the search favorite to copy its query to the clipboard
 - This will also set the focus to the global search bar
@@ -144,14 +144,14 @@ To open a saved search follow this workaround:
 
 This plugin provides additional commands as described in the following table.
 
-| Command Label                   | Command ID             | Description                            | Menu contexts                                                            |
-| ------------------------------- | ---------------------- | -------------------------------------- | ------------------------------------------------------------------------ |
-| Favorites: Add notebook         | `favsAddFolder`        | Add favorite for selected notebook     | `Tools>Favorites`, `FolderContext`, `Command palette`                    |
-| Favorites: Add note             | `favsAddNote`          | Add favorite for selected note(s)      | `Tools>Favorites`, `NoteListContext`, `EditorContext`, `Command palette` |
-| Favorites: Add tag              | `favsAddTag`           | Add favorite for selected tag          | `TagContext`                                                             |
-| Favorites: Add search           | `favsAddSearch`        | Add favorite with entered search query | `Tools>Favorites`, `Command palette`                                     |
-| Favorites: Remove all favorites | `favsClear`            | Remove all favorites                   | `Tools>Favorites`, `Command palette`                                     |
-| Favorites: Toggle visibility    | `favsToggleVisibility` | Toggle panel visibility                | `Tools>Favorites`, `Command palette`                                     |
+| Command Label                     | Command ID             | Description                            | Menu contexts                                                            |
+| --------------------------------- | ---------------------- | -------------------------------------- | ------------------------------------------------------------------------ |
+| Add notebook to Favorites         | `favsAddFolder`        | Add favorite for selected notebook     | `Tools>Favorites`, `FolderContext`, `Command palette`                    |
+| Add note to Favorites             | `favsAddNote`          | Add favorite for selected note(s)      | `Tools>Favorites`, `NoteListContext`, `EditorContext`, `Command palette` |
+| Add tag to Favorites              | `favsAddTag`           | Add favorite for selected tag          | `TagContext`                                                             |
+| Add search to Favorites           | `favsAddSearch`        | Add favorite with entered search query | `Tools>Favorites`, `Command palette`                                     |
+| Remove all Favorites              | `favsClear`            | Remove all favorites                   | `Tools>Favorites`, `Command palette`                                     |
+| Toggle Favorites panel visibility | `favsToggleVisibility` | Toggle panel visibility                | `Tools>Favorites`, `Command palette`                                     |
 
 ### Keyboard shortcuts
 
