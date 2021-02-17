@@ -1,6 +1,6 @@
 # Joplin Favorites
 
-Joplin Favorites is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
+Favorites is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
 
 It allows to save any notebook, note, to-do, tag, or search as favorite in an extra panel view for quick access.
 
@@ -35,7 +35,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
   - Search
     - Not fully supported right now - see [here](#open-saved-search) for details
 - Set and edit user defined names for the favorites
-- Right-click on favorites to edit or remove
+- Right-click on favorites to open edit dialog
 - Change position of favorites within the panel via drag & drop
 - Drag notebooks and notes from sidebar or note list directly to favorites
 - Configurable style attributes
@@ -48,7 +48,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 
 ![favorites-top-horizontal](./assets/favorites-top-horizontal.png)
 
-### Favorites in sidebar (vertical layout)
+#### Favorites in sidebar (vertical layout)
 
 ![favorites-sidebar-vertical](./assets/favorites-sidebar-vertical.png)
 
@@ -65,7 +65,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 
 ### Manual
 
-- Download the latest released JPL package (`joplin.plugin.benji.favorites.jpl`) from [here](https://github.com/benji300/joplin-favorites/releases)
+- Download the latest released JPL package (`*.jpl`) from [here](https://github.com/benji300/joplin-favorites/releases)
 - Open Joplin and navigate to `Tools > Options > Plugins`
 - Press `Install plugin` and select the previously downloaded `jpl` file
 - Confirm selection
@@ -74,8 +74,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
 
 ### Uninstall
 
-- Open Joplin
-- Navigate to `Tools > Options > Plugins`
+- Open Joplin and navigate to `Tools > Options > Plugins`
 - Search for the `Favorites` plugin
 - Press `Delete` to remove the plugin completely
   - Alternatively you can also disable the plugin by clicking on the toggle button
@@ -90,47 +89,52 @@ By default the panel will be on the right side of the screen, this can be adjust
 - `View > Change application layout`
 - Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
 - Move the splitter to reach the desired height/width of the panel
+  - As soon as the width of the panel goes below `400px`, it automatically switches from horizontal to vertical layout
 - Press `ESC` to save the layout and return to normal mode
 
 ### Add favorite
 
 - To add a new favorite to the panel, you have to trigger the corresponding [command](#commands)
-  - In the table you can see also from which menu context the commands can be triggered
-- Notebooks, notes and to-dos can also be added via drag & drop the selected entries onto the `FAVORITES` title of the panel
-  - To enable this feature, the option `Show favorites panel title` must be enabled
 
-The `Edit favorite before add` option lets you choose whether or not to edit the name before adding a new favorite.
+  - In the table you can see from which menu context the commands can be triggered
 
-- This is not supported when adding multiple selected notes
-- For searches the dialog is always opened to enter the search query
+- Selected notebooks, notes or to-dos can also be added via drag & drop into the panel
 
-![add-dialog](./assets/add-dialog.png)
+  - This will add new favorites at the dropped position
+
+- The `Edit favorite before add` option lets you choose whether or not to edit the name before adding a new favorite
+
+  - This is not supported when adding multiple selected notes
+  - For searches the dialog is always opened to enter the search query
+
+  ![add-dialog](./assets/add-dialog.png)
 
 ### Edit favorite
 
 - Right click on one of the favorites to open the edit dialog
 
-In the edit dialog you can change the name of any favorite.
+  ![edit-dialog](./assets/edit-dialog.png)
 
-![edit-dialog](./assets/edit-dialog.png)
+- For searches, you can also edit the search query in the dialog
 
-For searches, you can also edit the search query.
+  ![edit-search-dialog](./assets/edit-search-dialog.png)
 
-![edit-search-dialog](./assets/edit-search-dialog.png)
+- Rename favorite by clicking the rename icon on the right side in the vertical layout
 
 ### Remove favorite
 
-- Right click on one of the favorites to open the edit dialog (see screenshots above)
-- Press `Delete` to remove the favorite
+- Right click on a favorite to open the edit dialog (see screenshots above) and press `Delete` to remove it
 
-Alternatively you can remove all favorites at once via the `Favorites: Remove all favorites` command.
+- Remove favorite by clicking the delete icon on the right side in the vertical layout
+
+- Remove all favorites at once via the `Remove all Favorites` command
 
 ### Open saved search
 
 Currently favorites for searches are not fully supported. Due to restrictions of the App it is not possible to open the global search with a handled search query.
 To open a saved search follow this workaround:
 
-- Save your search via the `Favorites: Add search` command
+- Save your search via the `Add search to Favorites` command
 - You can enter a name and the search query in the dialog
 - Click on the search favorite to copy its query to the clipboard
 - This will also set the focus to the global search bar
@@ -140,14 +144,14 @@ To open a saved search follow this workaround:
 
 This plugin provides additional commands as described in the following table.
 
-| Command Label                   | Command ID             | Description                            | Menu contexts                                                            |
-| ------------------------------- | ---------------------- | -------------------------------------- | ------------------------------------------------------------------------ |
-| Favorites: Add notebook         | `favsAddFolder`        | Add favorite for selected notebook     | `Tools>Favorites`, `FolderContext`, `Command palette`                    |
-| Favorites: Add note             | `favsAddNote`          | Add favorite for selected note(s)      | `Tools>Favorites`, `NoteListContext`, `EditorContext`, `Command palette` |
-| Favorites: Add tag              | `favsAddTag`           | Add favorite for selected tag          | `TagContext`                                                             |
-| Favorites: Add search           | `favsAddSearch`        | Add favorite with entered search query | `Tools>Favorites`, `Command palette`                                     |
-| Favorites: Remove all favorites | `favsClear`            | Remove all favorites                   | `Tools>Favorites`, `Command palette`                                     |
-| Favorites: Toggle visibility    | `favsToggleVisibility` | Toggle panel visibility                | `Tools>Favorites`, `Command palette`                                     |
+| Command Label                     | Command ID             | Description                            | Menu contexts                                                            |
+| --------------------------------- | ---------------------- | -------------------------------------- | ------------------------------------------------------------------------ |
+| Add notebook to Favorites         | `favsAddFolder`        | Add favorite for selected notebook     | `Tools>Favorites`, `FolderContext`, `Command palette`                    |
+| Add note to Favorites             | `favsAddNote`          | Add favorite for selected note(s)      | `Tools>Favorites`, `NoteListContext`, `EditorContext`, `Command palette` |
+| Add tag to Favorites              | `favsAddTag`           | Add favorite for selected tag          | `TagContext`                                                             |
+| Add search to Favorites           | `favsAddSearch`        | Add favorite with entered search query | `Tools>Favorites`, `Command palette`                                     |
+| Remove all Favorites              | `favsClear`            | Remove all favorites                   | `Tools>Favorites`, `Command palette`                                     |
+| Toggle Favorites panel visibility | `favsToggleVisibility` | Toggle panel visibility                | `Tools>Favorites`, `Command palette`                                     |
 
 ### Keyboard shortcuts
 
@@ -173,9 +177,9 @@ This plugin adds provides user options which can be changed via `Tools > Options
 
 ## Support
 
-You like this plugin as much as I do and it helps you in your daily work with Joplin?
+You like this plugin as much as I do and it improves your daily work with Joplin?
 
-Then I would be very happy if you would buy me a beer via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink::beer:
+Then I would be very happy if you buy me a beer via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink::beer:
 
 ## Development
 
