@@ -10,22 +10,26 @@ function cancelDefault(event) {
 function getDataId(currentTarget) {
   if (currentTarget && currentTarget.id === 'favorite') {
     return currentTarget.dataset.id;
-  } else {
-    return;
+  }
+}
+
+function getDataIdx(currentTarget) {
+  if (currentTarget && currentTarget.id === 'favorite') {
+    return currentTarget.dataset.idx;
   }
 }
 
 /* EVENT HANDLER */
 
 function openFav(currentTarget) {
-  const dataIdx = getDataId(currentTarget);
+  const dataIdx = getDataIdx(currentTarget);
   if (dataIdx) {
     webviewApi.postMessage({ name: 'favsOpen', index: dataIdx });
   }
 }
 
 function deleteFav(currentTarget) {
-  const dataIdx = getDataId(currentTarget);
+  const dataIdx = getDataIdx(currentTarget);
   if (dataIdx) {
     webviewApi.postMessage({ name: 'favsDelete', index: dataIdx });
   }
@@ -33,7 +37,7 @@ function deleteFav(currentTarget) {
 
 function openDialog(event) {
   if (!editStarted) {
-    const dataIdx = getDataId(event.currentTarget);
+    const dataIdx = getDataIdx(event.currentTarget);
     if (dataIdx) {
       webviewApi.postMessage({ name: 'favsEdit', index: dataIdx });
     }
@@ -74,7 +78,7 @@ document.addEventListener('change', event => {
   const element = event.target;
   if (editStarted && element.className === 'title') {
     enableEdit(element, false);
-    const dataIdx = element.parentElement.parentElement.dataset.id;
+    const dataIdx = element.parentElement.parentElement.dataset.idx;
     if (dataIdx && element.value !== '') {
       webviewApi.postMessage({ name: 'favsRename', index: dataIdx, newTitle: element.value });
     } else {
@@ -123,10 +127,15 @@ function resetTabBackgrounds() {
 }
 
 function dragStart(event) {
-  const dataIdx = getDataId(event.currentTarget);
+  const dataIdx = getDataIdx(event.currentTarget);
   if (dataIdx) {
-    event.dataTransfer.setData('text/x-plugin-favorites-id', dataIdx);
+    event.dataTransfer.setData('text/x-plugin-favorites-idx', dataIdx);
     sourceIdx = dataIdx;
+  }
+  // prepare note ID for drag&drop to other panels
+  const dataId = getDataId(event.currentTarget);
+  if (dataId) {
+    event.dataTransfer.setData('text/x-plugin-favorites-id', dataId);
   }
 }
 
@@ -139,7 +148,7 @@ function dragEnd(event) {
 function dragOver(event, hoverColor) {
   resetTabBackgrounds();
   cancelDefault(event);
-  if (sourceIdx !== getDataId(event.currentTarget)) {
+  if (sourceIdx !== getDataIdx(event.currentTarget)) {
     setBackground(event, hoverColor);
   }
 }
@@ -151,10 +160,10 @@ function dragLeave(event) {
 function drop(event) {
   resetTabBackgrounds();
   cancelDefault(event);
-  const dataTargetIdx = getDataId(event.currentTarget);
+  const dataTargetIdx = getDataIdx(event.currentTarget);
 
   // check whether plugin tab was dragged - trigger favsDrag message
-  const dataSourceIdx = event.dataTransfer.getData('text/x-plugin-favorites-id');
+  const dataSourceIdx = event.dataTransfer.getData('text/x-plugin-favorites-idx');
   if (dataSourceIdx) {
     if (dataTargetIdx !== sourceIdx) {
       webviewApi.postMessage({ name: 'favsDrag', index: dataSourceIdx, targetIdx: dataTargetIdx, });

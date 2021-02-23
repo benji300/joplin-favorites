@@ -1,5 +1,5 @@
 import joplin from 'api';
-import { FavoriteDesc, Favorites, FavoriteType } from './favorites';
+import { Favorites } from './favorites';
 import { Settings } from './settings';
 
 export class Panel {
@@ -87,11 +87,16 @@ export class Panel {
 
       let typeIconHtml: string = '';
       if (this._settings.showTypeIcons) {
-        typeIconHtml = `<span class="fas ${FavoriteDesc[favorite.type].icon}" title="${FavoriteDesc[favorite.type].name}" style="color:${fg};"></span>`;
+        typeIconHtml = `<span class="fas ${Favorites.getDesc(favorite).icon}" title="${Favorites.getDesc(favorite).name}" style="color:${fg};"></span>`;
+      }
+
+      let dataId: string = '';
+      if (Favorites.isNote(favorite) || Favorites.isTodo(favorite)) {
+        dataId = `data-id="${favorite.value}"`;
       }
 
       favsHtml.push(`
-        <div id="favorite" data-id="${index++}" data-bg="${bg}" draggable="${this._settings.enableDragAndDrop}"
+        <div id="favorite" data-idx="${index++}" ${dataId} data-bg="${bg}" draggable="${this._settings.enableDragAndDrop}"
           onclick="clickFav(event)" oncontextmenu="openDialog(event)" onmouseover="setBackground(event,'${hoverBg}')" onmouseout="resetBackground(this)"
           ondragstart="dragStart(event)" ondragover="dragOver(event, '${hoverBg}')" ondragleave="dragLeave(event)" ondrop="drop(event)" ondragend="dragEnd(event)"
           style="height:${this._settings.lineHeight}px;min-width:${this._settings.minFavWidth}px;max-width:${this._settings.maxFavWidth}px;background:${bg};border-color:${dividerColor};">

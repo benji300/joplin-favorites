@@ -27,10 +27,10 @@ export interface IFavorite {
  * Definition of the favorite descriptions.
  */
 interface IFavoriteDesc {
-  name: string,
-  icon: string,
-  dataType: string,
-  label: string
+  readonly name: string,
+  readonly icon: string,
+  readonly dataType: string,
+  readonly label: string
 }
 
 /**
@@ -119,6 +119,25 @@ export class Favorites {
       .replace(/&quot;/g, '"')
       .replace(/&#039;/g, "'")
       .trim();
+  }
+
+  static isNote(favorite: IFavorite): boolean {
+    if (favorite) {
+      return (favorite.type === FavoriteType.Note);
+    }
+    return false;
+  }
+
+  static isTodo(favorite: IFavorite): boolean {
+    if (favorite) {
+      return (favorite.type === FavoriteType.Todo);
+    }
+    return false;
+  }
+
+  static getDesc(favorite: IFavorite): IFavoriteDesc {
+    if (favorite === undefined) return;
+    return FavoriteDesc[favorite.type];
   }
 
   /**

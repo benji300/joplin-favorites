@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Issue that caused infinite message loop between plugin and app ([#7](https://github.com/benji300/joplin-note-tabs/issues/7))
+- Ability to drag note favorites onto [note-tabs plugin](https://github.com/benji300/joplin-note-tabs) panel
 
 ## [1.2.0] - 2021-02-17
 

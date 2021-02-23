@@ -1,7 +1,7 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
-import { FavoriteType, IFavorite, FavoriteDesc, Favorites } from './favorites';
+import { FavoriteType, IFavorite, Favorites } from './favorites';
 import { Settings } from './settings';
 import { Panel } from './panel';
 import { Dialog } from './dialog';
@@ -37,9 +37,9 @@ joplin.plugins.register({
      */
     async function checkAndRemoveFavorite(favorite: IFavorite, index: number): Promise<boolean> {
       try {
-        await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id'] });
+        await DATA.get([Favorites.getDesc(favorite).dataType, favorite.value], { fields: ['id'] });
       } catch (err) {
-        const result: number = await Dialog.showMessage(`Cannot open favorite. Seems that the target ${FavoriteDesc[favorite.type].name.toLocaleLowerCase()} was deleted.\n\nDo you want to delete the favorite also?`);
+        const result: number = await Dialog.showMessage(`Cannot open favorite. Seems that the target ${Favorites.getDesc(favorite).name.toLocaleLowerCase()} was deleted.\n\nDo you want to delete the favorite also?`);
         if (!result) {
           await favorites.delete(index);
           await panel.updateWebview();
@@ -54,9 +54,9 @@ joplin.plugins.register({
      */
     async function checkAndUpdateType(favorite: IFavorite, index: number) {
       let newType: FavoriteType;
-      const note: any = await DATA.get([FavoriteDesc[favorite.type].dataType, favorite.value], { fields: ['id', 'is_todo'] });
-      if (favorite.type === FavoriteType.Note && note.is_todo) newType = FavoriteType.Todo;
-      if (favorite.type === FavoriteType.Todo && (!note.is_todo)) newType = FavoriteType.Note;
+      const note: any = await DATA.get([Favorites.getDesc(favorite).dataType, favorite.value], { fields: ['id', 'is_todo'] });
+      if (Favorites.isNote(favorite) && note.is_todo) newType = FavoriteType.Todo;
+      if (Favorites.isTodo(favorite) && (!note.is_todo)) newType = FavoriteType.Note;
       if (newType) {
         await favorites.changeType(index, newType);
         await panel.updateWebview();
