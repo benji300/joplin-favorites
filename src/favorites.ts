@@ -50,7 +50,6 @@ export const FavoriteDesc: IFavoriteDesc[] = [
  * - Then work on this._tabs array.
  */
 export class Favorites {
-
   private _settings: Settings;
 
   /**

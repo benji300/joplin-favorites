@@ -3,7 +3,6 @@ import { Favorites } from './favorites';
 import { Settings } from './settings';
 
 export class Panel {
-
   private _panel: any;
   private _favs: Favorites;
   private _settings: Settings;
