@@ -21,7 +21,7 @@ enum SettingDefaults {
  */
 export class Settings {
   // private settings
-  private _store: any[] = new Array();
+  private _favs: any[] = new Array();
   // general settings
   private _enableDragAndDrop: boolean = true;
   private _editBeforeAdd: boolean = true;
@@ -46,7 +46,7 @@ export class Settings {
   //#region GETTER
 
   get favorites(): any[] {
-    return this._store;
+    return this._favs;
   }
 
   get enableDragAndDrop(): boolean {
@@ -125,7 +125,7 @@ export class Settings {
       public: false,
       label: 'Favorites'
     });
-    this._store = await joplin.settings.value('favorites');
+    this._favs = await joplin.settings.value('favorites');
 
     // general settings
     await joplin.settings.registerSetting('enableDragAndDrop', {
@@ -279,9 +279,17 @@ export class Settings {
   }
 
   /**
-   * Store the handled favorites array back to the settings.
+   * Store the favorites array back to the settings.
    */
-  async storeFavorites(favorites: any[]) {
-    await joplin.settings.setValue('favorites', favorites);
+  async storeFavorites() {
+    await joplin.settings.setValue('favorites', this._favs);
+  }
+
+  /**
+   * Clear the settings favorites array.
+   */
+  async clearFavorites() {
+    this._favs = [];
+    await this.storeFavorites();
   }
 }

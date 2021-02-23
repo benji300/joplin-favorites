@@ -3,6 +3,7 @@ import { FavoriteDesc, Favorites, FavoriteType } from './favorites';
 import { Settings } from './settings';
 
 export class Panel {
+
   private _panel: any;
   private _favs: Favorites;
   private _settings: Settings;
@@ -55,8 +56,6 @@ export class Panel {
         </div>
       </div>
     `);
-
-    await this.updateWebview();
   }
 
   private getPanelTitleHtml(): string {
@@ -80,7 +79,7 @@ export class Panel {
     const favsHtml: any = [];
     let index: number = 0;
 
-    for (const favorite of this._favs.all) {
+    for (const favorite of this._favs.favorites) {
       const fg = this._settings.foreground;
       const bg = this._settings.background;
       const hoverBg = this._settings.hoverBackground;
@@ -126,11 +125,6 @@ export class Panel {
         </div>
       </div>
     `);
-
-    // store the current favorites array back to the settings
-    // - Currently there's no "event" to call store() only on App closing
-    // - Which would be preferred
-    await this._settings.storeFavorites(this._favs.all);
   }
 
   /**

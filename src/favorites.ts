@@ -1,3 +1,5 @@
+import { Settings } from "./settings";
+
 /**
  * Favorite type definitions.
  */
@@ -48,43 +50,41 @@ export const FavoriteDesc: IFavoriteDesc[] = [
  * - Then work on this._tabs array.
  */
 export class Favorites {
-  /**
-   * Temporary array to work with favorites.
-   */
-  private _store: IFavorite[];
+
+  private _settings: Settings;
 
   /**
-   * Init with stored values from settings array.
+   * Initialization of Favorites.
    */
-  constructor(settingsArray: IFavorite[]) {
-    this._store = settingsArray;
+  constructor(settings: Settings) {
+    this._settings = settings;
   }
 
-  //#region  GETTER
+  //#region GETTER
 
   /**
-   * All entries.
+   * All favorites.
    */
-  get all(): IFavorite[] {
-    return this._store;
+  get favorites(): IFavorite[] {
+    return this._settings.favorites;
   }
 
   /**
-   * Number of entries.
+   * Number of favorites.
    */
   get length(): number {
-    return this._store.length;
+    return this.favorites.length;
   }
 
   //#endregion
 
   /**
-   * Inserts handled favorite at specified index.
+   * Write tabs array back to settings.
+   * 
+   * TODO: Would be better in an "onClose()" event of the plugin. Then they would only be stored once.
    */
-  private async insertAtIndex(index: number, favorite: IFavorite) {
-    if (index < 0 || favorite === undefined) return;
-
-    this._store.splice(index, 0, favorite);
+  private async store() {
+    await this._settings.storeFavorites();
   }
 
   /**
@@ -126,7 +126,7 @@ export class Favorites {
    */
   get(index: number): IFavorite {
     if (this.indexOutOfBounds(index)) return;
-    return this._store[index];
+    return this.favorites[index];
   }
 
   /**
@@ -144,7 +144,7 @@ export class Favorites {
   indexOf(value: string): number {
     if (value) {
       for (let i: number = 0; i < this.length; i++) {
-        if (this._store[i]['value'] === value) return i;
+        if (this.favorites[i]['value'] === value) return i;
       }
     }
     return -1;
@@ -164,11 +164,12 @@ export class Favorites {
     if (newValue === undefined || newTitle === undefined || newType === undefined) return;
 
     const newFavorite = { value: this.encodeHtml(newValue), title: this.encodeHtml(newTitle), type: newType };
-    if (targetIdx) {
-      await this.insertAtIndex(targetIdx, newFavorite);
+    if (targetIdx && targetIdx > 0) {
+      this.favorites.splice(targetIdx, 0, newFavorite);
     } else {
-      this._store.push(newFavorite);
+      this.favorites.push(newFavorite);
     }
+    await this.store();
   }
 
   /**
@@ -176,7 +177,9 @@ export class Favorites {
    */
   async changeValue(index: number, newValue: string) {
     if (index < 0 || newValue === undefined || newValue === '') return;
-    this._store[index].value = this.encodeHtml(newValue);
+
+    this.favorites[index].value = this.encodeHtml(newValue);
+    await this.store();
   }
 
   /**
@@ -184,7 +187,9 @@ export class Favorites {
    */
   async changeTitle(index: number, newTitle: string) {
     if (index < 0 || newTitle === undefined || newTitle === '') return;
-    this._store[index].title = this.encodeHtml(newTitle);
+
+    this.favorites[index].title = this.encodeHtml(newTitle);
+    await this.store();
   }
 
   /**
@@ -192,7 +197,9 @@ export class Favorites {
    */
   async changeType(index: number, newType: FavoriteType) {
     if (index < 0 || newType === undefined) return;
-    this._store[index].type = newType;
+
+    this.favorites[index].type = newType;
+    await this.store();
   }
 
   /**
@@ -208,9 +215,10 @@ export class Favorites {
       // else move at desired index
       target = targetIdx;
     }
-    const favorite: IFavorite = this._store[sourceIdx];
-    this._store.splice(sourceIdx, 1);
-    this._store.splice(target, 0, favorite);
+    const favorite: IFavorite = this.favorites[sourceIdx];
+    this.favorites.splice(sourceIdx, 1);
+    this.favorites.splice(target, 0, favorite);
+    await this.store();
   }
 
   /**
@@ -218,14 +226,8 @@ export class Favorites {
    */
   async delete(index: number) {
     if (index >= 0) {
-      this._store.splice(index, 1);
+      this.favorites.splice(index, 1);
+      await this.store();
     }
-  }
-
-  /**
-   * Clears the stored array.
-   */
-  async clearAll() {
-    this._store = [];
   }
 }

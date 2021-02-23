@@ -16,7 +16,7 @@ joplin.plugins.register({
     const settings: Settings = new Settings();
     await settings.register();
     // favorites
-    const favorites = new Favorites(settings.favorites);
+    const favorites = new Favorites(settings);
     // panel
     const panel = new Panel(favorites, settings);
     await panel.register();
@@ -263,7 +263,7 @@ joplin.plugins.register({
         const result: number = await Dialog.showMessage('Do you really want to remove all Favorites?');
         if (result) return;
 
-        await favorites.clearAll();
+        await settings.clearFavorites();
         await panel.updateWebview();
       }
     });
@@ -324,12 +324,15 @@ joplin.plugins.register({
 
     //#region EVENTS
 
+    // let onChangeCnt = 0;
     SETTINGS.onChange(async (event: ChangeEvent) => {
+      // console.debug(`onChange() hits: ${onChangeCnt++}`);
       await settings.read(event);
       await panel.updateWebview();
     });
 
     //#endregion
 
+    await panel.updateWebview();
   }
 });
