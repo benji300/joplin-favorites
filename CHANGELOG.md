@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Drag & drop behavior to add notebooks, notes or to-dos
   - Move them onto the panel to add new favorite at the dropped position
 - Scroll horizontally without holding `Shift` key
-- plugin command labels (Removed `Favs:` prefix)
+- Plugin command labels (Removed `Favs:` prefix)
 
 ### Fixed
 

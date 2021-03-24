@@ -45,9 +45,9 @@ export const FavoriteDesc: IFavoriteDesc[] = [
 ];
 
 /**
- * Helper class to work with favorites array.
+ * Helper class to work with favorites.
  * - Read settings array once at startup.
- * - Then work on this._tabs array.
+ * - Then work on this.favorites array.
  */
 export class Favorites {
   private _settings: Settings;

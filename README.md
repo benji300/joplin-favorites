@@ -17,7 +17,7 @@ It allows to save any notebook, note, to-do, tag, or search as favorite in an ex
   - [Edit favorite](#edit-favorite)
   - [Remove favorite](#remove-favorite)
   - [Open saved search](#open-saved-search)
-- [Commands](#Commands)
+- [Commands](#commands)
   - [Keyboard shortcuts](#keyboard-shortcuts)
 - [User options](#user-options)
 - [Feedback](#feedback)
