@@ -78,7 +78,6 @@ export class Dialog {
    */
   async register(buttons?: ButtonSpec[]) {
     this._dialog = await joplin.views.dialogs.create('dialog' + this._title);
-    await joplin.views.dialogs.addScript(this._dialog, './assets/fontawesome/css/all.min.css');
     await joplin.views.dialogs.addScript(this._dialog, './webview_dialog.css');
     if (buttons) {
       await joplin.views.dialogs.setButtons(this._dialog, buttons);
