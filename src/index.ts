@@ -82,7 +82,7 @@ joplin.plugins.register({
         if (showDialog) {
 
           // open dialog and handle result
-          const result: any = await addDialog.open(value, newTitle, type);
+          const result: any = await addDialog.open(favorites.create(newValue, newTitle, type));
           if (result.id == 'ok' && result.formData != null) {
             newTitle = result.formData.inputForm.title;
             if (result.formData.inputForm.value)
@@ -159,7 +159,7 @@ joplin.plugins.register({
         if (!favorite) return;
 
         // open dialog and handle result
-        const result: any = await editDialog.open(favorite.value, favorite.title, favorite.type);
+        const result: any = await editDialog.open(favorite);
         if (result.id == "ok" && result.formData != null) {
           await favorites.changeTitle(index, result.formData.inputForm.title);
           await favorites.changeValue(index, result.formData.inputForm.value);
@@ -272,7 +272,7 @@ joplin.plugins.register({
     // Desc: Toggle panel visibility
     await COMMANDS.register({
       name: 'favsToggleVisibility',
-      label: 'Toggle Favorites panel visibility',
+      label: 'Toggle Favorites visibility',
       iconName: 'fas fa-eye-slash',
       execute: async () => {
         await panel.toggleVisibility();

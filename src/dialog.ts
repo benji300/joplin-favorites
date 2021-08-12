@@ -1,6 +1,6 @@
 import joplin from 'api';
 import { ButtonSpec, DialogResult } from 'api/types';
-import { FavoriteType, FavoriteDesc } from './favorites';
+import { Favorites, IFavorite, FavoriteType } from './favorites';
 
 export class Dialog {
   private _dialog: any;
@@ -18,12 +18,12 @@ export class Dialog {
   /**
    * Gets the full path, tag name or search query for the favorite.
    */
-  private async getFullPath(value: string, type: FavoriteType): Promise<string> {
-    switch (type) {
+  private async getFullPath(favorite: IFavorite): Promise<string> {
+    switch (favorite.type) {
       case FavoriteType.Folder:
       case FavoriteType.Note:
       case FavoriteType.Todo:
-        const item = await joplin.data.get([FavoriteDesc[type].dataType, value], { fields: ['title', 'parent_id'] });
+        const item = await joplin.data.get([Favorites.getDesc(favorite).dataType, favorite.value], { fields: ['title', 'parent_id'] });
         if (item) {
           let parents: any[] = new Array();
           let parent_id: string = item.parent_id;
@@ -39,13 +39,13 @@ export class Dialog {
         }
 
       case FavoriteType.Tag:
-        const tag = await joplin.data.get([FavoriteDesc[type].dataType, value], { fields: ['title'] });
+        const tag = await joplin.data.get([Favorites.getDesc(favorite).dataType, favorite.value], { fields: ['title'] });
         if (tag) {
           return tag.title;
         }
 
       case FavoriteType.Search:
-        return value;
+        return favorite.value;
 
       default:
         break;
@@ -56,17 +56,17 @@ export class Dialog {
   /**
    * Prepare dialog html content.
    */
-  private async prepareDialogHtml(value: string, title: string, type: FavoriteType): Promise<string> {
-    const path: string = await this.getFullPath(value, type);
-    const disabled: string = (type === FavoriteType.Search) ? '' : 'disabled';
+  private async prepareDialogHtml(favorite: IFavorite): Promise<string> {
+    const path: string = await this.getFullPath(favorite);
+    const disabled: string = (Favorites.isSearch(favorite)) ? '' : 'disabled';
 
     return `
       <div>
-        <h3><i class="fas ${FavoriteDesc[type].icon}"></i>${this._title} ${FavoriteDesc[type].name} Favorite</h3>
+        <h3><i class="fas ${Favorites.getDesc(favorite).icon}"></i>${this._title} ${Favorites.getDesc(favorite).name} Favorite</h3>
         <form name="inputForm">
           <label for="title"><strong>Name</strong></label>
-          <input type="text" id="title" name="title" value="${title}" tabindex="0" autofocus required>
-          <label for="value"><strong>${FavoriteDesc[type].label}</strong></label>
+          <input type="text" id="title" name="title" value="${favorite.title}" tabindex="0" autofocus required>
+          <label for="value"><strong>${Favorites.getDesc(favorite).label}</strong></label>
           <textarea id="value" name="value" rows="3" ${disabled} tabindex="0" required>${path}</textarea>
         </form>
       </div>
@@ -87,8 +87,8 @@ export class Dialog {
   /**
    * Open the dialog width the handled values and return result.
    */
-  async open(value: string, title: string, type: FavoriteType): Promise<DialogResult> {
-    const dialogHtml: string = await this.prepareDialogHtml(value, title, type);
+  async open(favorite: IFavorite): Promise<DialogResult> {
+    const dialogHtml: string = await this.prepareDialogHtml(favorite);
     await joplin.views.dialogs.setHtml(this._dialog, dialogHtml);
     const result: DialogResult = await joplin.views.dialogs.open(this._dialog);
     return result;

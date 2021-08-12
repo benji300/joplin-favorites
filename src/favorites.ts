@@ -36,7 +36,7 @@ interface IFavoriteDesc {
 /**
  * Array of favorite descriptions. Order must match with FavoriteType enum.
  */
-export const FavoriteDesc: IFavoriteDesc[] = [
+const FavoriteDesc: IFavoriteDesc[] = [
   { name: 'Notebook', icon: 'fa-book', dataType: 'folders', label: 'Full path' }, // Folder
   { name: 'Note', icon: 'fa-file-alt', dataType: 'notes', label: 'Full path' }, // Note
   { name: 'To-do', icon: 'fa-check-square', dataType: 'notes', label: 'Full path' }, // Todo
@@ -134,6 +134,13 @@ export class Favorites {
     return false;
   }
 
+  static isSearch(favorite: IFavorite): boolean {
+    if (favorite) {
+      return (favorite.type === FavoriteType.Search);
+    }
+    return false;
+  }
+
   static getDesc(favorite: IFavorite): IFavoriteDesc {
     if (favorite === undefined) return;
     return FavoriteDesc[favorite.type];
@@ -176,12 +183,20 @@ export class Favorites {
   }
 
   /**
+   * Creates new instance of IFavorite.
+   */
+  create(newValue: string, newTitle: string, newType: FavoriteType): IFavorite {
+    const newFavorite: IFavorite = { value: this.encodeHtml(newValue), title: this.encodeHtml(newTitle), type: newType };
+    return newFavorite;
+  }
+
+  /**
    * Adds note as new favorite at the handled index or at the end.
    */
   async add(newValue: string, newTitle: string, newType: FavoriteType, targetIdx?: number) {
     if (newValue === undefined || newTitle === undefined || newType === undefined) return;
 
-    const newFavorite = { value: this.encodeHtml(newValue), title: this.encodeHtml(newTitle), type: newType };
+    const newFavorite = this.create(newValue, newTitle, newType);
     if (targetIdx && targetIdx > 0) {
       this.favorites.splice(targetIdx, 0, newFavorite);
     } else {
