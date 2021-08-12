@@ -8,6 +8,7 @@ import { Dialog } from './dialog';
 
 joplin.plugins.register({
   onStart: async function () {
+    const CLIPBOARD = joplin.clipboard;
     const COMMANDS = joplin.commands;
     const DATA = joplin.data;
     const SETTINGS = joplin.settings;
@@ -134,8 +135,7 @@ joplin.plugins.register({
 
             // currently there's no command to trigger a global search, so the following workaround is used
             // 1. copy saved search to clipboard
-            const copy = require('../node_modules/copy-to-clipboard');
-            copy(favorites.getDecodedValue(favorite));
+            await CLIPBOARD.writeText(favorites.getDecodedValue(favorite));
             // 2. focus global search bar via command
             await COMMANDS.execute('focusSearch');
             // 3. paste clipboard content to current cursor position (should be search bar now)

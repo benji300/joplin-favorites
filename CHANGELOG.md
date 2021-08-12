@@ -14,7 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Bundled font packages (FontAwesome, Roboto); Use built-in versions to decrease plugin size
+- Bundled font packages (FontAwesome, Roboto)
+  - Use built-in versions to decrease plugin size
+- External `copy-to-clipboard` package
+  - Use of clipboard functionality provided by plugin API v2.1.5
 
 ## [1.2.1] - 2021-02-23
 

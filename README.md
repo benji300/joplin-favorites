@@ -4,7 +4,7 @@ Favorites is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.or
 
 It allows to save any notebook, note, to-do, tag, or search as favorite in an extra panel view for quick access.
 
-> :warning: **CAUTION** - Requires Joplin **v1.8.2** or newer
+> :warning: **CAUTION** - Requires Joplin **v2.1.5** or newer
 
 ## Features
 
