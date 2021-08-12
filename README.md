@@ -4,7 +4,7 @@ Favorites is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.or
 
 It allows to save any notebook, note, to-do, tag, or search as favorite in an extra panel view for quick access.
 
-> :warning: **CAUTION** - Requires Joplin **v1.6.5** or newer
+> :warning: **CAUTION** - Requires Joplin **v2.1.5** or newer
 
 ## Features
 
@@ -159,6 +159,11 @@ This plugin adds provides user options which can be changed via `Tools > Options
 You like this plugin as much as I do and it improves your daily work with Joplin?
 
 Then I would be very happy if you buy me a :beer: or :coffee: via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink:
+
+## Contributing
+
+Contributions to this plugin are most welcome. Feel free to open a pull request or an issue.
+Make sure to use conventional [commit messages](https://github.com/pvdlg/conventional-commit-types) if you're creating a pull request.
 
 ## Development
 

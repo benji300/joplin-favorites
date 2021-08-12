@@ -36,7 +36,7 @@ interface IFavoriteDesc {
 /**
  * Array of favorite descriptions. Order must match with FavoriteType enum.
  */
-export const FavoriteDesc: IFavoriteDesc[] = [
+const FavoriteDesc: IFavoriteDesc[] = [
   { name: 'Notebook', icon: 'fa-book', dataType: 'folders', label: 'Full path' }, // Folder
   { name: 'Note', icon: 'fa-file-alt', dataType: 'notes', label: 'Full path' }, // Note
   { name: 'To-do', icon: 'fa-check-square', dataType: 'notes', label: 'Full path' }, // Todo
@@ -97,27 +97,27 @@ export class Favorites {
    * Escapes HTML special characters.
    * From https://github.com/laurent22/joplin/tree/dev/packages/app-cli/tests/support/plugins/toc/src/index.ts
    */
-  private encodeHtml(unsafe: string): string {
-    return unsafe
+  private encodeHtml(unsafe: string, trim: boolean): string {
+    let val: string = unsafe
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;")
-      .trim();
+      .replace(/'/g, "&#039;");
+    return trim ? val.trim() : val;
   }
 
   /**
    * Decodes escaped HTML characters back.
    */
-  private decodeHtml(unsafe: string): string {
-    return unsafe
+  private decodeHtml(unsafe: string, trim: boolean): string {
+    let val: string = unsafe
       .replace(/&amp;/g, "&")
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
       .replace(/&quot;/g, '"')
-      .replace(/&#039;/g, "'")
-      .trim();
+      .replace(/&#039;/g, "'");
+    return trim ? val.trim() : val;
   }
 
   static isNote(favorite: IFavorite): boolean {
@@ -130,6 +130,13 @@ export class Favorites {
   static isTodo(favorite: IFavorite): boolean {
     if (favorite) {
       return (favorite.type === FavoriteType.Todo);
+    }
+    return false;
+  }
+
+  static isSearch(favorite: IFavorite): boolean {
+    if (favorite) {
+      return (favorite.type === FavoriteType.Search);
     }
     return false;
   }
@@ -153,7 +160,7 @@ export class Favorites {
    */
   getDecodedValue(favorite: IFavorite): string {
     if (favorite === undefined) return;
-    return this.decodeHtml(favorite.value);
+    return this.decodeHtml(favorite.value, !Favorites.isSearch(favorite));
   }
 
   /**
@@ -176,12 +183,24 @@ export class Favorites {
   }
 
   /**
+   * Creates new instance of IFavorite.
+   */
+  create(newValue: string, newTitle: string, newType: FavoriteType): IFavorite {
+    const newFavorite: IFavorite = {
+      value: this.encodeHtml(newValue, (newType != FavoriteType.Search)),
+      title: this.encodeHtml(newTitle, true),
+      type: newType
+    };
+    return newFavorite;
+  }
+
+  /**
    * Adds note as new favorite at the handled index or at the end.
    */
   async add(newValue: string, newTitle: string, newType: FavoriteType, targetIdx?: number) {
     if (newValue === undefined || newTitle === undefined || newType === undefined) return;
 
-    const newFavorite = { value: this.encodeHtml(newValue), title: this.encodeHtml(newTitle), type: newType };
+    const newFavorite = this.create(newValue, newTitle, newType);
     if (targetIdx && targetIdx > 0) {
       this.favorites.splice(targetIdx, 0, newFavorite);
     } else {
@@ -191,12 +210,12 @@ export class Favorites {
   }
 
   /**
-   * Changes the title of the handled favorite.
+   * Changes the value of the handled favorite.
    */
   async changeValue(index: number, newValue: string) {
     if (index < 0 || newValue === undefined || newValue === '') return;
 
-    this.favorites[index].value = this.encodeHtml(newValue);
+    this.favorites[index].value = this.encodeHtml(newValue, (this.favorites[index].type != FavoriteType.Search));
     await this.store();
   }
 
@@ -206,7 +225,7 @@ export class Favorites {
   async changeTitle(index: number, newTitle: string) {
     if (index < 0 || newTitle === undefined || newTitle === '') return;
 
-    this.favorites[index].title = this.encodeHtml(newTitle);
+    this.favorites[index].title = this.encodeHtml(newTitle, true);
     await this.store();
   }
 

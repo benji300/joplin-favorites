@@ -8,6 +8,7 @@ import { Dialog } from './dialog';
 
 joplin.plugins.register({
   onStart: async function () {
+    const CLIPBOARD = joplin.clipboard;
     const COMMANDS = joplin.commands;
     const DATA = joplin.data;
     const SETTINGS = joplin.settings;
@@ -82,7 +83,7 @@ joplin.plugins.register({
         if (showDialog) {
 
           // open dialog and handle result
-          const result: any = await addDialog.open(value, newTitle, type);
+          const result: any = await addDialog.open(favorites.create(newValue, newTitle, type));
           if (result.id == 'ok' && result.formData != null) {
             newTitle = result.formData.inputForm.title;
             if (result.formData.inputForm.value)
@@ -134,8 +135,7 @@ joplin.plugins.register({
 
             // currently there's no command to trigger a global search, so the following workaround is used
             // 1. copy saved search to clipboard
-            const copy = require('../node_modules/copy-to-clipboard');
-            copy(favorites.getDecodedValue(favorite));
+            await CLIPBOARD.writeText(favorites.getDecodedValue(favorite));
             // 2. focus global search bar via command
             await COMMANDS.execute('focusSearch');
             // 3. paste clipboard content to current cursor position (should be search bar now)
@@ -159,7 +159,7 @@ joplin.plugins.register({
         if (!favorite) return;
 
         // open dialog and handle result
-        const result: any = await editDialog.open(favorite.value, favorite.title, favorite.type);
+        const result: any = await editDialog.open(favorite);
         if (result.id == "ok" && result.formData != null) {
           await favorites.changeTitle(index, result.formData.inputForm.title);
           await favorites.changeValue(index, result.formData.inputForm.value);
@@ -272,7 +272,7 @@ joplin.plugins.register({
     // Desc: Toggle panel visibility
     await COMMANDS.register({
       name: 'favsToggleVisibility',
-      label: 'Toggle Favorites panel visibility',
+      label: 'Toggle Favorites visibility',
       iconName: 'fas fa-eye-slash',
       execute: async () => {
         await panel.toggleVisibility();

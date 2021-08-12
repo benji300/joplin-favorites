@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - None
 
+## [1.3.0] - 2021-08-12
+
+### Changed
+
+- Updated plugin API to version v1.8.2 (`registerSettings`) to support app version v2.2.4 or newer
+- Do not trim search queries (whitespaces before or after won't be removed)
+
+### Removed
+
+- Bundled font packages (FontAwesome, Roboto)
+  - Use built-in versions to decrease plugin size
+- External `copy-to-clipboard` package
+  - Use of clipboard functionality provided by plugin API v2.1.5
+
 ## [1.2.1] - 2021-02-23
 
 ### Fixed

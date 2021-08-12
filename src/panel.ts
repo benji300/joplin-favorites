@@ -17,7 +17,6 @@ export class Panel {
    */
   async register() {
     this._panel = await joplin.views.panels.create('favorites.panel');
-    await joplin.views.panels.addScript(this._panel, './assets/fontawesome/css/all.min.css');
     await joplin.views.panels.addScript(this._panel, './webview.css');
     await joplin.views.panels.addScript(this._panel, './webview.js');
     await joplin.views.panels.onMessage(this._panel, async (message: any) => {
@@ -49,7 +48,7 @@ export class Panel {
 
     // set init message
     await joplin.views.panels.setHtml(this._panel, `
-      <div id="container" style="background:${this._settings.background};font-family:'${this._settings.fontFamily}',sans-serif;font-size:${this._settings.fontSize};">
+      <div id="container" style="background:${this._settings.background};font-family:${this._settings.fontFamily},sans-serif;font-size:${this._settings.fontSize};">
         <div id="favs-container">
           <p style="padding-left:8px;">Loading panel...</p>
         </div>
@@ -119,7 +118,7 @@ export class Panel {
 
     // add entries to container and push to panel
     await joplin.views.panels.setHtml(this._panel, `
-      <div id="container" style="background:${this._settings.background};font-family:'${this._settings.fontFamily}',sans-serif;font-size:${this._settings.fontSize};">
+      <div id="container" style="background:${this._settings.background};font-family:${this._settings.fontFamily},sans-serif;font-size:${this._settings.fontSize};">
         ${panelTitleHtml}
         <div id="favs-container" draggable="${this._settings.enableDragAndDrop}"
           ondragover="dragOver(event, '${this._settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);"
