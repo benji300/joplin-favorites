@@ -121,7 +121,7 @@ To open a saved search follow this workaround:
 
 ### Match with sidebar look
 
-If you placed the favorites panel in the sidebar above or below the notebooks and tags (see [here](#favorites-in-sidebar-vertical-layout)), you may also want to customize the look of this panel to match the sidebar.
+If you placed the favorites panel in the sidebar above or below the notebooks and tags (as shown [here](#favorites-in-sidebar-vertical-layout)), you may also want to customize the look of this panel to match the sidebar.
 To do this, you can apply the following settings in the plugin advanced options. This will make the panel look the same as the actual sidebar, regardless of the app theme. Just copy and paste the following values:
 
 - Background color: `var(--joplin-background-color2)`
