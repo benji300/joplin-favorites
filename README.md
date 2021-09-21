@@ -119,6 +119,20 @@ To open a saved search follow this workaround:
 - This will also set the focus to the global search bar
 - Paste the clipboard content to the search bar and press `Enter`
 
+### Match with sidebar look
+
+If you placed the favorites panel in the sidebar above or below the notebooks and tags, you may also want to customize the look of this panel to match the sidebar.
+To do this, you can apply the following settings in the plugin advanced options. This will make the panel look the same as the actual sidebar, regardless of the app theme. Just copy and paste the following values:
+
+- Background color: `var(--joplin-background-color2)`
+- Hover background color: `var(--joplin-background-hover)`
+- Foreground color: `var(--joplin-color2)`
+- Divider color: `var(--joplin-background-color2)`
+
+Then you're settings should look like:
+
+![favorites-top-horizontal](./assets/settings-sidebar-styles.png)
+
 ## Commands
 
 This plugin provides additional commands as described in the following table.
