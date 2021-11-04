@@ -133,6 +133,8 @@ Then you're settings should look like:
 
 ![favorites-top-horizontal](./assets/settings-sidebar-styles.png)
 
+> :warning: **CAUTION** - After changing the style of the favorites panel as described above, a small white border will appear below the panel. It is created by the App, not the plugin. Pleas see [here](https://github.com/benji300/joplin-favorites/issues/10) for details.
+
 ## Commands
 
 This plugin provides additional commands as described in the following table.
