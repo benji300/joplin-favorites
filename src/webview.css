@@ -76,7 +76,7 @@ input.title:hover {
   background: none;
   cursor: default;
 }
-input.title:focus {
+input.title:not([readonly]):focus {
   border-color: var(--joplin-warning-background-color);
   border-radius: 3px;
   border-style: solid;
@@ -84,6 +84,9 @@ input.title:focus {
   margin-right: 8px;
   outline: none;
   padding: 3px 1px;
+}
+input.title[readonly]:focus {
+  outline: none;
 }
 
 .controls {
