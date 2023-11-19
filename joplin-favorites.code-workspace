@@ -42,7 +42,7 @@
       },
       {
         "label": "$(tag) Release Plugin",
-        "command": "npm run release",
+        "command": "npm publish",
         "group": "build",
         "type": "shell"
       },
