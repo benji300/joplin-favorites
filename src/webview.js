@@ -46,7 +46,7 @@ function openDialog(event) {
 
 function enableEdit(element, value) {
   editStarted = value;
-  element.disabled = (!value);
+  element.readOnly = (!value);
   element.focus();
   element.select();
 }
