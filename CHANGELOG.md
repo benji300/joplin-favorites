@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - None
 
+## [1.3.1] - 2023-11-19
+
+### Fixed
+
+- Opening a favorited item often doesn't work with Electron 26 ([#26](https://github.com/benji300/joplin-favorites/issues/26) by [@personalizedrefrigerator](https://github.com/personalizedrefrigerator))
+
 ## [1.3.0] - 2021-08-12
 
 ### Changed
@@ -27,14 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Issue that caused infinite message loop between plugin and app ([#7](https://github.com/benji300/joplin-note-tabs/issues/7))
-- Ability to drag note favorites onto [note-tabs plugin](https://github.com/benji300/joplin-note-tabs) panel
+- Issue that caused infinite message loop between plugin and app ([#7](https://github.com/benji300/joplin-favorites/issues/7))
+- Ability to drag note favorites onto [note-tabs plugin](https://github.com/benji300/joplin-favorites) panel
 
 ## [1.2.0] - 2021-02-17
 
 ### Added
 
-- Ability to drag & drop notes from [note-tabs plugin](https://github.com/benji300/joplin-note-tabs) to add as favorite
+- Ability to drag & drop notes from [note-tabs plugin](https://github.com/benji300/joplin-favorites) to add as favorite
 - Ability to rename and delete favorites directly in panel (vertical layout only)
   - Via new hover buttons on the right side
 
