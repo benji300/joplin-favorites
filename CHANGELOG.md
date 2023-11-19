@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - None
 
+## [1.3.2] - 2023-11-19
+
+### Fixed
+
+- Plugin version in `manifest.json`
+
 ## [1.3.1] - 2023-11-19
 
 ### Fixed
