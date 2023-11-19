@@ -37,7 +37,8 @@
       {
         "label": "Build Plugin",
         "command": "npm run dist",
-        "type": "shell"
+        "type": "shell",
+        "problemMatcher": []
       },
       {
         "label": "$(tag) Release Plugin",
