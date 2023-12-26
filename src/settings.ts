@@ -123,7 +123,8 @@ export class Settings {
         type: SettingItemType.Array,
         section: 'favorites.settings',
         public: false,
-        label: 'Favorites'
+        label: 'Favorites',
+        storage: 2
       },
       // general settings
       enableDragAndDrop: {
@@ -132,7 +133,8 @@ export class Settings {
         section: 'favorites.settings',
         public: true,
         label: 'Enable drag & drop of favorites',
-        description: 'If enabled, the position of favorites can be change via drag & drop.'
+        description: 'If enabled, the position of favorites can be change via drag & drop.',
+        storage: 2
       },
       editBeforeAdd: {
         value: this._editBeforeAdd,
@@ -140,7 +142,8 @@ export class Settings {
         section: 'favorites.settings',
         public: true,
         label: 'Edit favorite before add',
-        description: 'Opens a dialog to edit the favorite before adding it. If disabled, the name can still be changed later.'
+        description: 'Opens a dialog to edit the favorite before adding it. If disabled, the name can still be changed later.',
+        storage: 2
       },
       showPanelTitle: {
         value: this._showPanelTitle,
@@ -148,7 +151,8 @@ export class Settings {
         section: 'favorites.settings',
         public: true,
         label: 'Show favorites panel title',
-        description: "Display 'FAVORITES' title in front of the favorites."
+        description: "Display 'FAVORITES' title in front of the favorites.",
+        storage: 2
       },
       showTypeIcons: {
         value: this._showTypeIcons,
@@ -156,7 +160,8 @@ export class Settings {
         section: 'favorites.settings',
         public: true,
         label: 'Show type icons for favorites',
-        description: 'Display icons before favorite titles representing the types (notebook, note, tag, etc.).'
+        description: 'Display icons before favorite titles representing the types (notebook, note, tag, etc.).',
+        storage: 2
       },
       lineHeight: {
         value: this._lineHeight,
@@ -165,7 +170,8 @@ export class Settings {
         public: true,
         minimum: 20,
         label: 'Line height (px)',
-        description: 'Line height of the favorites panel.'
+        description: 'Line height of the favorites panel.',
+        storage: 2
       },
       minFavoriteWidth: {
         value: this._minFavoriteWidth,
@@ -173,7 +179,8 @@ export class Settings {
         section: 'favorites.settings',
         public: true,
         label: 'Minimum favorite width (px)',
-        description: 'Minimum width of one favorite in pixel.'
+        description: 'Minimum width of one favorite in pixel.',
+        storage: 2
       },
       maxFavoriteWidth: {
         value: this._maxFavoriteWidth,
@@ -181,7 +188,8 @@ export class Settings {
         section: 'favorites.settings',
         public: true,
         label: 'Maximum favorite width (px)',
-        description: 'Maximum width of one favorite in pixel.'
+        description: 'Maximum width of one favorite in pixel.',
+        storage: 2
       },
 
       // advanced settings
@@ -192,7 +200,8 @@ export class Settings {
         public: true,
         advanced: true,
         label: 'Font family',
-        description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: App default)"
+        description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: App default)",
+        storage: 2
       },
       fontSize: {
         value: this._fontSize,
@@ -201,7 +210,8 @@ export class Settings {
         public: true,
         advanced: true,
         label: 'Font size',
-        description: "Font size used in the panel. Values other than 'default' must be specified in valid CSS syntax, e.g. '13px'. (default: App default font size)"
+        description: "Font size used in the panel. Values other than 'default' must be specified in valid CSS syntax, e.g. '13px'. (default: App default font size)",
+        storage: 2
       },
       mainBackground: {
         value: this._background,
@@ -210,7 +220,8 @@ export class Settings {
         public: true,
         advanced: true,
         label: 'Background color',
-        description: 'Main background color of the panel. (default: Note list background color)'
+        description: 'Main background color of the panel. (default: Note list background color)',
+        storage: 2
       },
       hoverBackground: {
         value: this._hoverBackground,
@@ -219,7 +230,8 @@ export class Settings {
         public: true,
         advanced: true,
         label: 'Hover Background color',
-        description: 'Background color used when hovering a favorite. (default: Note list hover color)'
+        description: 'Background color used when hovering a favorite. (default: Note list hover color)',
+        storage: 2
       },
       mainForeground: {
         value: this._foreground,
@@ -228,7 +240,8 @@ export class Settings {
         public: true,
         advanced: true,
         label: 'Foreground color',
-        description: 'Foreground color used for text and icons. (default: App faded color)'
+        description: 'Foreground color used for text and icons. (default: App faded color)',
+        storage: 2
       },
       dividerColor: {
         value: this._dividerColor,
@@ -237,7 +250,8 @@ export class Settings {
         public: true,
         advanced: true,
         label: 'Divider color',
-        description: 'Color of the divider between the favorites. (default: App default border color)'
+        description: 'Color of the divider between the favorites. (default: App default border color)',
+        storage: 2
       }
     });
     this._favs = await joplin.settings.value('favorites');
